@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paiement pack | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+</head>
+<body>
+<header class="siteHeader">
+  <div class="container headerRow">
+    <a class="brand" href="index.html" aria-label="DevisExpress974">
+      <span class="brandIcon" aria-hidden="true">⚡</span>
+      <span class="brandText">
+        <span class="brandName">DevisExpress974</span>
+        <span class="brandTagline">Une seule demande, plusieurs devis</span>
+      </span>
+    </a>
+
+    <button class="navToggle" id="navToggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="siteNav">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="topNav" id="siteNav" aria-label="Navigation">
+      <a class="navLink" href="index.html">Accueil</a>
+      <a class="navLink" href="demande.html">Je cherche un service</a>
+      <a class="navLink" href="mur-demandes.html">Mur des demandes</a>
+      <a class="navLink" href="offreurs.html">Les offreurs</a>
+      <a class="navLink" href="info-tarifs.html">Infos &amp; Tarifs</a>
+      <a class="navLink" href="contact.html">Contact</a>
+
+      <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="navLink mobileOnly navCtaMobile" id="logoutMobileBtn" type="button">Se déconnecter</button>
+
+    </nav>
+
+    <div id="headerRight" class="headerRight">
+      <a class="navCta" id="loginCta" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="btn" id="logoutBtn" type="button" style="display:none;">Se déconnecter</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="pageTitle">Paiement pack</h1>
+      <p class="pageLead">Un <strong>paiement unique</strong> pour un lot d’accès (selon le pack PayPal).</p>
+
+      <div class="hr"></div>
+
+      <div class="priceRow">
+        <div class="priceRowLeft">
+          <div class="muted">Paiement PayPal</div>
+          <div class="small muted">Si le bouton ne s’affiche pas (bloqueur), utilise le lien PayPal.</div>
+        </div>
+        <div class="priceRowRight">
+          <a id="paypalLink" class="btn" href="#" target="_blank" rel="noopener" style="display:none;">Ouvrir PayPal</a>
+        </div>
+      </div>
+
+      <div class="paypalWrap">
+        <div id="paypal-container-pack"></div>
+      </div>
+
+      <div id="paypalMissing" class="notice warn" style="display:none; margin-top:12px;">
+        Bouton PayPal pack non configuré pour le moment.
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="actionsRow">
+        <a class="btn" href="mur-demandes.html">Aller au mur des demandes</a>
+        <a class="btn" href="contact.html">Contact</a>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="paypal-config.js?v=27"></script>
+<script>
+  (function(){
+    var cfg = (window.DX_PAYPAL && window.DX_PAYPAL.pack) ? window.DX_PAYPAL.pack : null;
+    var link = document.getElementById('paypalLink');
+    var missing = document.getElementById('paypalMissing');
+    if (cfg && cfg.ncpLink) {
+      link.href = cfg.ncpLink;
+      link.style.display = '';
+    }
+    if (cfg && cfg.hostedButtonId && window.DX_PAYPAL && window.DX_PAYPAL.hostedClientId) {
+      var s = document.createElement('script');
+      s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(window.DX_PAYPAL.hostedClientId) + '&components=hosted-buttons&disable-funding=venmo&currency=EUR';
+      s.onload = function(){
+        try {
+          if (window.paypal && paypal.HostedButtons) {
+            paypal.HostedButtons({ hostedButtonId: cfg.hostedButtonId }).render('#paypal-container-pack');
+          }
+        } catch(e){ console.warn(e); }
+      };
+      document.head.appendChild(s);
+    } else {
+      missing.style.display = '';
+    }
+  })();
+</script>
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+</body>
+</html>

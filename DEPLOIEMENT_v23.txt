@@ -1,0 +1,11 @@
+DEPLOIEMENT v23
+
+1) Déploie ce dossier sur Netlify.
+2) Test PING (URL correcte) :
+   https://devisexpress974.netlify.app/.netlify/functions/gas?action=ping
+
+⚠️ Ton erreur d'avant venait d'une URL mal tapée :
+   https://https//devisexpress974...
+
+Le proxy Netlify est maintenant FIX (gas.js complet, sans "..." + fallback GAS intégré):
+https://script.google.com/macros/s/AKfycbwb4qKG6EDlHborHOJgtVTkD-2ujfbmhqqOwgnNMTfFqUtkXek-YiZ1CBNnvYJOhXQm/exec

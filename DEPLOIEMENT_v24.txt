@@ -1,0 +1,14 @@
+DEPLOIEMENT v24 (SCHEMA FIX)
+
+Symptôme: listDemandesPublic renvoie des objets sans "id/service/zone" => JSON omet les champs (undefined).
+Cause: l'onglet "Demandes" a de mauvais en-têtes (colonne header non conforme).
+
+Fix: ce Code.gs v24 renomme automatiquement la feuille "Demandes" si les headers ne correspondent pas, puis recrée une feuille propre.
+=> Les nouvelles demandes s'enregistrent correctement, apparaissent sur le mur, et déclenchent les mails offreurs.
+
+Étapes:
+1) Dans Apps Script: remplace Code.gs par apps-script/Code.gs de ce dossier.
+2) Déploie (ou met à jour) le WebApp.
+3) Test:
+   https://devisexpress974.netlify.app/.netlify/functions/gas?action=ping
+   https://devisexpress974.netlify.app/.netlify/functions/gas?action=listDemandesPublic

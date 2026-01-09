@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Publier une demande | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+</head>
+<body>
+<header class="siteHeader">
+  <div class="container headerRow">
+    <a class="brand" href="index.html" aria-label="DevisExpress974">
+      <span class="brandIcon" aria-hidden="true">⚡</span>
+      <span class="brandText">
+        <span class="brandName">DevisExpress974</span>
+        <span class="brandTagline">Une seule demande, plusieurs devis</span>
+      </span>
+    </a>
+
+    <button class="navToggle" id="navToggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="siteNav">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="topNav" id="siteNav" aria-label="Navigation">
+      <a class="navLink" href="index.html">Accueil</a>
+      <a class="navLink" href="demande.html">Je cherche un service</a>
+      <a class="navLink" href="mur-demandes.html">Mur des demandes</a>
+      <a class="navLink" href="offreurs.html">Les offreurs</a>
+      <a class="navLink" href="info-tarifs.html">Infos &amp; Tarifs</a>
+      <a class="navLink" href="contact.html">Contact</a>
+
+      <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="navLink mobileOnly navCtaMobile" id="logoutMobileBtn" type="button">Se déconnecter</button>
+
+    </nav>
+
+    <div id="headerRight" class="headerRight">
+      <a class="navCta" id="loginCta" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="btn" id="logoutBtn" type="button" style="display:none;">Se déconnecter</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="heroTitle" style="font-size:42px;">Publier une demande</h1>
+      <p class="heroSub">Les prestataires voient ta demande sur le mur, sans tes coordonnées. Ils débloquent pour te contacter.</p>
+
+      <div class="statsRow">
+        <div class="statBlock">
+          <div class="statValue">Coordonnées masquées</div>
+          <div class="statLabel">sur le mur public</div>
+        </div>
+        <div class="statBlock">
+          <div class="statValue">Publication rapide</div>
+          <div class="statLabel">en 2 minutes</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pad" style="margin-top:16px;">
+      <form id="demandeForm" novalidate>
+        <div class="formGrid">
+          <div class="field">
+            <label for="service">Type de service <span class="req">*</span></label>
+            <div class="selectWrap">
+              <select id="service" required>
+                <option value="">Choisir un service…</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="serviceAutre">Autre (si besoin)</label>
+            <input id="serviceAutre" class="input" type="text" placeholder="Optionnel">
+          </div>
+
+          <div class="field">
+            <label for="zone">Zone <span class="req">*</span></label>
+            <div class="selectWrap">
+              <select id="zone" required>
+                <option value="">Choisir une zone…</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="commune">Commune <span class="req">*</span></label>
+            <div class="selectWrap">
+              <select id="commune" required>
+                <option value="">Choisir une commune…</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label for="description">Décris ton besoin <span class="req">*</span></label>
+            <textarea id="description" required placeholder="Ex : je cherche un plombier pour…"></textarea>
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label for="attachments">Pièces jointes (max 3)</label>
+            <input id="attachments" class="input" type="file" multiple accept=".jpg,.jpeg,.png,.pdf" />
+            <div class="muted small">Formats : JPG, PNG, PDF. Taille conseillée : 1,5 Mo max par fichier.</div>
+          </div>
+
+
+          <div class="field">
+            <label for="budget">Budget (optionnel)</label>
+            <input id="budget" class="input" type="number" min="0" step="1" placeholder="Ex : 200">
+          </div>
+
+          <div class="field">
+            <label for="nom">Nom / prénom <span class="req">*</span></label>
+            <input id="nom" class="input" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="tel">Téléphone <span class="req">*</span></label>
+            <input id="tel" class="input" type="tel" required placeholder="0692…">
+          </div>
+
+          <div class="field">
+            <label for="email">Email <span class="req">*</span></label>
+            <input id="email" class="input" type="email" required placeholder="nom@email.com">
+          </div>
+        </div>
+
+        <div class="formActions">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btnPrimary" type="submit" id="btnPublish">Publier</button>
+            <a class="btn" href="mur-demandes.html">Voir le mur</a>
+          </div>
+          <div class="notice muted" id="formHint">Les champs marqués * sont obligatoires.</div>
+        </div>
+
+        <div id="msg" class="notice" style="display:none;"></div>
+      </form>
+    </section>
+  </div>
+</main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+<script src="demande.js?v=27"></script>
+</body>
+</html>

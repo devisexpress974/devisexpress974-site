@@ -1,0 +1,7 @@
+DevisExpress974 (v14) — Déploiement rapide
+1) Apps Script : coller apps-script/Code.gs dans Code.gs (remplacer tout), puis Déployer > Nouveau déploiement > Type: Application Web
+   - Exécuter en tant que: Moi
+   - Accès: Tout le monde
+   - Copier l'URL /exec
+2) Netlify : ajouter variable d'environnement GAS_URL = <URL /exec>
+3) Déployer ce dossier sur Netlify (drag & drop ou git)
