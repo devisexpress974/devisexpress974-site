@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DevisExpress974 — Une seule demande, plusieurs devis | DevisExpress974</title>
+  <title>DevisExpress974 — Une seule demande, plusieurs devis</title>
 
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
+  <!-- Ton fichier dans le dossier s'appelle bien styles.css -->
   <link rel="stylesheet" href="styles.css?v=27" />
 </head>
 
@@ -39,8 +40,12 @@
       <a class="navLink" href="info-tarifs.html">Infos &amp; Tarifs</a>
       <a class="navLink" href="contact.html">Contact</a>
 
-      <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">S'identifier (Offreur)</a>
-      <button class="navLink mobileOnly navCtaMobile" id="logoutMobileBtn" type="button">Se déconnecter</button>
+      <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">
+        S'identifier (Offreur)
+      </a>
+      <button class="navLink mobileOnly navCtaMobile" id="logoutMobileBtn" type="button">
+        Se déconnecter
+      </button>
     </nav>
 
     <div id="headerRight" class="headerRight">
@@ -53,10 +58,12 @@
 <main>
   <div class="container">
 
+    <!-- HERO -->
     <section class="card pad">
       <div class="heroGrid">
         <div>
           <h1 class="heroTitle">Une seule demande.<br>Plusieurs prestataires. Tu choisis.</h1>
+
           <p class="heroSub">
             Dépose ta demande en 2 minutes, sur toute l'île. Elle apparaît sur le mur (sans coordonnées).
             Les prestataires débloquent selon leur formule et te contactent directement.
@@ -78,7 +85,7 @@
               <div class="statLabel">Les offreurs te contactent</div>
             </div>
             <div class="statBlock">
-              <div class="statValue">0 frais</div>
+              <div class="statValue">0 €</div>
               <div class="statLabel">Pour le demandeur</div>
             </div>
           </div>
@@ -94,26 +101,27 @@
       </div>
     </section>
 
+    <!-- CATEGORIES -> redirige vers LES OFFREURS -->
     <section class="card pad" style="margin-top:16px;">
       <h2 class="sectionTitle">Quel service cherches-tu ?</h2>
       <p class="muted">Choisis une catégorie : tu verras les offreurs correspondants (coordonnées masquées).</p>
 
       <div class="btnRow" style="margin-top:10px;">
-        <a class="btn" href="offreurs.html?service=Bâtiment%20%2F%20Travaux">Bâtiment / Travaux</a>
+        <a class="btn" href="offreurs.html?service=B%C3%A2timent%20%2F%20Travaux">Bâtiment / Travaux</a>
         <a class="btn" href="offreurs.html?service=Plomberie">Plomberie</a>
-        <a class="btn" href="offreurs.html?service=Électricité">Électricité</a>
+        <a class="btn" href="offreurs.html?service=%C3%89lectricit%C3%A9">Électricité</a>
         <a class="btn" href="offreurs.html?service=Jardinage">Jardinage</a>
-        <a class="btn" href="offreurs.html?service=Ménage%20%2F%20Nettoyage">Ménage / Nettoyage</a>
+        <a class="btn" href="offreurs.html?service=M%C3%A9nage%20%2F%20Nettoyage">Ménage / Nettoyage</a>
         <a class="btn" href="offreurs.html?service=Informatique">Informatique</a>
-        <a class="btn" href="offreurs.html?service=Beauté%20%2F%20Coiffure%20%2F%20Esthétique">Beauté / Coiffure / Esthétique</a>
+        <a class="btn" href="offreurs.html?service=Beaut%C3%A9%20%2F%20Coiffure%20%2F%20Esth%C3%A9tique">Beauté / Coiffure / Esthétique</a>
         <a class="btn" href="offreurs.html?service=Coaching%20%2F%20Formation">Coaching / Formation</a>
-        <a class="btn" href="offreurs.html?service=Auto%20%2F%20Moto%20-%20Réparation">Auto / Moto - Réparation</a>
+        <a class="btn" href="offreurs.html?service=Auto%20%2F%20Moto%20-%20R%C3%A9paration">Auto / Moto - Réparation</a>
         <a class="btn" href="offreurs.html?service=Auto%20%2F%20Moto%20-%20Vente">Auto / Moto - Vente</a>
-        <a class="btn" href="offreurs.html?service=Déménagement">Déménagement</a>
-        <a class="btn" href="offreurs.html?service=Services%20à%20la%20personne">Services à la personne</a>
+        <a class="btn" href="offreurs.html?service=D%C3%A9m%C3%A9nagement">Déménagement</a>
+        <a class="btn" href="offreurs.html?service=Services%20%C3%A0%20la%20personne">Services à la personne</a>
         <a class="btn" href="offreurs.html?service=Restauration%20%2F%20Traiteur">Restauration / Traiteur</a>
-        <a class="btn" href="offreurs.html?service=Événementiel">Événementiel</a>
-        <a class="btn" href="offreurs.html?service=Location%20de%20matériel">Location de matériel</a>
+        <a class="btn" href="offreurs.html?service=%C3%89v%C3%A9nementiel">Événementiel</a>
+        <a class="btn" href="offreurs.html?service=Location%20de%20mat%C3%A9riel">Location de matériel</a>
         <a class="btn" href="offreurs.html?service=Autre">Autre</a>
       </div>
 
@@ -122,6 +130,7 @@
       </div>
     </section>
 
+    <!-- COMMENT CA MARCHE -->
     <section class="card pad" style="margin-top:16px;">
       <h2 class="sectionTitle">Comment ça marche ?</h2>
 
@@ -147,6 +156,7 @@
       </div>
     </section>
 
+    <!-- INFOS & TARIFS -->
     <section class="card pad" style="margin-top:16px;">
       <h2 class="sectionTitle">Infos &amp; Tarifs</h2>
 
@@ -202,12 +212,12 @@
   </div>
 </footer>
 
+<!-- SCRIPTS (UNE SEULE FOIS, PAS DE DOUBLON) -->
 <script src="api.js?v=27"></script>
 <script src="auth.js?v=27"></script>
 <script src="main.js?v=27"></script>
 <script src="video-helper.js?v=27"></script>
 
-<!-- test push -->
-
 </body>
 </html>
+
