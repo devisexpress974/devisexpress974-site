@@ -42,7 +42,21 @@ img{ max-width:100%; display:block; }
 }
 .brandIcon svg{ width:18px;height:18px; fill:var(--brand); }
 .brandText{ display:flex; flex-direction:column; line-height:1.05; min-width:0; }
-.brandName{ font-weight:1000; color:var(--brand); font-size:20px; white-space:nowrap; }
+.brandName{
+  font-weight:1000;
+  color:var(--brand);
+  font-size:20px;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.brandName::before{
+  content:"⚡";
+  font-size:1.05em;
+  line-height:1;
+  filter: drop-shadow(0 0 6px rgba(255, 170, 0, .45));
+}
 .brandTagline{
   font-weight:800; color:var(--muted); font-size:13px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
