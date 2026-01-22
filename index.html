@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
@@ -8,8 +8,10 @@
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <meta name="theme-color" content="#ff3b0a" />
 
-  <link rel="stylesheet" href="styles.css?v=28" />
+  <!-- IMPORTANT : ./ pour que ça marche aussi en local (fichier://) -->
+  <link rel="stylesheet" href="./styles.css?v=29" />
 </head>
 
 <body>
@@ -18,11 +20,11 @@
   <div class="container headerRow">
     <a class="brand" href="index.html" aria-label="DevisExpress974">
       <span class="brandIcon" aria-hidden="true">
-        <img class="brandLogo" src="logo-devisexpress974.png" alt="">
+        <img class="brandLogo" src="./logo-devisexpress974.png" alt="Logo DevisExpress974">
       </span>
       <span class="brandText">
         <span class="brandName">DevisExpress974</span>
-        <span class="brandTagline">1 clic – plusieurs devis – 100% 974 — MAJ_OK_15012026</span>
+        <span class="brandTagline">1 clic – plusieurs devis – 100% 974</span>
       </span>
     </a>
 
@@ -39,6 +41,7 @@
       <a class="navLink" href="info-tarifs.html">Infos &amp; Tarifs</a>
       <a class="navLink" href="contact.html">Contact</a>
 
+      <!-- Mobile only -->
       <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">
         S'identifier (Offreur)
       </a>
@@ -47,6 +50,7 @@
       </button>
     </nav>
 
+    <!-- Desktop right -->
     <div id="headerRight" class="headerRight">
       <a class="navCta" id="loginCta" href="offreur-login.html">S'identifier (Offreur)</a>
       <button class="btn" id="logoutBtn" type="button" style="display:none;">Se déconnecter</button>
@@ -91,7 +95,10 @@
 
         <div class="videoBox" aria-label="Vidéo de présentation">
           <div class="videoWrap">
-            <video id="heroVideo" controls muted playsinline preload="auto"></video>
+            <video id="heroVideo" controls muted playsinline preload="metadata">
+              <source src="./video.mp4" type="video/mp4">
+              Votre navigateur ne supporte pas la vidéo.
+            </video>
             <button id="videoPlayBtn" class="videoPlayBtn" type="button" aria-label="Lire la vidéo">▶</button>
           </div>
           <div id="videoMsg" class="videoMsg" style="display:none;"></div>
@@ -207,10 +214,54 @@
   </div>
 </footer>
 
-<script src="api.js?v=28"></script>
-<script src="auth.js?v=28"></script>
-<script src="main.js?v=28"></script>
-<script src="video-helper.js?v=28"></script>
+<!-- tes scripts -->
+<script src="./api.js?v=29"></script>
+<script src="./auth.js?v=29"></script>
+<script src="./main.js?v=29"></script>
+<script src="./video-helper.js?v=29"></script>
+
+<!-- IMPORTANT : burger menu garanti (même si un autre script bug) -->
+<script>
+(function(){
+  // Année
+  var y = document.getElementById("year");
+  if (y) y.textContent = new Date().getFullYear();
+
+  // Burger
+  var btn = document.getElementById("navToggle");
+  var nav = document.getElementById("siteNav");
+  if (!btn || !nav) return;
+
+  function closeMenu(){
+    document.body.classList.remove("navOpen");
+    btn.setAttribute("aria-expanded", "false");
+  }
+  function toggleMenu(){
+    var open = document.body.classList.toggle("navOpen");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  // clique hors du header => ferme
+  document.addEventListener("click", function(e){
+    if (!document.body.classList.contains("navOpen")) return;
+    var insideHeader = e.target.closest(".siteHeader");
+    if (!insideHeader) closeMenu();
+  });
+
+  // lien actif (ignore les paramètres ?service=...)
+  var path = (location.pathname.split("/").pop() || "index.html").split("?")[0];
+  document.querySelectorAll(".topNav .navLink[href]").forEach(function(a){
+    var href = (a.getAttribute("href") || "").split("?")[0];
+    if (href === path) a.classList.add("active");
+  });
+})();
+</script>
 
 </body>
 </html>
+ -->
