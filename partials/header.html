@@ -1,21 +1,9 @@
-<header class="dx-header">
-  <a class="dx-brand" href="index.html" aria-label="Retour à l'accueil DevisExpress974">
-    <img class="dx-logo" src="assets/img/logo-eclair-orange.png" alt="Logo éclair DevisExpress974" />
-    <div class="dx-brand-text">
-      <div class="dx-brand-name">DevisExpress974</div>
-      <div class="dx-brand-slogan">Une seule demande, plusieurs devis</div>
-    </div>
-  </a>
+(async function(){
+  const target = document.getElementById("dx-header-slot");
+  if(!target) return;
 
-  <button class="dx-burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-dx-burger>
-    <span></span><span></span><span></span>
-  </button>
+  const res = await fetch("/partials/header.html", { cache: "no-cache" });
+  target.innerHTML = await res.text();
 
-  <nav class="dx-nav" data-dx-nav>
-    <a href="index.html">Accueil</a>
-    <a href="demandeur.html">Demandeur</a>
-    <a href="offreur-login.html">Offreur</a>
-    <a href="mur-demandes.html">Mur des demandes</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-</header>
+  if (typeof window.__dxInitHeader === "function") window.__dxInitHeader();
+})();
