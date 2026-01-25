@@ -1,9 +1,32 @@
-(async function(){
-  const target = document.getElementById("dx-header-slot");
-  if(!target) return;
+<header class="dx-header" data-dx-header>
+  <div class="dx-header-inner">
+    <a class="dx-brand" href="index.html" aria-label="Retour à l'accueil DevisExpress974">
+      <img class="dx-logo" src="assets/img/logo-eclair-orange.png" alt="Logo DevisExpress974" width="34" height="34" />
+      <span class="dx-brand-text">
+        <span class="dx-brand-name">DevisExpress974</span>
+        <span class="dx-brand-tagline">1 clic - plusieurs devis - 100% 974</span>
+      </span>
+    </a>
 
-  const res = await fetch("/partials/header.html", { cache: "no-cache" });
-  target.innerHTML = await res.text();
+    <nav class="dx-tabs" aria-label="Menu principal">
+      <a class="dx-tab" href="index.html" data-path="index.html">Accueil</a>
+      <a class="dx-tab" href="demande.html" data-path="demande.html">Faire une demande</a>
+      <a class="dx-tab" href="mur-demandes.html" data-path="mur-demandes.html">Mur des demandes</a>
+      <a class="dx-tab" href="offreurs.html" data-path="offreurs.html">Les offreurs</a>
 
-  if (typeof window.__dxInitHeader === "function") window.__dxInitHeader();
-})();
+      <div class="dx-more" data-more>
+        <button class="dx-more-btn" type="button" aria-haspopup="menu" aria-expanded="false">
+          Plus <span class="dx-caret" aria-hidden="true">▾</span>
+        </button>
+
+        <div class="dx-more-menu" role="menu" aria-label="Plus">
+          <a class="dx-menu-item" role="menuitem" href="info-tarifs.html" data-path="info-tarifs.html">Infos &amp; Tarifs</a>
+          <a class="dx-menu-item" role="menuitem" href="contact.html" data-path="contact.html">Contact</a>
+          <a class="dx-menu-item" role="menuitem" href="cgv.html" data-path="cgv.html">CGV</a>
+        </div>
+      </div>
+    </nav>
+
+    <a class="dx-cta" href="offreur-login.html">S'identifier</a>
+  </div>
+</header>

@@ -3,27 +3,57 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Les offreurs | DevisExpress974</title>
+  <title>Mur des demandes | DevisExpress974</title>
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="styles.css?v=27" />
-  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
 </head>
 <body>
+<header class="siteHeader">
+  <div class="container headerRow">
+    <a class="brand" href="index.html" aria-label="DevisExpress974">
+      <span class="brandIcon" aria-hidden="true">⚡</span>
+      <span class="brandText">
+        <span class="brandName">DevisExpress974</span>
+        <span class="brandTagline">Une seule demande, plusieurs devis</span>
+      </span>
+    </a>
 
-  <div id="dx-header"></div>
+    <button class="navToggle" id="navToggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="siteNav">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="topNav" id="siteNav" aria-label="Navigation">
+      <a class="navLink" href="index.html">Accueil</a>
+      <a class="navLink" href="demande.html">Je cherche un service</a>
+      <a class="navLink" href="mur-demandes.html">Mur des demandes</a>
+      <a class="navLink" href="offreurs.html">Les offreurs</a>
+      <a class="navLink" href="info-tarifs.html">Infos &amp; Tarifs</a>
+      <a class="navLink" href="contact.html">Contact</a>
+
+      <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="navLink mobileOnly navCtaMobile" id="logoutMobileBtn" type="button">Se déconnecter</button>
+
+    </nav>
+
+    <div id="headerRight" class="headerRight">
+      <a class="navCta" id="loginCta" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="btn" id="logoutBtn" type="button" style="display:none;">Se déconnecter</button>
+    </div>
+  </div>
+</header>
 
 <main>
   <div class="container">
     <section class="card pad">
-      <h1 class="heroTitle" style="font-size:42px;">Les offreurs</h1>
-      <p class="heroSub">Trouve un prestataire. La note s’affiche quand des avis existent.</p>
+      <h1 class="heroTitle" style="font-size:42px;">Mur des demandes</h1>
+      <p class="heroSub">Les coordonnées sont masquées. Pour contacter un demandeur, l’accès se débloque selon la formule.</p>
 
       <div class="filtersGrid">
         <div class="field">
           <label for="q">Recherche</label>
-          <input id="q" class="input" type="text" placeholder="Nom, service, commune, description">
+          <input id="q" class="input" type="text" placeholder="Mots-clés…">
         </div>
 
         <div class="field">
@@ -31,15 +61,6 @@
           <div class="selectWrap">
             <select id="serviceFilter">
               <option value="">Tous</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="zoneFilter">Zone</label>
-          <div class="selectWrap">
-            <select id="zoneFilter">
-              <option value="">Sur toute l'île</option>
             </select>
           </div>
         </div>
@@ -57,14 +78,13 @@
       <div class="formActions">
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btnPrimary" id="btnReload" type="button">Recharger</button>
-          <a class="btn" href="offreur-register.html">Devenir offreur</a>
           <a class="btn" href="demande.html">Publier une demande</a>
         </div>
         <div class="notice muted" id="countBox">—</div>
       </div>
 
       <div id="list" class="cardsList"></div>
-      <div id="empty" class="empty" style="display:none;">Aucun offreur ne correspond à tes filtres.</div>
+      <div id="empty" class="empty" style="display:none;">Aucune demande pour le moment.</div>
     </section>
   </div>
 </main>
@@ -83,10 +103,6 @@
 <script src="api.js?v=27"></script>
 <script src="auth.js?v=27"></script>
 <script src="main.js?v=27"></script>
-<script src="offreurs.js?v=27"></script>
-
-  <script src="assets/js/dx-include-header.js?v=1"></script>
-<script src="assets/js/dx-header.js?v=1"></script>
-
+<script src="mur-demandes.js?v=27"></script>
 </body>
 </html>

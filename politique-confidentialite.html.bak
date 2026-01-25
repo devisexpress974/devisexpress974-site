@@ -8,11 +8,41 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="styles.css?v=27" />
-  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
 </head>
 <body>
+<header class="siteHeader">
+  <div class="container headerRow">
+    <a class="brand" href="index.html" aria-label="DevisExpress974">
+      <span class="brandIcon" aria-hidden="true">⚡</span>
+      <span class="brandText">
+        <span class="brandName">DevisExpress974</span>
+        <span class="brandTagline">Une seule demande, plusieurs devis</span>
+      </span>
+    </a>
 
-  <div id="dx-header"></div>
+    <button class="navToggle" id="navToggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="siteNav">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="topNav" id="siteNav" aria-label="Navigation">
+      <a class="navLink" href="index.html">Accueil</a>
+      <a class="navLink" href="demande.html">Je cherche un service</a>
+      <a class="navLink" href="mur-demandes.html">Mur des demandes</a>
+      <a class="navLink" href="offreurs.html">Les offreurs</a>
+      <a class="navLink" href="info-tarifs.html">Infos &amp; Tarifs</a>
+      <a class="navLink" href="contact.html">Contact</a>
+
+      <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="navLink mobileOnly navCtaMobile" id="logoutMobileBtn" type="button">Se déconnecter</button>
+
+    </nav>
+
+    <div id="headerRight" class="headerRight">
+      <a class="navCta" id="loginCta" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="btn" id="logoutBtn" type="button" style="display:none;">Se déconnecter</button>
+    </div>
+  </div>
+</header>
 
 <main>
   <div class="container">
@@ -49,9 +79,5 @@
   </div>
 </footer>
 <script src="main.js?v=27"></script>
-
-  <script src="assets/js/dx-include-header.js?v=1"></script>
-<script src="assets/js/dx-header.js?v=1"></script>
-
 </body>
 </html>

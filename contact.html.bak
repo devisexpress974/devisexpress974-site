@@ -8,11 +8,40 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="styles.css?v=27" />
-  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
 </head>
 <body>
+<header class="siteHeader">
+  <div class="container headerRow">
+    <a class="brand" href="index.html" aria-label="DevisExpress974">
+      <span class="brandIcon" aria-hidden="true">⚡</span>
+      <div class="brandText">
+        <div class="brandName">DevisExpress974</div>
+        <div class="brandTag">Une seule demande, plusieurs devis</div>
+      </div>
+    </a>
 
-  <div id="dx-header"></div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" id="nav">
+      <a class="navLink" href="index.html">Accueil</a>
+      <a class="navLink" href="demande.html">Je cherche un service</a>
+      <a class="navLink" href="mur-demandes.html">Mur des demandes</a>
+      <a class="navLink" href="offreurs.html">Les offreurs</a>
+      <a class="navLink" href="info-tarifs.html">Infos & Tarifs</a>
+      <a class="navLink" href="contact.html" aria-current="page">Contact</a>
+
+      <a class="navLink mobileOnly navCtaMobile" id="loginCtaMobile" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="navLink mobileOnly navCtaMobile" id="logoutMobileBtn" type="button">Se déconnecter</button>
+    </nav>
+
+    <div id="headerRight" class="headerRight">
+      <a class="navCta" id="loginCta" href="offreur-login.html">S'identifier (Offreur)</a>
+      <button class="btn" id="logoutBtn" type="button" style="display:none;">Se déconnecter</button>
+    </div>
+  </div>
+</header>
 
 <main>
   <div class="container">
@@ -101,9 +130,5 @@
 <script src="auth.js?v=27"></script>
 <script src="main.js?v=27"></script>
 <script src="contact.js?v=27"></script>
-
-  <script src="assets/js/dx-include-header.js?v=1"></script>
-<script src="assets/js/dx-header.js?v=1"></script>
-
 </body>
 </html>

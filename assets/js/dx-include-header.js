@@ -1,13 +1,23 @@
-(async function(){
-  const target = document.getElementById("dx-header-slot");
-  if(!target) return;
+// Injecte partials/header.html dans <div id="dx-header"></div>
+(async function () {
+  try {
+    const target = document.getElementById("dx-header");
+    if (!target) return;
 
-  try{
-    const res = await fetch("partials/header.html", { cache: "no-cache" });
-    if(!res.ok) throw new Error("header fetch failed");
+    // évite double injection
+    if (target.dataset.dxInjected === "1") return;
+    target.dataset.dxInjected = "1";
+
+    // Chemin robuste (marche sur toutes les pages du site)
+    const res = await fetch("/partials/header.html", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
     target.innerHTML = await res.text();
-    if (typeof window.__dxInitHeader === "function") window.__dxInitHeader();
-  }catch(e){
-    console.warn("DX header injection error:", e);
+
+    // signal "header prêt"
+    window.dispatchEvent(new Event("dx:headerReady"));
+  } catch (err) {
+    console.error("[DX] Header inject error:", err);
+    alert("DX Header : erreur d’injection. Vérifie /partials/header.html");
   }
 })();
