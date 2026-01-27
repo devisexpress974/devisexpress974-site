@@ -1,105 +1,66 @@
 (function () {
-  function currentFileName() {
-    const p = window.location.pathname || "";
-    let file = p.split("/").pop() || "";
-    if (!file) file = "index.html";
-    return file;
-  }
+  let bound = false;
 
-  function setActiveLinks(root) {
-    const file = currentFileName();
+  window.__dxInitHeader = function (scopeEl) {
+    const root = scopeEl || document;
 
-    const links = root.querySelectorAll("[data-path]");
-    links.forEach((a) => a.classList.remove("is-active"));
+    const burger = root.querySelector("[data-dx-burger]");
+    const nav = root.querySelector("[data-dx-nav]");
+    const moreBtn = root.querySelector("[data-dx-more-btn]");
+    const moreMenu = root.querySelector("[data-dx-more-menu]");
 
-    // active sur lien direct ou item menu
-    links.forEach((a) => {
-      const path = (a.getAttribute("data-path") || "").trim();
-      if (path && path === file) a.classList.add("is-active");
-    });
+    const closeMore = () => {
+      if (moreBtn) moreBtn.setAttribute("aria-expanded", "false");
+      if (moreMenu) moreMenu.classList.remove("open");
+    };
 
-    // si un item du menu "Plus" est actif, on peut aussi marquer le bouton "Plus"
-    const more = root.querySelector("[data-more]");
-    if (more) {
-      const activeInMore = more.querySelector(".dx-more-menu .is-active");
-      const btn = more.querySelector(".dx-more-btn");
-      if (btn) {
-        if (activeInMore) btn.classList.add("is-active");
-        else btn.classList.remove("is-active");
-      }
-    }
-  }
+    const closeNav = () => {
+      document.body.classList.remove("navOpen");
+      if (burger) burger.setAttribute("aria-expanded", "false");
+      closeMore();
+    };
 
-  function closeMore(more) {
-    if (!more) return;
-    more.dataset.open = "0";
-    const btn = more.querySelector(".dx-more-btn");
-    if (btn) btn.setAttribute("aria-expanded", "false");
-  }
-
-  function openMore(more) {
-    if (!more) return;
-    more.dataset.open = "1";
-    const btn = more.querySelector(".dx-more-btn");
-    if (btn) btn.setAttribute("aria-expanded", "true");
-  }
-
-  function toggleMore(more) {
-    if (!more) return;
-    const isOpen = more.dataset.open === "1";
-    if (isOpen) closeMore(more);
-    else openMore(more);
-  }
-
-  function setupDropdown(root) {
-    const more = root.querySelector("[data-more]");
-    if (!more) return;
-
-    // état initial
-    closeMore(more);
-
-    const btn = more.querySelector(".dx-more-btn");
-    const menu = more.querySelector(".dx-more-menu");
-
-    if (btn) {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleMore(more);
+    if (burger && nav) {
+      burger.addEventListener("click", () => {
+        const open = !document.body.classList.contains("navOpen");
+        document.body.classList.toggle("navOpen", open);
+        burger.setAttribute("aria-expanded", open ? "true" : "false");
+        if (!open) closeMore();
       });
     }
 
-    // click sur un item => ferme
-    if (menu) {
-      menu.addEventListener("click", () => closeMore(more));
+    if (moreBtn && moreMenu) {
+      moreBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const open = !moreMenu.classList.contains("open");
+        moreMenu.classList.toggle("open", open);
+        moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+
+      moreMenu.addEventListener("click", (e) => e.stopPropagation());
     }
 
-    // click dehors => ferme
-    document.addEventListener("click", (e) => {
-      if (!more.contains(e.target)) closeMore(more);
-    });
+    // Évite de binder 50 fois si tu réinjectes (sécurité)
+    if (!bound) {
+      bound = true;
 
-    // escape => ferme
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeMore(more);
-    });
-  }
+      document.addEventListener("click", () => {
+        closeNav();
+      });
 
-  function init() {
-    const header = document.querySelector("[data-dx-header]");
-    if (!header) return;
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") closeNav();
+      });
 
-    setActiveLinks(header);
-    setupDropdown(header);
-  }
-
-  // 1) si header déjà là
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-
-  // 2) quand le header est injecté
-  window.addEventListener("dx:headerReady", init);
+      // Empêche le clic dans le header de fermer tout
+      document.addEventListener("click", (e) => {
+        const header = document.querySelector(".dx-header");
+        if (header && header.contains(e.target)) {
+          // si clic dans header, on ne ferme pas le menu global automatiquement
+          e.stopPropagation();
+        }
+      }, true);
+    }
+  };
 })();

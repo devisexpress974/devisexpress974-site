@@ -1,32 +1,39 @@
-<header class="dx-header" data-dx-header>
-  <div class="dx-header-inner">
+<header class="dx-header">
+  <div class="container dx-header-row">
     <a class="dx-brand" href="index.html" aria-label="Retour à l'accueil DevisExpress974">
-      <img class="dx-logo" src="assets/img/logo-eclair-orange.png" alt="Logo DevisExpress974" width="34" height="34" />
-      <span class="dx-brand-text">
-        <span class="dx-brand-name">DevisExpress974</span>
-        <span class="dx-brand-tagline">1 clic - plusieurs devis - 100% 974</span>
-      </span>
+      <img class="dx-logo" src="assets/img/logo-eclair-orange.png" alt="Logo DevisExpress974" />
+      <div class="dx-brand-text">
+        <div class="dx-brand-name">DevisExpress974</div>
+        <div class="dx-brand-slogan">1 clic - plusieurs devis - 100% 974</div>
+      </div>
     </a>
 
-    <nav class="dx-tabs" aria-label="Menu principal">
-      <a class="dx-tab" href="index.html" data-path="index.html">Accueil</a>
-      <a class="dx-tab" href="demande.html" data-path="demande.html">Faire une demande</a>
-      <a class="dx-tab" href="mur-demandes.html" data-path="mur-demandes.html">Mur des demandes</a>
-      <a class="dx-tab" href="offreurs.html" data-path="offreurs.html">Les offreurs</a>
+    <button class="dx-burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" data-dx-burger>
+      <span></span><span></span><span></span>
+    </button>
 
-      <div class="dx-more" data-more>
-        <button class="dx-more-btn" type="button" aria-haspopup="menu" aria-expanded="false">
-          Plus <span class="dx-caret" aria-hidden="true">▾</span>
+    <nav class="dx-nav" data-dx-nav>
+      <a class="dx-link" href="index.html">Accueil</a>
+      <a class="dx-link" href="demande.html">Faire une demande</a>
+      <a class="dx-link" href="mur-demandes.html">Mur des demandes</a>
+      <a class="dx-link" href="offreurs.html">Les offreurs</a>
+
+      <div class="dx-more" data-dx-more>
+        <button class="dx-link dx-more-btn" type="button" aria-haspopup="true" aria-expanded="false" data-dx-more-btn>
+          Plus <span aria-hidden="true">▾</span>
         </button>
-
-        <div class="dx-more-menu" role="menu" aria-label="Plus">
-          <a class="dx-menu-item" role="menuitem" href="info-tarifs.html" data-path="info-tarifs.html">Infos &amp; Tarifs</a>
-          <a class="dx-menu-item" role="menuitem" href="contact.html" data-path="contact.html">Contact</a>
-          <a class="dx-menu-item" role="menuitem" href="cgv.html" data-path="cgv.html">CGV</a>
+        <div class="dx-more-menu" data-dx-more-menu>
+          <a href="mentions-legales.html">Mentions légales</a>
+          <a href="cgv.html">CGV</a>
+          <a href="politique-confidentialite.html">Politique de confidentialité</a>
+          <a href="cookies.html">Cookies</a>
+          <a href="contact.html">Contact</a>
         </div>
       </div>
+
+      <a class="dx-link dx-mobileOnly dx-loginMobile" href="offreur-login.html">S'identifier</a>
     </nav>
 
-    <a class="dx-cta" href="offreur-login.html">S'identifier</a>
+    <a class="dx-login" href="offreur-login.html">S'identifier</a>
   </div>
 </header>
