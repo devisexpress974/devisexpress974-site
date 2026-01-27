@@ -403,3 +403,5 @@ ul.list li{
 .footLinks a:hover{
   background:rgba(0,0,0,.05);
 }
+/* TEST CSS (à enlever après) */
+body{ outline: 6px solid red !important; }

@@ -3,135 +3,191 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Publier une demande | DevisExpress974</title>
+  <title>DevisExpress974 — Publier une demande</title>
+
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="styles.css?v=27" />
-  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
+  <meta name="theme-color" content="#ff3b0a" />
+
+  <!-- CSS GLOBAL (IMPORTANT : le / au début pour que ça marche sur TOUTES les pages Netlify) -->
+  <link rel="stylesheet" href="/styles.css?v=30" />
+
+  <!-- Header injecté (DX header) -->
+  <link rel="stylesheet" href="/assets/css/dx-header.css?v=1" />
+
+  <!-- Petites règles FORM (pour que la page "demande" soit belle comme l'accueil) -->
+  <style>
+    .pageWrap{ padding:18px 0 26px; }
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:980px){ .grid2{ grid-template-columns:1fr; } }
+
+    .formCard{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .formRow{ display:grid; grid-template-columns:260px 1fr; gap:10px; align-items:center; margin:10px 0; }
+    @media (max-width:980px){ .formRow{ grid-template-columns:1fr; } }
+
+    label{ font-weight:900; }
+    input[type="text"], input[type="email"], textarea, select{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      outline:none;
+      font:inherit;
+      background:#fff;
+    }
+    textarea{ min-height:90px; resize:vertical; }
+    input[type="file"]{ width:100%; }
+    .help{ color:var(--muted); font-weight:800; font-size:13px; margin:6px 0 0; }
+    .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+  </style>
 </head>
+
 <body>
 
-  <div id="dx-header"></div>
+  <!-- Slot du header injecté -->
+  <div id="dx-header-slot"></div>
 
-<main>
-  <div class="container">
+  <main class="container pageWrap">
+
     <section class="card pad">
-      <h1 class="heroTitle" style="font-size:42px;">Publier une demande</h1>
-      <p class="heroSub">Les prestataires voient ta demande sur le mur, sans tes coordonnées. Ils débloquent pour te contacter.</p>
+      <h1 class="heroTitle" style="margin:0 0 6px;">Publier une demande</h1>
+      <p class="heroSub" style="margin:0;">
+        Les prestataires voient ta demande sur le mur, sans tes coordonnées. Ils débloquent pour te contacter.
+      </p>
 
-      <div class="statsRow">
-        <div class="statBlock">
-          <div class="statValue">Coordonnées masquées</div>
-          <div class="statLabel">sur le mur public</div>
+      <div class="grid2" style="margin-top:14px;">
+        <div class="noteBox">
+          <div class="sectionTitle" style="margin:0 0 6px; font-size:16px;">Coordonnées masquées</div>
+          <div class="muted">sur le mur public</div>
         </div>
-        <div class="statBlock">
-          <div class="statValue">Publication rapide</div>
-          <div class="statLabel">en 2 minutes</div>
+        <div class="noteBox">
+          <div class="sectionTitle" style="margin:0 0 6px; font-size:16px;">Publication rapide</div>
+          <div class="muted">en 2 minutes</div>
         </div>
       </div>
     </section>
 
     <section class="card pad" style="margin-top:16px;">
-      <form id="demandeForm" novalidate>
-        <div class="formGrid">
-          <div class="field">
-            <label for="service">Type de service <span class="req">*</span></label>
-            <div class="selectWrap">
-              <select id="service" required>
-                <option value="">Choisir un service…</option>
-              </select>
+      <h2 class="sectionTitle">Formulaire</h2>
+
+      <div class="formCard">
+        <form id="demandeForm" action="#" method="post" enctype="multipart/form-data">
+
+          <div class="formRow">
+            <label for="typeService">Type de service *</label>
+            <select id="typeService" name="typeService" required>
+              <option value="">Choisir un service…</option>
+              <option>Bâtiment / Travaux</option>
+              <option>Plomberie</option>
+              <option>Électricité</option>
+              <option>Jardinage</option>
+              <option>Ménage / Nettoyage</option>
+              <option>Informatique</option>
+              <option>Beauté / Coiffure / Esthétique</option>
+              <option>Coaching / Formation</option>
+              <option>Auto / Moto - Réparation</option>
+              <option>Auto / Moto - Vente</option>
+              <option>Restauration / Traiteur</option>
+              <option>Location de matériel</option>
+              <option>Autre</option>
+            </select>
+          </div>
+
+          <div class="formRow">
+            <label for="autreService">Autre (si besoin)</label>
+            <input id="autreService" name="autreService" type="text" placeholder="Optionnel" />
+          </div>
+
+          <div class="formRow">
+            <label for="zone">Zone *</label>
+            <select id="zone" name="zone" required>
+              <option value="">Choisir une zone…</option>
+              <option>Nord</option>
+              <option>Sud</option>
+              <option>Est</option>
+              <option>Ouest</option>
+            </select>
+          </div>
+
+          <div class="formRow">
+            <label for="commune">Commune *</label>
+            <select id="commune" name="commune" required>
+              <option value="">Choisir une commune…</option>
+              <option>Saint-Denis</option>
+              <option>Sainte-Marie</option>
+              <option>Saint-André</option>
+              <option>Saint-Benoît</option>
+              <option>Le Port</option>
+              <option>Saint-Paul</option>
+              <option>Saint-Leu</option>
+              <option>Saint-Pierre</option>
+              <option>Le Tampon</option>
+              <option>Saint-Joseph</option>
+            </select>
+          </div>
+
+          <div class="formRow">
+            <label for="besoin">Décris ton besoin *</label>
+            <textarea id="besoin" name="besoin" required placeholder="Ex : je cherche un plombier pour…"></textarea>
+          </div>
+
+          <div class="formRow">
+            <label for="pieces">Pièces jointes (max 3)</label>
+            <input id="pieces" name="pieces" type="file" accept=".jpg,.jpeg,.png,.pdf" multiple />
+            <div class="help" style="grid-column:1 / -1;">
+              Formats : JPG, PNG, PDF. Taille conseillée : 1,5 Mo max par fichier.
             </div>
           </div>
 
-          <div class="field">
-            <label for="serviceAutre">Autre (si besoin)</label>
-            <input id="serviceAutre" class="input" type="text" placeholder="Optionnel">
-          </div>
-
-          <div class="field">
-            <label for="zone">Zone <span class="req">*</span></label>
-            <div class="selectWrap">
-              <select id="zone" required>
-                <option value="">Choisir une zone…</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="commune">Commune <span class="req">*</span></label>
-            <div class="selectWrap">
-              <select id="commune" required>
-                <option value="">Choisir une commune…</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="field" style="grid-column: 1 / -1;">
-            <label for="description">Décris ton besoin <span class="req">*</span></label>
-            <textarea id="description" required placeholder="Ex : je cherche un plombier pour…"></textarea>
-          </div>
-
-          <div class="field" style="grid-column: 1 / -1;">
-            <label for="attachments">Pièces jointes (max 3)</label>
-            <input id="attachments" class="input" type="file" multiple accept=".jpg,.jpeg,.png,.pdf" />
-            <div class="muted small">Formats : JPG, PNG, PDF. Taille conseillée : 1,5 Mo max par fichier.</div>
-          </div>
-
-
-          <div class="field">
+          <div class="formRow">
             <label for="budget">Budget (optionnel)</label>
-            <input id="budget" class="input" type="number" min="0" step="1" placeholder="Ex : 200">
+            <input id="budget" name="budget" type="text" placeholder="Ex : 200" />
           </div>
 
-          <div class="field">
-            <label for="nom">Nom / prénom <span class="req">*</span></label>
-            <input id="nom" class="input" type="text" required>
+          <div class="formRow">
+            <label for="nomPrenom">Nom / prénom *</label>
+            <input id="nomPrenom" name="nomPrenom" type="text" required />
           </div>
 
-          <div class="field">
-            <label for="tel">Téléphone <span class="req">*</span></label>
-            <input id="tel" class="input" type="tel" required placeholder="0692…">
+          <div class="formRow">
+            <label for="telephone">Téléphone *</label>
+            <input id="telephone" name="telephone" type="text" required placeholder="0692..." />
           </div>
 
-          <div class="field">
-            <label for="email">Email <span class="req">*</span></label>
-            <input id="email" class="input" type="email" required placeholder="nom@email.com">
+          <div class="formRow">
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" required placeholder="nom@email.com" />
           </div>
-        </div>
 
-        <div class="formActions">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btnPrimary" type="submit" id="btnPublish">Publier</button>
-            <a class="btn" href="mur-demandes.html">Voir le mur</a>
+          <div class="actions">
+            <button class="btn btnPrimary" type="submit">Publier</button>
+            <a class="btn" href="/mur-demandes.html">Voir le mur</a>
           </div>
-          <div class="notice muted" id="formHint">Les champs marqués * sont obligatoires.</div>
-        </div>
 
-        <div id="msg" class="notice" style="display:none;"></div>
-      </form>
+          <p class="help" style="margin-top:10px;">Les champs marqués * sont obligatoires.</p>
+        </form>
+      </div>
     </section>
-  </div>
-</main>
-<footer class="siteFooter">
-  <div class="container footerInner">
-    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
-    <div class="footerLinks" aria-label="Liens légaux">
-      <a href="mentions-legales.html">Mentions légales</a>
-      <a href="cgv.html">CGV</a>
-      <a href="politique-confidentialite.html">Politique de confidentialité</a>
-      <a href="cookies.html">Cookies</a>
-      <a href="contact.html">Contact</a>
-    </div>
-  </div>
-</footer>
-<script src="api.js?v=27"></script>
-<script src="auth.js?v=27"></script>
-<script src="main.js?v=27"></script>
-<script src="demande.js?v=27"></script>
 
-  <script src="assets/js/dx-include-header.js?v=1"></script>
-<script src="assets/js/dx-header.js?v=1"></script>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerRow">
+      <div class="footLeft">© 2026 DevisExpress974 — Tous droits réservés.</div>
+      <nav class="footLinks">
+        <a href="/mentions-legales.html">Mentions légales</a>
+        <a href="/cgv.html">CGV</a>
+        <a href="/politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="/cookies.html">Cookies</a>
+        <a href="/contact.html">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Scripts header injecté -->
+  <script src="/assets/js/dx-include-header.js?v=1"></script>
+  <script src="/assets/js/dx-header.js?v=1"></script>
 
 </body>
 </html>
