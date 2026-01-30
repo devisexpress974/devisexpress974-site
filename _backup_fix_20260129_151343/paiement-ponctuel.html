@@ -1,0 +1,93 @@
+﻿<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paiement ponctuel | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+
+<link rel="stylesheet" href="/styles.css?v=20260129143730" />
+<link rel="stylesheet" href="/assets/css/dx-header.css?v=20260129143730" />
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="pageTitle">Paiement ponctuel</h1>
+      <p class="pageLead">Débloque les coordonnées d’<strong>une</strong> demande pour la contacter. Tarif : <strong>0,99&nbsp;€</strong>.</p>
+
+      <div class="hr"></div>
+
+      <div class="priceRow">
+        <div class="priceRowLeft">
+          <div class="muted">Paiement PayPal</div>
+          <div class="small muted">Si le bouton ne s’affiche pas (bloqueur), utilise le lien PayPal.</div>
+        </div>
+        <div class="priceRowRight">
+          <a class="btn" href="https://www.paypal.com/ncp/links/4LRS689BCXY5G" target="_blank" rel="noopener">Ouvrir PayPal</a>
+        </div>
+      </div>
+
+      <div class="paypalWrap">
+        <div id="paypal-container-H9VZ7RL35LE6G"></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="notice">
+        <strong>Après paiement</strong> : clique ci-dessous pour enregistrer l’accès et afficher les coordonnées.
+      </div>
+
+      <div class="actionsRow">
+        <button id="btnUnlock" class="btn btnPrimary">J’ai payé, débloquer ma demande</button>
+        <a class="btn" href="mur-demandes.html">Retour au mur</a>
+      </div>
+
+      <div id="msg" class="muted" style="margin-top:12px;"></div>
+    </section>
+  </div>
+</main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="paypal-config.js?v=27"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=BAAsO3Qoc0mstsiZkLHiiwoz3z_OXdhUeMLCgqtqQIYYiVaecy392odEq9KJjoZ6DsBctZbSAJCGzxlEhs&components=hosted-buttons&disable-funding=venmo&currency=EUR"></script>
+<script>
+  (function(){
+    try {
+      if (window.paypal && paypal.HostedButtons) {
+        paypal.HostedButtons({
+          hostedButtonId: "H9VZ7RL35LE6G",
+        }).render("#paypal-container-H9VZ7RL35LE6G");
+      }
+    } catch(e) {
+      console.warn(e);
+    }
+  })();
+</script>
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+<script src="paiement-ponctuel.js?v=27"></script>
+
+
+<script src="/assets/js/dx-include-header.js?v=20260129143730"></script>
+<script src="/assets/js/dx-header.js?v=20260129143730"></script>
+</body>
+</html>
+
+

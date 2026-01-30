@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>S'identifier (Offreur) | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
+</head>
+<body>
+
+  <div id="dx-header"></div>
+
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="heroTitle" style="font-size:42px;">S'identifier (Offreur)</h1>
+      <p class="heroSub">Connexion sécurisée pour accéder aux demandes et débloquer les coordonnées.</p>
+
+      <div class="btnRow">
+        <a class="btn btnPrimary" href="offreur-register.html">Créer un compte</a>
+        <a class="btn" href="offreur-reset.html">Mot de passe oublié</a>
+      </div>
+
+      <div class="legalBlock">
+        <h2>Connexion</h2>
+        <form id="loginForm" novalidate>
+          <div class="formGrid" style="margin-top:10px;">
+            <div class="field">
+              <label for="email">Email <span class="req">*</span></label>
+              <input id="email" class="input" type="email" required placeholder="nom@email.com">
+            </div>
+            <div class="field">
+              <label for="password">Mot de passe <span class="req">*</span></label>
+              <input id="password" class="input" type="password" required placeholder="••••••••">
+            </div>
+          </div>
+          <div class="formActions">
+            <button class="btn btnPrimary" id="btnLogin" type="submit">Se connecter</button>
+            <div class="smallNote">Après connexion : tu peux débloquer une demande depuis le mur.</div>
+          </div>
+          <div id="msg" class="notice" style="display:none;"></div>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+<script src="offreur-login.js?v=27"></script>
+
+  <script src="assets/js/dx-include-header.js?v=1"></script>
+<script src="assets/js/dx-header.js?v=1"></script>
+
+</body>
+</html>

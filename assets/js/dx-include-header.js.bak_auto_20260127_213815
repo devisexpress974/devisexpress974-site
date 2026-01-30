@@ -1,0 +1,28 @@
+// Injecte /partials/header.html dans le slot <div id="dx-header-slot"></div>
+(() => {
+  const SLOT_ID = "dx-header-slot";
+  const PARTIAL_URL = "/partials/header.html";
+
+  async function injectHeader() {
+    const slot = document.getElementById(SLOT_ID);
+    if (!slot) return;
+
+    // anti double injection
+    if (slot.dataset.dxInjected === "1") return;
+    slot.dataset.dxInjected = "1";
+
+    const res = await fetch(PARTIAL_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error(`DX header: HTTP ${res.status} sur ${PARTIAL_URL}`);
+
+    slot.innerHTML = await res.text();
+
+    // signal : header prêt
+    window.dispatchEvent(new Event("dx:headerReady"));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", injectHeader);
+  } else {
+    injectHeader();
+  }
+})();

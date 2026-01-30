@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Noter un offreur | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
+</head>
+<body>
+
+  <div id="dx-header"></div>
+
+<main><div class="container"><section class="card pad">
+<h1 class="heroTitle" style="font-size:42px;">Noter un offreur</h1>
+<p class="heroSub">Laisse une note après un échange réel.</p>
+<div class="legalBlock">
+  <h2>Avis</h2>
+  <form id="avisForm" novalidate>
+    <div class="formGrid" style="margin-top:10px;">
+      <div class="field">
+        <label for="note">Note (1 à 5) <span class="req">*</span></label>
+        <input id="note" class="input" type="number" min="1" max="5" required>
+      </div>
+      <div class="field">
+        <label for="auteurNom">Ton nom</label>
+        <input id="auteurNom" class="input" type="text" placeholder="Optionnel">
+      </div>
+      <div class="field" style="grid-column:1/-1;">
+        <label for="commentaire">Commentaire</label>
+        <textarea id="commentaire" placeholder="Optionnel"></textarea>
+      </div>
+      <div class="field" style="grid-column:1/-1;">
+        <label for="attachments">Pièces jointes (max 3)</label>
+        <input id="attachments" class="input" type="file" multiple accept=".jpg,.jpeg,.png,.pdf" />
+        <div class="muted small">Formats : JPG, PNG, PDF. Taille conseillée : 1,5 Mo max par fichier.</div>
+      </div>
+
+    </div>
+    <div class="formActions">
+      <button class="btn btnPrimary" id="btnSend" type="submit">Envoyer</button>
+      <a class="btn" href="offreurs.html">Retour</a>
+    </div>
+    <div id="msg" class="notice" style="display:none;"></div>
+  </form>
+</div>
+</section></div></main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+<script src="noter-offreur.js?v=27"></script>
+
+  <script src="assets/js/dx-include-header.js?v=1"></script>
+<script src="assets/js/dx-header.js?v=1"></script>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Les offreurs | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
+</head>
+<body>
+
+  <div id="dx-header"></div>
+
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="heroTitle" style="font-size:42px;">Les offreurs</h1>
+      <p class="heroSub">Trouve un prestataire. La note s’affiche quand des avis existent.</p>
+
+      <div class="filtersGrid">
+        <div class="field">
+          <label for="q">Recherche</label>
+          <input id="q" class="input" type="text" placeholder="Nom, service, commune, description">
+        </div>
+
+        <div class="field">
+          <label for="serviceFilter">Service</label>
+          <div class="selectWrap">
+            <select id="serviceFilter">
+              <option value="">Tous</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="zoneFilter">Zone</label>
+          <div class="selectWrap">
+            <select id="zoneFilter">
+              <option value="">Sur toute l'île</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="communeFilter">Commune</label>
+          <div class="selectWrap">
+            <select id="communeFilter">
+              <option value="">Toutes</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="formActions">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btnPrimary" id="btnReload" type="button">Recharger</button>
+          <a class="btn" href="offreur-register.html">Devenir offreur</a>
+          <a class="btn" href="demande.html">Publier une demande</a>
+        </div>
+        <div class="notice muted" id="countBox">—</div>
+      </div>
+
+      <div id="list" class="cardsList"></div>
+      <div id="empty" class="empty" style="display:none;">Aucun offreur ne correspond à tes filtres.</div>
+    </section>
+  </div>
+</main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+<script src="offreurs.js?v=27"></script>
+
+  <script src="assets/js/dx-include-header.js?v=1"></script>
+<script src="assets/js/dx-header.js?v=1"></script>
+
+</body>
+</html>

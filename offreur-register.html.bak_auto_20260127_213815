@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Devenir offreur | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
+</head>
+<body>
+
+  <div id="dx-header"></div>
+
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="heroTitle" style="font-size:42px;">Devenir offreur</h1>
+      <p class="heroSub">Crée ton profil (visible) pour recevoir des demandes et être noté après un échange réel.</p>
+
+      <div class="legalBlock">
+        <h2>Inscription offreur</h2>
+        <form id="regForm" novalidate>
+          <div class="formGrid" style="margin-top:10px;">
+            <div class="field">
+              <label for="nom">Nom / prénom <span class="req">*</span></label>
+              <input id="nom" class="input" required>
+            </div>
+            <div class="field">
+              <label for="email">Email <span class="req">*</span></label>
+              <input id="email" class="input" type="email" required>
+            </div>
+            <div class="field">
+              <label for="tel">Téléphone <span class="req">*</span></label>
+              <input id="tel" class="input" type="tel" required placeholder="0692…">
+            </div>
+            <div class="field">
+              <label for="password">Mot de passe <span class="req">*</span></label>
+              <input id="password" class="input" type="password" required placeholder="8 caractères minimum">
+            </div>
+
+            <div class="field">
+              <label for="service">Service principal <span class="req">*</span></label>
+              <div class="selectWrap">
+                <select id="service" required>
+                  <option value="">Choisir un service…</option>
+<optgroup label="BTP / Rénovation">
+  <option value="Rénovation intérieure">Rénovation intérieure</option>
+  <option value="Maçonnerie">Maçonnerie</option>
+  <option value="Peinture">Peinture</option>
+  <option value="Carrelage">Carrelage</option>
+  <option value="Parquet / sol">Parquet / sol</option>
+  <option value="Sol souple (PVC/Lino)">Sol souple (PVC/Lino)</option>
+  <option value="Plaquiste / plâtre">Plaquiste / plâtre</option>
+  <option value="Cloisons / isolation">Cloisons / isolation</option>
+  <option value="Faux plafond">Faux plafond</option>
+  <option value="Enduit / ravalement façade">Enduit / ravalement façade</option>
+  <option value="Démolition">Démolition</option>
+  <option value="Terrassement">Terrassement</option>
+  <option value="VRD / raccordements">VRD / raccordements</option>
+  <option value="Étanchéité">Étanchéité</option>
+  <option value="Béton / dalle">Béton / dalle</option>
+  <option value="Escalier / garde-corps">Escalier / garde-corps</option>
+</optgroup>
+<optgroup label="Toiture / Menuiserie / Fermetures">
+  <option value="Charpente">Charpente</option>
+  <option value="Couverture / toiture">Couverture / toiture</option>
+  <option value="Gouttières">Gouttières</option>
+  <option value="Nettoyage toiture">Nettoyage toiture</option>
+  <option value="Zinguerie">Zinguerie</option>
+  <option value="Menuiserie bois">Menuiserie bois</option>
+  <option value="Menuiserie alu/PVC">Menuiserie alu/PVC</option>
+  <option value="Pose fenêtres/portes">Pose fenêtres/portes</option>
+  <option value="Volets roulants">Volets roulants</option>
+  <option value="Portail / clôture">Portail / clôture</option>
+  <option value="Serrurerie">Serrurerie</option>
+  <option value="Vitrier">Vitrier</option>
+  <option value="Stores / pergola">Stores / pergola</option>
+  <option value="Rideaux métalliques">Rideaux métalliques</option>
+</optgroup>
+<optgroup label="Électricité / Plomberie / Clim">
+  <option value="Électricité">Électricité</option>
+  <option value="Mise aux normes électrique">Mise aux normes électrique</option>
+  <option value="Tableau électrique">Tableau électrique</option>
+  <option value="Éclairage">Éclairage</option>
+  <option value="Plomberie">Plomberie</option>
+  <option value="Recherche de fuite">Recherche de fuite</option>
+  <option value="Débouchage">Débouchage</option>
+  <option value="Chauffe-eau">Chauffe-eau</option>
+  <option value="Salle de bain">Salle de bain</option>
+  <option value="Climatisation">Climatisation</option>
+  <option value="Entretien clim">Entretien clim</option>
+  <option value="Ventilation">Ventilation</option>
+  <option value="Chauffage">Chauffage</option>
+  <option value="Domotique">Domotique</option>
+  <option value="Interphone / visiophone">Interphone / visiophone</option>
+</optgroup>
+<optgroup label="Extérieur / Jardin / Piscine">
+  <option value="Jardinage">Jardinage</option>
+  <option value="Paysagisme">Paysagisme</option>
+  <option value="Débroussaillage">Débroussaillage</option>
+  <option value="Élagage">Élagage</option>
+  <option value="Abattage">Abattage</option>
+  <option value="Arrosage / irrigation">Arrosage / irrigation</option>
+  <option value="Terrasse bois">Terrasse bois</option>
+  <option value="Terrasse béton">Terrasse béton</option>
+  <option value="Allée / pavés">Allée / pavés</option>
+  <option value="Mur extérieur / clôture">Mur extérieur / clôture</option>
+  <option value="Piscine (entretien)">Piscine (entretien)</option>
+  <option value="Piscine (construction)">Piscine (construction)</option>
+  <option value="Nettoyage façade">Nettoyage façade</option>
+  <option value="Nettoyage haute pression">Nettoyage haute pression</option>
+  <option value="Traitement anti-termites">Traitement anti-termites</option>
+</optgroup>
+<optgroup label="Maison / Nettoyage">
+  <option value="Ménage">Ménage</option>
+  <option value="Nettoyage fin de chantier">Nettoyage fin de chantier</option>
+  <option value="Nettoyage vitres">Nettoyage vitres</option>
+  <option value="Nettoyage canapé / tapis">Nettoyage canapé / tapis</option>
+  <option value="Désinfection">Désinfection</option>
+  <option value="Lutte nuisibles (pro)">Lutte nuisibles (pro)</option>
+  <option value="Débarras">Débarras</option>
+  <option value="Montage meubles">Montage meubles</option>
+  <option value="Petits travaux">Petits travaux</option>
+</optgroup>
+<optgroup label="Déménagement / Transport">
+  <option value="Déménagement">Déménagement</option>
+  <option value="Manutention">Manutention</option>
+  <option value="Livraison">Livraison</option>
+  <option value="Monte-meubles">Monte-meubles</option>
+</optgroup>
+<optgroup label="Auto / Dépannage">
+  <option value="Mécanique auto">Mécanique auto</option>
+  <option value="Carrosserie">Carrosserie</option>
+  <option value="Pare-brise">Pare-brise</option>
+  <option value="Pneus">Pneus</option>
+  <option value="Dépannage / remorquage">Dépannage / remorquage</option>
+  <option value="Nettoyage auto">Nettoyage auto</option>
+</optgroup>
+<optgroup label="Informatique / Digital">
+  <option value="Dépannage PC">Dépannage PC</option>
+  <option value="Installation / Wi‑Fi">Installation / Wi‑Fi</option>
+  <option value="Sauvegarde / sécurité">Sauvegarde / sécurité</option>
+  <option value="Création site web">Création site web</option>
+  <option value="Graphisme / logos">Graphisme / logos</option>
+  <option value="Montage vidéo">Montage vidéo</option>
+  <option value="Réseaux sociaux">Réseaux sociaux</option>
+</optgroup>
+<optgroup label="Événementiel">
+  <option value="Photographe">Photographe</option>
+  <option value="Vidéaste">Vidéaste</option>
+  <option value="DJ">DJ</option>
+  <option value="Traiteur">Traiteur</option>
+  <option value="Décoration événement">Décoration événement</option>
+  <option value="Location sono/lumière">Location sono/lumière</option>
+</optgroup>
+<optgroup label="Cours / Services">
+  <option value="Soutien scolaire">Soutien scolaire</option>
+  <option value="Cours de musique">Cours de musique</option>
+  <option value="Coaching">Coaching</option>
+  <option value="Traduction">Traduction</option>
+  <option value="Aide administrative">Aide administrative</option>
+</optgroup>
+<option value="Autre">Autre (préciser)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="zone">Zone <span class="req">*</span></label>
+              <div class="selectWrap">
+                <select id="zone" required>
+                  <option value="">Choisir…</option>
+                  <option value="Sur toute l'île">Sur toute l'île</option>
+                  <option value="Nord">Nord</option>
+<option value="Sud">Sud</option>
+<option value="Est">Est</option>
+<option value="Ouest">Ouest</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="commune">Commune <span class="req">*</span></label>
+              <div class="selectWrap">
+                <select id="commune" required>
+                  <option value="">Choisir…</option>
+                  <option value="Saint-Denis">Saint-Denis</option>
+<option value="Sainte-Marie">Sainte-Marie</option>
+<option value="Sainte-Suzanne">Sainte-Suzanne</option>
+<option value="Saint-André">Saint-André</option>
+<option value="Bras-Panon">Bras-Panon</option>
+<option value="Saint-Benoît">Saint-Benoît</option>
+<option value="Sainte-Rose">Sainte-Rose</option>
+<option value="Saint-Philippe">Saint-Philippe</option>
+<option value="Saint-Joseph">Saint-Joseph</option>
+<option value="Petite-Île">Petite-Île</option>
+<option value="Saint-Pierre">Saint-Pierre</option>
+<option value="Le Tampon">Le Tampon</option>
+<option value="Entre-Deux">Entre-Deux</option>
+<option value="Saint-Louis">Saint-Louis</option>
+<option value="Les Avirons">Les Avirons</option>
+<option value="L’Étang-Salé">L’Étang-Salé</option>
+<option value="Saint-Leu">Saint-Leu</option>
+<option value="Trois-Bassins">Trois-Bassins</option>
+<option value="Saint-Paul">Saint-Paul</option>
+<option value="La Possession">La Possession</option>
+<option value="Le Port">Le Port</option>
+<option value="Cilaos">Cilaos</option>
+<option value="Salazie">Salazie</option>
+<option value="La Plaine-des-Palmistes">La Plaine-des-Palmistes</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field" style="grid-column:1/-1;">
+              <label for="description">Description (visible) <span class="req">*</span></label>
+              <textarea id="description" required placeholder="Ex : plombier réactif, dépannage 7j/7…"></textarea>
+            </div>
+          </div>
+
+          <div class="formActions">
+            <button class="btn btnPrimary" id="btnReg" type="submit">Créer mon compte</button>
+            <a class="btn" href="offreur-login.html">J’ai déjà un compte</a>
+          </div>
+          <div id="msg" class="notice" style="display:none;"></div>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+<script src="offreur-register.js?v=27"></script>
+
+  <script src="assets/js/dx-include-header.js?v=1"></script>
+<script src="assets/js/dx-header.js?v=1"></script>
+
+</body>
+</html>

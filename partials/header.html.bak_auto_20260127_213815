@@ -1,0 +1,31 @@
+<header class="dx-header">
+  <div class="dx-header-inner">
+    <a class="dx-brand" href="/index.html" aria-label="Retour à l'accueil DevisExpress974">
+      <img class="dx-logo" src="/assets/img/logo-eclair-orange.png" alt="Logo DevisExpress974">
+      <span class="dx-brand-text">
+        <span class="dx-brand-name">DevisExpress974</span>
+        <span class="dx-brand-tagline">Une seule demande, plusieurs devis</span>
+      </span>
+    </a>
+
+    <nav class="dx-tabs" aria-label="Menu">
+      <a href="/index.html" data-path="/index.html">Accueil</a>
+      <a href="/demandeur.html" data-path="/demandeur.html">Faire une demande</a>
+      <a href="/mur-demandes.html" data-path="/mur-demandes.html">Mur des demandes</a>
+      <a href="/offreurs.html" data-path="/offreurs.html">Les offreurs</a>
+
+      <div class="dx-more" data-more>
+        <button class="dx-more-btn" type="button" aria-haspopup="menu" aria-expanded="false">
+          Plus <span aria-hidden="true">▾</span>
+        </button>
+        <div class="dx-more-menu" role="menu">
+          <a role="menuitem" href="/infos-tarifs.html" data-path="/infos-tarifs.html">Infos &amp; Tarifs</a>
+          <a role="menuitem" href="/contact.html" data-path="/contact.html">Contact</a>
+          <a role="menuitem" href="/cgv.html" data-path="/cgv.html">CGV</a>
+        </div>
+      </div>
+    </nav>
+
+    <a class="dx-cta" href="/offreur-login.html">S'identifier</a>
+  </div>
+</header>

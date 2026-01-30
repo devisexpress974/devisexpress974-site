@@ -1,0 +1,112 @@
+﻿<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+
+<link rel="stylesheet" href="/styles.css?v=20260129143730" />
+<link rel="stylesheet" href="/assets/css/dx-header.css?v=20260129143730" />
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="heroTitle" style="font-size:42px;">Contact</h1>
+      <p class="heroSub">Écris-nous pour toute question (demandeur / offreur) ou signalement.</p>
+
+      <div class="legalBlock">
+        <h2>Coordonnées</h2>
+        <p>
+          <strong>Email :</strong> <a href="mailto:devisexpress974@gmail.com">devisexpress974@gmail.com</a><br>
+          <strong>Téléphone :</strong> <span id="contactPhone">—</span>
+        </p>
+      </div>
+
+      <div class="legalBlock" style="margin-top:18px;">
+        <h2>Nous écrire</h2>
+        <form id="contactForm" novalidate>
+          <div class="formGrid">
+            <div class="field">
+              <label for="cRole">Vous êtes <span class="req">*</span></label>
+              <select id="cRole" required>
+                <option value="">Choisir…</option>
+                <option value="demandeur">Demandeur</option>
+                <option value="offreur">Offreur</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="cSujet">Sujet <span class="req">*</span></label>
+              <select id="cSujet" required>
+                <option value="">Choisir…</option>
+                <option value="question">Question</option>
+                <option value="signalement">Signalement</option>
+                <option value="probleme-technique">Problème technique</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="cNom">Nom <span class="req">*</span></label>
+              <input class="input" id="cNom" type="text" required autocomplete="name" />
+            </div>
+
+            <div class="field">
+              <label for="cEmail">Email <span class="req">*</span></label>
+              <input class="input" id="cEmail" type="email" required autocomplete="email" />
+            </div>
+
+            <div class="field" style="grid-column:1/-1;">
+              <label for="cTel">Téléphone (optionnel)</label>
+              <input class="input" id="cTel" type="tel" autocomplete="tel" />
+            </div>
+
+            <div class="field" style="grid-column:1/-1;">
+              <label for="cMessage">Message <span class="req">*</span></label>
+              <textarea id="cMessage" rows="6" required placeholder="Explique ta demande le plus clairement possible."></textarea>
+            </div>
+          </div>
+
+          <div style="margin-top:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <button class="btnPrimary" id="cSendBtn" type="submit">Envoyer</button>
+            <span id="contactStatus" class="muted"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script src="api.js?v=27"></script>
+<script src="auth.js?v=27"></script>
+<script src="main.js?v=27"></script>
+<script src="contact.js?v=27"></script>
+
+
+<script src="/assets/js/dx-include-header.js?v=20260129143730"></script>
+<script src="/assets/js/dx-header.js?v=20260129143730"></script>
+</body>
+</html>
+
+

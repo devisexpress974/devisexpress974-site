@@ -1,0 +1,204 @@
+﻿<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevisExpress974 — Une seule demande, plusieurs devis</title>
+
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="theme-color" content="#ff3b0a" />
+
+  <!-- ton CSS principal -->
+  <link rel="stylesheet" href="/styles.css?v=31" />
+
+  <!-- header "image 3" -->
+  <link rel="stylesheet" href="assets/css/dx-header.css?v=1" />
+  <link rel="stylesheet" href="/assets/css/dx-header.css?v=1" />
+</head>
+
+<body>
+  <div id="dx-header-slot"></div>
+
+  <!-- header injecté -->
+  <div id="dx-header"></div>
+
+  <main>
+    <div class="container">
+
+      <section class="card pad">
+        <div class="heroGrid">
+          <div>
+            <h1 class="heroTitle">Une seule demande.<br>Plusieurs prestataires. Tu choisis.</h1>
+
+            <p class="heroSub">
+              Dépose ta demande en 2 minutes, sur toute l'île. Elle apparaît sur le mur (sans coordonnées).
+              Les prestataires débloquent selon leur formule et te contactent directement.
+            </p>
+
+            <div class="btnRow">
+              <a class="btn btnPrimary" href="demande.html">Déposer une demande</a>
+              <a class="btn" href="mur-demandes.html">Voir le mur</a>
+              <a class="btn" href="offreur-register.html">Devenir offreur</a>
+            </div>
+
+            <div class="statsRow" aria-label="Informations clés">
+              <div class="statBlock">
+                <div class="statValue">1 demande</div>
+                <div class="statLabel">Tu publies une seule fois</div>
+              </div>
+              <div class="statBlock">
+                <div class="statValue">Plusieurs devis</div>
+                <div class="statLabel">Les offreurs te contactent</div>
+              </div>
+              <div class="statBlock">
+                <div class="statValue">0 €</div>
+                <div class="statLabel">Pour le demandeur</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="videoBox" aria-label="Vidéo de présentation">
+            <div class="videoWrap">
+              <video id="heroVideo" controls muted playsinline preload="metadata">
+                <source src="./video.mp4" type="video/mp4">
+                Votre navigateur ne supporte pas la vidéo.
+              </video>
+              <button id="videoPlayBtn" class="videoPlayBtn" type="button" aria-label="Lire la vidéo">▶</button>
+            </div>
+            <div id="videoMsg" class="videoMsg" style="display:none;"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card pad" style="margin-top:16px;">
+        <h2 class="sectionTitle">Quel service cherches-tu ?</h2>
+        <p class="muted">Choisis une catégorie : tu verras les offreurs correspondants (coordonnées masquées).</p>
+
+        <div class="btnRow" style="margin-top:10px;">
+          <a class="btn" href="offreurs.html?service=B%C3%A2timent%20%2F%20Travaux">Bâtiment / Travaux</a>
+          <a class="btn" href="offreurs.html?service=Plomberie">Plomberie</a>
+          <a class="btn" href="offreurs.html?service=%C3%89lectricit%C3%A9">Électricité</a>
+          <a class="btn" href="offreurs.html?service=Jardinage">Jardinage</a>
+          <a class="btn" href="offreurs.html?service=M%C3%A9nage%20%2F%20Nettoyage">Ménage / Nettoyage</a>
+          <a class="btn" href="offreurs.html?service=Informatique">Informatique</a>
+          <a class="btn" href="offreurs.html?service=Beaut%C3%A9%20%2F%20Coiffure%20%2F%20Esth%C3%A9tique">Beauté / Coiffure / Esthétique</a>
+          <a class="btn" href="offreurs.html?service=Coaching%20%2F%20Formation">Coaching / Formation</a>
+          <a class="btn" href="offreurs.html?service=Auto%20%2F%20Moto%20-%20R%C3%A9paration">Auto / Moto - Réparation</a>
+          <a class="btn" href="offreurs.html?service=Auto%20%2F%20Moto%20-%20Vente">Auto / Moto - Vente</a>
+          <a class="btn" href="offreurs.html?service=D%C3%A9m%C3%A9nagement">Déménagement</a>
+          <a class="btn" href="offreurs.html?service=Services%20%C3%A0%20la%20personne">Services à la personne</a>
+          <a class="btn" href="offreurs.html?service=Restauration%20%2F%20Traiteur">Restauration / Traiteur</a>
+          <a class="btn" href="offreurs.html?service=%C3%89v%C3%A9nementiel">Événementiel</a>
+          <a class="btn" href="offreurs.html?service=Location%20de%20mat%C3%A9riel">Location de matériel</a>
+          <a class="btn" href="offreurs.html?service=Autre">Autre</a>
+        </div>
+
+        <div class="noteBox" style="margin-top:12px;">
+          <strong>Astuce :</strong> si tu ne trouves pas ta catégorie, choisis <em>Autre</em> et précise ton besoin dans la description.
+        </div>
+      </section>
+
+      <section class="card pad" style="margin-top:16px;">
+        <h2 class="sectionTitle">Comment ça marche ?</h2>
+
+        <div class="statsRow" style="margin-top:12px;">
+          <div class="statBlock">
+            <div class="statValue">1</div>
+            <div class="statLabel"><strong>Tu publies ta demande</strong><br>Service, commune, description, budget, photos (option).</div>
+          </div>
+          <div class="statBlock">
+            <div class="statValue">2</div>
+            <div class="statLabel"><strong>Les pros te répondent</strong><br>Les offreurs ciblés débloquent selon leur formule.</div>
+          </div>
+          <div class="statBlock">
+            <div class="statValue">3</div>
+            <div class="statLabel"><strong>Tu choisis</strong><br>Après la prestation, tu peux laisser une note/avis.</div>
+          </div>
+        </div>
+
+        <div class="btnRow" style="margin-top:14px;">
+          <a class="btn btnPrimary" href="demande.html">Faire une demande</a>
+          <a class="btn" href="offreurs.html">Voir les offreurs</a>
+          <a class="btn" href="mur-demandes.html">Voir le mur</a>
+        </div>
+      </section>
+
+      <section class="card pad" style="margin-top:16px;">
+        <h2 class="sectionTitle">Infos &amp; Tarifs</h2>
+
+        <div class="heroGrid" style="grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="card pad" style="box-shadow:none;">
+            <h3 style="margin:0 0 10px;">Demandeur</h3>
+            <div class="statValue" style="margin:0 0 8px;">0 €</div>
+            <ul class="list">
+              <li>Publication illimitée de demandes</li>
+              <li>Réception d'offres privées</li>
+              <li>Notation des pros après prestation</li>
+            </ul>
+          </div>
+
+          <div class="card pad" style="box-shadow:none;">
+            <h3 style="margin:0 0 10px;">Offreur</h3>
+            <div class="statValue" style="margin:0 0 8px;">0 € le 1er mois</div>
+            <div class="muted" style="margin:-6px 0 10px;">puis 4,99 €/mois (sans engagement)</div>
+            <ul class="list">
+              <li>Réception automatique des demandes ciblées</li>
+              <li>Accès à un profil modifiable</li>
+              <li>Option ponctuelle à 0,99 € pour débloquer une demande</li>
+            </ul>
+
+            <div class="btnRow" style="margin-top:12px;">
+              <a class="btn btnPrimary" href="paiement-abonnement.html">S'abonner</a>
+              <a class="btn" href="paiement-ponctuel.html">0,99 € ponctuel</a>
+              <a class="btn" href="paiement-pack.html">Pack 10 jours</a>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted" style="margin-top:12px;">
+          Les coordonnées des demandes restent masquées sur le mur. Les offreurs les débloquent uniquement après abonnement ou paiement ponctuel.
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerRow">
+      <div class="footLeft">
+        <span>© <span id="year"></span> DevisExpress974 — Tous droits réservés.</span>
+      </div>
+      <div class="footLinks">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="cgv.html">CGV</a>
+        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Header injecté -->
+  <script src="assets/js/dx-include-header.js?v=1"></script>
+  <script src="assets/js/dx-header.js?v=1"></script>
+
+  <!-- tes scripts -->
+  <script src="./api.js?v=29"></script>
+  <script src="./auth.js?v=29"></script>
+  <script src="./main.js?v=29"></script>
+  <script src="./video-helper.js?v=29"></script>
+
+  <script>
+  (function(){
+    var y = document.getElementById("year");
+    if (y) y.textContent = new Date().getFullYear();
+  })();
+  </script>
+
+  <script src="/assets/js/dx-include-header.js?v=1"></script>
+  <script src="/assets/js/dx-header.js?v=1"></script>
+</body>
+</html>
+

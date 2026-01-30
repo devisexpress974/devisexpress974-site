@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Infos & Tarifs | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+  <link rel="stylesheet" href="assets/css/dx-header.css?v=1">
+</head>
+<body>
+
+  <div id="dx-header"></div>
+
+<main>
+  <div class="container">
+    <section class="card pad">
+      <h1 class="pageTitle">Infos &amp; Tarifs</h1>
+      <p class="pageLead">Côté demandeur : <strong>gratuit</strong>. Côté offreur : tu choisis une formule pour <strong>débloquer les coordonnées</strong> et contacter.</p>
+
+      <div class="hr"></div>
+
+      <h2 class="h2">Comment ça marche</h2>
+      <div class="stepsGrid">
+        <div class="stepCard">
+          <div class="stepN">1</div>
+          <div>
+            <div class="stepT">Le demandeur publie</div>
+            <div class="muted">Sa demande apparaît sur le mur, sans coordonnées.</div>
+          </div>
+        </div>
+        <div class="stepCard">
+          <div class="stepN">2</div>
+          <div>
+            <div class="stepT">L’offreur trouve une demande</div>
+            <div class="muted">Filtre par service / commune et ouvre le détail.</div>
+          </div>
+        </div>
+        <div class="stepCard">
+          <div class="stepN">3</div>
+          <div>
+            <div class="stepT">Déblocage selon formule</div>
+            <div class="muted">Paiement puis accès aux coordonnées pour contacter.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 class="h2">Formules côté offreur</h2>
+
+      <div class="pricingGrid">
+        <article class="priceCard">
+          <div class="priceHead">
+            <h3 class="h3">Ponctuel</h3>
+            <div class="price">0,99&nbsp;€</div>
+            <div class="muted">Accès sur une demande.</div>
+          </div>
+          <ul class="list">
+            <li>Débloque les coordonnées d’une demande</li>
+            <li>Idéal pour tester / besoin ponctuel</li>
+          </ul>
+          <div class="priceActions">
+            <a class="btn btnPrimary" href="paiement-ponctuel.html">Payer (ponctuel)</a>
+            <a class="btn" href="https://www.paypal.com/ncp/links/4LRS689BCXY5G" target="_blank" rel="noopener">Ouvrir PayPal</a>
+          </div>
+        </article>
+
+        <article class="priceCard">
+          <div class="priceHead">
+            <h3 class="h3">Abonnement</h3>
+            <div class="price">4,99&nbsp;€/mois</div>
+            <div class="muted">Pour débloquer plus souvent.</div>
+          </div>
+          <ul class="list">
+            <li>Accès récurrent (selon ta formule)</li>
+            <li>Pratique si tu réponds à des demandes régulièrement</li>
+          </ul>
+          <div class="priceActions">
+            <a class="btn btnPrimary" href="paiement-abonnement.html">Payer (abonnement)</a>
+          </div>
+        </article>
+
+        <article class="priceCard">
+          <div class="priceHead">
+            <h3 class="h3">Pack</h3>
+            <div class="price">Paiement unique</div>
+            <div class="muted">Un lot d’accès (selon ton pack).</div>
+          </div>
+          <ul class="list">
+            <li>Plus avantageux qu’un à un</li>
+            <li>Parfait si tu réponds à plusieurs demandes</li>
+          </ul>
+          <div class="priceActions">
+            <a class="btn btnPrimary" href="paiement-pack.html">Payer (pack)</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="hr"></div>
+
+      <h2 class="h2">Conditions &amp; usage</h2>
+      <details class="details">
+        <summary>Coordonnées masquées</summary>
+        <p class="muted">Sur le mur, les coordonnées (téléphone / email) restent masquées. Elles s’affichent uniquement après déblocage côté offreur.</p>
+      </details>
+      <details class="details">
+        <summary>Notes / avis</summary>
+        <p class="muted">Après un échange réel, le demandeur peut laisser un avis pour aider la communauté.</p>
+      </details>
+      <details class="details">
+        <summary>Règles simples</summary>
+        <ul class="list">
+          <li>Respect et langage correct (sinon suppression).</li>
+          <li>Pas de spam / pas de demandes illégales.</li>
+          <li>Chaque demande est destinée à recevoir plusieurs devis.</li>
+        </ul>
+      </details>
+
+      <div class="callout">
+        <div><strong>Besoin d’aide ?</strong> Écris-nous via la page Contact.</div>
+        <a class="btn" href="contact.html">Contact</a>
+      </div>
+    </section>
+  </div>
+</main>
+<footer class="siteFooter">
+  <div class="container footerInner">
+    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+    <div class="footerLinks" aria-label="Liens légaux">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+<script src="main.js?v=27"></script>
+
+  <script src="assets/js/dx-include-header.js?v=1"></script>
+<script src="assets/js/dx-header.js?v=1"></script>
+
+</body>
+</html>

@@ -1,66 +1,65 @@
-(function () {
-  let bound = false;
+(() => {
+  function setActiveTab() {
+    const path = (location.pathname || "").toLowerCase();
+    const file = path.endsWith("/") ? "/index.html" : path;
 
-  window.__dxInitHeader = function (scopeEl) {
-    const root = scopeEl || document;
+    document.querySelectorAll(".dx-tabs a[data-path]").forEach(a => {
+      const target = (a.getAttribute("data-path") || "").toLowerCase();
+      // target est du style "/mur-demandes.html"
+      const isActive =
+        file.endsWith(target) ||
+        (target === "/index.html" && (file === "/" || file.endsWith("/index.html")));
 
-    const burger = root.querySelector("[data-dx-burger]");
-    const nav = root.querySelector("[data-dx-nav]");
-    const moreBtn = root.querySelector("[data-dx-more-btn]");
-    const moreMenu = root.querySelector("[data-dx-more-menu]");
+      a.classList.toggle("active", !!isActive);
+    });
+  }
 
-    const closeMore = () => {
-      if (moreBtn) moreBtn.setAttribute("aria-expanded", "false");
-      if (moreMenu) moreMenu.classList.remove("open");
-    };
+  function setupMoreMenu() {
+    const wrap = document.querySelector("[data-more]");
+    if (!wrap) return;
 
-    const closeNav = () => {
-      document.body.classList.remove("navOpen");
-      if (burger) burger.setAttribute("aria-expanded", "false");
-      closeMore();
-    };
+    const btn = wrap.querySelector(".dx-more-btn");
+    const menu = wrap.querySelector(".dx-more-menu");
+    if (!btn || !menu) return;
 
-    if (burger && nav) {
-      burger.addEventListener("click", () => {
-        const open = !document.body.classList.contains("navOpen");
-        document.body.classList.toggle("navOpen", open);
-        burger.setAttribute("aria-expanded", open ? "true" : "false");
-        if (!open) closeMore();
-      });
+    function close() {
+      wrap.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
     }
 
-    if (moreBtn && moreMenu) {
-      moreBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const open = !moreMenu.classList.contains("open");
-        moreMenu.classList.toggle("open", open);
-        moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
-      });
-
-      moreMenu.addEventListener("click", (e) => e.stopPropagation());
+    function toggle() {
+      const open = !wrap.classList.contains("open");
+      wrap.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
     }
 
-    // Évite de binder 50 fois si tu réinjectes (sécurité)
-    if (!bound) {
-      bound = true;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggle();
+    });
 
-      document.addEventListener("click", () => {
-        closeNav();
-      });
+    // clic dehors = ferme
+    document.addEventListener("click", () => close());
 
-      document.addEventListener("keydown", (ev) => {
-        if (ev.key === "Escape") closeNav();
-      });
+    // ESC = ferme
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
 
-      // Empêche le clic dans le header de fermer tout
-      document.addEventListener("click", (e) => {
-        const header = document.querySelector(".dx-header");
-        if (header && header.contains(e.target)) {
-          // si clic dans header, on ne ferme pas le menu global automatiquement
-          e.stopPropagation();
-        }
-      }, true);
-    }
-  };
+    // clic dans le menu = laisse naviguer, mais ferme visuellement
+    menu.addEventListener("click", () => close());
+  }
+
+  function init() {
+    setActiveTab();
+    setupMoreMenu();
+  }
+
+  window.addEventListener("dx:headerReady", init);
+  // au cas où le header serait déjà là
+  document.addEventListener("DOMContentLoaded", () => {
+    // si le header est déjà injecté, init direct
+    if (document.querySelector(".dx-header")) init();
+  });
 })();

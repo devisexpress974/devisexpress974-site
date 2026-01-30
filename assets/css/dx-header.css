@@ -1,170 +1,123 @@
-/* DX Header - style identique sur toutes les pages */
-
+/* Header DevisExpress974 (DX) - menu en 1 ligne + bouton Plus */
 .dx-header{
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 999;
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border, rgba(0,0,0,.12));
+  border-bottom: 1px solid rgba(0,0,0,.12);
 }
 
-.dx-header-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  padding:10px 0;
+.dx-header-inner{
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
 }
 
-/* Brand */
 .dx-brand{
   display:flex;
   align-items:center;
   gap:10px;
   text-decoration:none;
-  min-width:220px;
+  color:#111;
+  min-width: 220px;
 }
 
 .dx-logo{
-  height:44px;
+  height: 44px;
   width:auto;
   object-fit:contain;
+  display:block;
 }
 
-.dx-brand-text{ display:flex; flex-direction:column; line-height:1.05; }
-.dx-brand-name{ font-weight:1000; letter-spacing:-.02em; }
-.dx-brand-slogan{ font-size:12px; font-weight:800; color: var(--muted, #5d5d5d); }
+.dx-brand-text{ display:flex; flex-direction:column; line-height:1.1; }
+.dx-brand-name{ font-weight: 1000; letter-spacing:-.02em; }
+.dx-brand-tagline{ font-size:12px; font-weight:800; color: rgba(0,0,0,.55); }
 
-/* Nav “pilule” comme l’accueil */
-.dx-nav{
+.dx-tabs{
+  flex: 1;
   display:flex;
   align-items:center;
-  gap:6px;
-  padding:6px;
-  border-radius:999px;
-  background:#f2f2f5;
-  border:1px solid rgba(0,0,0,.08);
-  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  gap:8px;
+  flex-wrap: nowrap;           /* ✅ 1 ligne */
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.dx-link{
+.dx-tabs a,
+.dx-more-btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   text-decoration:none;
-  font-weight:900;
-  font-size:14px;
-  padding:10px 14px;
-  border-radius:999px;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 12px;
   color:#111;
-  white-space:nowrap;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
 }
 
-.dx-link:hover{
-  background: rgba(255,59,10,.12);
+.dx-tabs a:hover,
+.dx-more-btn:hover{
+  background: rgba(255,59,10,.10);
 }
 
-.dx-link.active{
-  background: linear-gradient(135deg, var(--accent2, #ffd140), var(--accent, #ff3b0a));
-  border: 1px solid rgba(0,0,0,.08);
+.dx-tabs a.active{
+  background: rgba(255,209,64,.22);
+  border-color: rgba(255,209,64,.35);
 }
 
-/* Bouton “S’identifier” à droite */
-.dx-login{
+/* CTA à droite */
+.dx-cta{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   text-decoration:none;
-  font-weight:1000;
-  padding:10px 14px;
-  border-radius:14px;
-  background: linear-gradient(135deg, var(--accent2, #ffd140), var(--accent, #ff3b0a));
-  border:1px solid rgba(0,0,0,.10);
+  font-weight: 1000;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffd140, #ff3b0a);
+  border: 1px solid rgba(0,0,0,.10);
   box-shadow: 0 8px 18px rgba(0,0,0,.10);
   color:#111;
+  white-space: nowrap;
 }
 
-/* Burger */
-.dx-burger{
-  display:none;
-  width:44px;
-  height:44px;
-  border-radius:14px;
-  border:1px solid var(--border, rgba(0,0,0,.12));
-  background:#fff;
-  cursor:pointer;
-  padding:10px;
-}
-
-.dx-burger span{
-  display:block;
-  height:3px;
-  margin:6px 0;
-  background:#111;
-  border-radius:3px;
-}
-
-/* Dropdown “Plus” */
-.dx-more{ position:relative; }
-.dx-more-btn{ cursor:pointer; }
+/* Menu Plus */
+.dx-more{ position: relative; }
 .dx-more-menu{
+  display:none;
   position:absolute;
-  top: calc(100% + 10px);
   right:0;
-  min-width:240px;
+  top: calc(100% + 8px);
+  min-width: 200px;
   background:#fff;
   border:1px solid rgba(0,0,0,.12);
-  border-radius:14px;
+  border-radius: 14px;
   box-shadow: 0 18px 40px rgba(0,0,0,.12);
-  padding:8px;
-  display:none;
+  padding: 8px;
 }
 
-.dx-more-menu.open{ display:block; }
+.dx-more.open .dx-more-menu{ display:block; }
 
 .dx-more-menu a{
-  display:block;
-  text-decoration:none;
-  padding:10px 12px;
-  border-radius:12px;
-  font-weight:900;
-  color:#111;
+  display:flex;
+  padding:10px 10px;
+  border-radius: 12px;
 }
-
 .dx-more-menu a:hover{
   background: rgba(0,0,0,.05);
 }
 
-/* Mobile */
-.dx-mobileOnly{ display:none; }
-
+/* Mobile : si ça serre trop, on garde 1 ligne mais scroll horizontal possible */
 @media (max-width: 980px){
-  .dx-burger{ display:inline-block; }
-  .dx-login{ display:none; }
-
-  .dx-nav{
-    display:none;
-    width:100%;
-    flex-direction:column;
-    align-items:stretch;
-    border-radius:16px;
-    padding:10px;
-    background:#fff;
-    border:1px solid var(--border, rgba(0,0,0,.12));
-    box-shadow: 0 10px 25px rgba(0,0,0,.08);
-  }
-
-  body.navOpen .dx-nav{ display:flex; }
-
-  .dx-link{ width:100%; justify-content:flex-start; border-radius:12px; }
-  .dx-mobileOnly{ display:inline-flex; }
-  .dx-more-menu{
-    position:static;
-    display:none;
-    box-shadow:none;
-    border-radius:12px;
-    margin-top:6px;
-  }
-  .dx-more-menu.open{ display:block; }
+  .dx-tabs{ overflow-x:auto; }
+  .dx-header-inner{ gap:10px; }
+  .dx-brand-tagline{ display:none; }
 }
