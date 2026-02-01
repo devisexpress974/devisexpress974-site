@@ -1,101 +1,68 @@
+// DX INCLUDE HEADER v31
 (function () {
-  // Compute version from this script tag: dx-include-header.js?v=...
-  function getVersion() {
-    const s = document.currentScript || Array.from(document.scripts).reverse().find(x => (x.src || '').includes('dx-include-header.js'));
-    if (!s || !s.src) return '';
-    const m = s.src.match(/[?&]v=([^&]+)/);
-    return m ? decodeURIComponent(m[1]) : '';
-  }
+  const HEADER_PARTIAL = "./partials/header.html?v=31";
+  const CSS_FILE = "./assets/css/dx-header.css?v=31";
+  const JS_FILE = "./assets/js/dx-header.js?v=31";
 
-  const ver = getVersion();
-  const qs = ver ? ('?v=' + encodeURIComponent(ver)) : '';
-
-  // Support http(s) + local file opening
-  const isFile = location.protocol === 'file:';
-  const base = isFile ? './' : '/';
-
-  const HEADER_URL = base + 'partials/header.html' + qs;
-  const CSS_URL = base + 'assets/css/dx-header.css' + qs;
-  const JS_URL = base + 'assets/js/dx-header.js' + qs;
-
-  function normalizeUrl(u) {
-    try {
-      const url = new URL(u, location.href);
-      return url.pathname.replace(/\/+/g, '/');
-    } catch {
-      return String(u).split('?')[0].split('#')[0];
+  function ensureMount() {
+    let mount = document.getElementById("dxHeader");
+    if (!mount) {
+      mount = document.createElement("div");
+      mount.id = "dxHeader";
+      // on l'insère au tout début du body
+      document.body.insertAdjacentElement("afterbegin", mount);
     }
+    return mount;
   }
 
-  function hasAsset(tag, urlBasePath) {
-    const want = normalizeUrl(urlBasePath);
-    const els = document.getElementsByTagName(tag);
-    for (const el of els) {
-      const attr = tag === 'link' ? el.getAttribute('href') : el.getAttribute('src');
-      if (!attr) continue;
-      const got = normalizeUrl(attr);
-      if (got === want) return true;
-    }
-    return false;
+  function ensureCss() {
+    const exists = !!document.querySelector('link[href*="dx-header.css"]');
+    if (exists) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = CSS_FILE;
+    document.head.appendChild(link);
   }
 
-  function loadCss(href) {
-    const basePath = href.split('?')[0];
-    if (hasAsset('link', basePath)) return Promise.resolve();
+  function ensureScript() {
     return new Promise((resolve, reject) => {
-      const l = document.createElement('link');
-      l.rel = 'stylesheet';
-      l.href = href;
-      l.onload = () => resolve();
-      l.onerror = () => reject(new Error('CSS failed: ' + href));
-      document.head.appendChild(l);
-    });
-  }
+      const exists = !!document.querySelector('script[src*="dx-header.js"]');
+      if (exists) return resolve();
 
-  function loadJs(src) {
-    const basePath = src.split('?')[0];
-    if (hasAsset('script', basePath)) return Promise.resolve();
-    return new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = src;
+      const s = document.createElement("script");
+      s.src = JS_FILE;
       s.defer = true;
       s.onload = () => resolve();
-      s.onerror = () => reject(new Error('JS failed: ' + src));
+      s.onerror = () => reject(new Error("Impossible de charger dx-header.js"));
       document.head.appendChild(s);
     });
   }
 
-  function ensureSlotAtTop() {
-    let slot = document.getElementById('dx-header-slot');
-    if (slot) return slot;
-    slot = document.createElement('div');
-    slot.id = 'dx-header-slot';
-    // insert at start of body
-    document.body.insertBefore(slot, document.body.firstChild);
-    return slot;
-  }
-
   async function inject() {
+    const mount = ensureMount();
+    if (mount.dataset.dxReady === "1") return;
+    mount.dataset.dxReady = "1";
+
+    ensureCss();
+
     try {
-      if (!document.body) return;
-      const target = ensureSlotAtTop();
+      const res = await fetch(HEADER_PARTIAL, { cache: "no-store" });
+      if (!res.ok) throw new Error("Fetch header failed: " + res.status);
+      const html = await res.text();
+      mount.innerHTML = html;
 
-      // Ensure CSS + header behavior are ready
-      await loadCss(CSS_URL);
-      await loadJs(JS_URL);
+      await ensureScript();
 
-      const res = await fetch(HEADER_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status + ' on ' + HEADER_URL);
-      target.innerHTML = await res.text();
-
-      if (typeof window.__dxInitHeader === 'function') window.__dxInitHeader();
+      if (window.DXHeader && typeof window.DXHeader.init === "function") {
+        window.DXHeader.init(document);
+      }
     } catch (e) {
-      console.error('DX header inject error:', e);
+      console.error("[DX] Header injection error:", e);
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inject);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", inject);
   } else {
     inject();
   }
