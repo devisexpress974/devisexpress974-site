@@ -1,29 +1,32 @@
-﻿<header class="dxTopbar">
-  <div class="container dxTopbarRow">
-    <a class="dxBrand" href="index.html" aria-label="Accueil DevisExpress974">
-      <img class="dxBrandLogo" src="logo-devisexpress974.png" alt="DevisExpress974">
-      <div class="dxBrandText">
-        <div class="dxBrandName">DevisExpress974</div>
-        <div class="dxBrandTag">Une seule demande, plusieurs devis</div>
-      </div>
+<!-- partials/header.html (source de vérité) -->
+<header class="dx-header" role="banner">
+  <div class="container dx-header-inner">
+    <a class="dx-brand" href="./index.html" aria-label="DevisExpress974 - Accueil">
+      <img class="dx-brand-logo" src="./assets/img/logo-eclair-orange.png" alt="DevisExpress974" />
+      <span class="dx-brand-text">
+        <span class="dx-brand-name">DevisExpress974</span>
+        <span class="dx-brand-tagline">1 clic - plusieurs devis - 100% 974</span>
+      </span>
     </a>
 
-    <button class="dxBurger" type="button"
-            aria-label="Ouvrir le menu"
-            aria-controls="dxNav"
-            aria-expanded="false"
-            data-dx-burger>
-      <span></span><span></span><span></span>
-    </button>
-
-    <nav class="dxNav" id="dxNav" data-dx-nav>
-      <a href="index.html">Accueil</a>
-      <a href="demande.html">Déposer une demande</a>
-      <a href="mur-demandes.html">Voir le mur</a>
-      <a href="offreurs.html">Offreurs</a>
-      <a href="info-tarifs.html">Infos &amp; Tarifs</a>
-      <a href="contact.html">Contact</a>
-      <a class="dxCta" href="offreur-login.html">Espace offreur</a>
+    <nav class="dx-tabs" aria-label="Navigation principale">
+      <a href="./index.html" data-path="/index.html">Accueil</a>
+      <a href="./demande.html" data-path="/demande.html">Faire une demande</a>
+      <a href="./mur-demandes.html" data-path="/mur-demandes.html">Mur des demandes</a>
+      <a href="./offreurs.html" data-path="/offreurs.html">Les offreurs</a>
     </nav>
+
+    <div class="dx-more" data-more>
+      <button class="dx-more-btn" type="button" aria-haspopup="true" aria-expanded="false">Plus</button>
+      <div class="dx-more-menu" role="menu" aria-label="Plus">
+        <a href="./info-tarifs.html" data-path="/info-tarifs.html">Infos &amp; Tarifs</a>
+        <a href="./contact.html" data-path="/contact.html">Contact</a>
+        <a href="./cgv.html" data-path="/cgv.html">CGV</a>
+        <a href="./mentions-legales.html" data-path="/mentions-legales.html">Mentions légales</a>
+        <a href="./politique-confidentialite.html" data-path="/politique-confidentialite.html">Confidentialité</a>
+      </div>
+    </div>
+
+    <a class="dx-login" href="./offreur-login.html" data-path="/offreur-login.html">S'identifier</a>
   </div>
 </header>

@@ -1,120 +1,144 @@
-.dxTopbar{
+/* Header DevisExpress974 (DX) - menu en 1 ligne + bouton Plus */
+.dx-header{
   position: sticky;
   top: 0;
   z-index: 999;
-  background: #fff;
-  border-bottom: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0,0,0,.12);
 }
 
-.dxTopbarRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  padding:12px 0;
+.dx-header-inner{
+  width: min(900px, calc(100% - 32px));
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
 }
 
-.dxBrand{
+.dx-brand{
   display:flex;
   align-items:center;
   gap:10px;
   text-decoration:none;
-  color:inherit;
+  color:#111;
   min-width: 220px;
 }
 
-.dxBrandLogo{
-  width:42px;
-  height:42px;
+.dx-logo{
+  height: 44px;
+  width:auto;
   object-fit:contain;
+  display:block;
 }
 
-.dxBrandName{
-  font-weight:800;
-  font-size:18px;
-  line-height:1.1;
-  color:#ff3b0a;
-}
+.dx-brand-text{ display:flex; flex-direction:column; line-height:1.1; }
+.dx-brand-name{ font-weight: 1000; letter-spacing:-.02em; }
+.dx-brand-tagline{ font-size:12px; font-weight:800; color: rgba(0,0,0,.55); }
 
-.dxBrandTag{
-  font-size:13px;
-  color:#777;
-  margin-top:2px;
-}
-
-.dxNav{
+.dx-tabs{
+  flex: 1;
   display:flex;
   align-items:center;
-  gap:14px;
+  gap:8px;
+  flex-wrap: nowrap;           /* ✅ 1 ligne */
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.dxNav a{
+.dx-tabs a,
+.dx-more-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   text-decoration:none;
-  color:#222;
-  font-weight:600;
-  padding:8px 10px;
-  border-radius:10px;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  color:#111;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
 }
 
-.dxNav a:hover{
+.dx-tabs a:hover,
+.dx-more-btn:hover{
+  background: rgba(255,59,10,.10);
+}
+
+.dx-tabs a.active{
+  background: rgba(255,209,64,.22);
+  border-color: rgba(255,209,64,.35);
+}
+
+/* CTA à droite */
+.dx-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  font-weight: 1000;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffd140, #ff3b0a);
+  border: 1px solid rgba(0,0,0,.10);
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+  color:#111;
+  white-space: nowrap;
+}
+
+/* Menu Plus */
+.dx-more{ position: relative; }
+.dx-more-menu{
+  display:none;
+  position:absolute;
+  right:0;
+  top: calc(100% + 8px);
+  min-width: 200px;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.12);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.12);
+  padding: 8px;
+}
+
+.dx-more.open .dx-more-menu{ display:block; }
+
+.dx-more-menu a{
+  display:flex;
+  padding:10px 10px;
+  border-radius: 12px;
+}
+.dx-more-menu a:hover{
   background: rgba(0,0,0,.05);
 }
 
-.dxNav .dxCta{
-  background:#ff3b0a;
-  color:#fff !important;
-  padding:10px 14px;
-  border-radius:12px;
-}
-
-.dxBurger{
-  display:none;
-  width:44px;
-  height:44px;
-  border:1px solid rgba(0,0,0,.12);
-  background:#fff;
-  border-radius:12px;
-  cursor:pointer;
-  padding:10px;
-}
-
-.dxBurger span{
-  display:block;
-  height:2px;
-  background:#222;
-  margin:5px 0;
-  border-radius:2px;
-}
-
-/* Mobile */
+/* Mobile : si ça serre trop, on garde 1 ligne mais scroll horizontal possible */
 @media (max-width: 980px){
-  .dxBurger{ display:block; }
-
-  .dxNav{
-    display:none;
-    position:absolute;
-    left:12px;
-    right:12px;
-    top:72px;
-    background:#fff;
-    border:1px solid rgba(0,0,0,.10);
-    border-radius:16px;
-    padding:10px;
-    flex-direction:column;
-    align-items:stretch;
-    gap:6px;
-    box-shadow: 0 12px 30px rgba(0,0,0,.12);
-  }
-
-  .dxNav.isOpen{ display:flex; }
-
-  .dxNav a{
-    padding:12px 12px;
-    border-radius:12px;
-  }
+  .dx-tabs{ overflow-x:auto; }
+  .dx-header-inner{ gap:10px; }
+  .dx-brand-tagline{ display:none; }
 }
 
-/* empêche le scroll quand le menu mobile est ouvert */
-html.dxNavOpen, html.dxNavOpen body{
-  overflow:hidden;
+
+/* --- DX fixes (branding + menu) --- */
+.dx-brand-name{ color:#ff3b0a; font-weight:800; }
+.dx-brand{ color:inherit; text-decoration:none; }
+.dx-brand:hover .dx-brand-name{ filter:brightness(0.95); }
+
+/* Keep accent consistent */
+.dx-tab.is-active,
+.dx-tab[aria-current="page"]{
+  background: linear-gradient(180deg, #ff7a1a 0%, #ff3b0a 100%);
+  color:#fff;
+  border-color: rgba(255,59,10,.25);
 }
+.dx-tab.is-active:hover{ filter:brightness(0.98); }
+
+/* Plus dropdown */
+.dx-more{ position:relative; }
+.dx-more.open .dx-more-menu{ display:block; }
+.dx-more-menu{ display:none; }
+

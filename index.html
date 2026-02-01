@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
@@ -10,21 +10,19 @@
   <meta http-equiv="Expires" content="0" />
   <meta name="theme-color" content="#ff3b0a" />
 
-  <link rel="stylesheet" href="./styles.css?v=20260129151343" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=20260129151343" />
+  <!-- ton CSS principal -->
+  <link rel="stylesheet" href="./styles.css?v=32" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=20260201114413" />
 
-  <!-- Fix vidéo (évite les zones noires / sizing) -->
-  <style>
-    .videoWrap{ aspect-ratio:16/9; background:#000; border-radius:16px; overflow:hidden; position:relative; }
-    #heroVideo{ width:100%; height:100%; display:block; object-fit:cover; }
-  </style>
+  <!-- header "image 3" -->
+
+  <script defer src="./assets/js/dx-include-header.js?v=20260201114413"></script>
 </head>
 
 <body>
-
   <div id="dx-header-slot"></div>
-
-  <main>
+<!-- header injecté -->
+<main>
     <div class="container">
 
       <section class="card pad">
@@ -180,22 +178,19 @@
     </div>
   </footer>
 
+  <!-- Header injecté -->
+<!-- tes scripts -->
+  <script src="./api.js?v=29"></script>
+  <script src="./auth.js?v=29"></script>
+  <script src="./main.js?v=29"></script>
+  <script src="./video-helper.js?v=29"></script>
+
   <script>
-    (function(){
-      var y = document.getElementById("year");
-      if (y) y.textContent = new Date().getFullYear();
-    })();
+  (function(){
+    var y = document.getElementById("year");
+    if (y) y.textContent = new Date().getFullYear();
+  })();
   </script>
-
-  <!-- tes scripts -->
-  <script src="./api.js?v=29" defer></script>
-  <script src="./auth.js?v=29" defer></script>
-  <script src="./main.js?v=29" defer></script>
-  <script src="./video-helper.js?v=29" defer></script>
-
-  <!-- header: IMPORTANT ordre -->
-  <script src="./assets/js/dx-header.js?v=20260129151343" defer></script>
-  <script src="./assets/js/dx-include-header.js?v=20260129151343" defer></script>
-
 </body>
 </html>
+
