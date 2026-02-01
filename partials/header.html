@@ -1,70 +1,92 @@
-<!-- DX HEADER v31 -->
-<header class="dxTopbar" data-dx-header>
+<!-- DevisExpress974 Header (partial) -->
+<header class="dx-header" role="banner">
   <div class="dx-header-inner">
-    <!-- Brand -->
-    <a class="dx-brand" href="./index.html" aria-label="DevisExpress974 - Accueil">
-      <img class="dx-logo" src="./logo-devisexpress974.png" alt="Logo DevisExpress974" />
+    <a class="dx-brand" href="index.html" aria-label="DevisExpress974">
+      <img class="dx-logo" src="/assets/img/logo-eclair-orange.png" alt="DevisExpress974" loading="eager" decoding="async" />
       <span class="dx-brandText">
-        <span class="dx-title">DevisExpress974</span>
-        <span class="dx-tagline">1 clic - plusieurs devis - 100% 974</span>
+        <span class="dx-brandName">DevisExpress974</span>
+        <span class="dx-brandTagline">1 clic - plusieurs devis - 100% 974</span>
       </span>
     </a>
 
-    <!-- Desktop nav pills -->
-    <nav class="dx-navWrap" aria-label="Navigation principale">
-      <div class="dx-navPills">
-        <a class="dx-navLink" href="./index.html">Accueil</a>
-        <a class="dx-navLink" href="./demande.html">Faire une demande</a>
-        <a class="dx-navLink" href="./mur-demandes.html">Mur des demandes</a>
-        <a class="dx-navLink" href="./offreurs.html">Les offreurs</a>
+    <nav class="dx-navPill" aria-label="Menu principal">
+      <div class="dx-tabs">
+        <a class="dx-tab" data-match="index.html,/" href="index.html">Accueil</a>
+        <span class="dx-sep" aria-hidden="true"></span>
+        <a class="dx-tab" data-match="demande.html" href="demande.html">Faire une demande</a>
+        <span class="dx-sep" aria-hidden="true"></span>
+        <a class="dx-tab" data-match="mur-demandes.html" href="mur-demandes.html">Mur des demandes</a>
+        <span class="dx-sep" aria-hidden="true"></span>
+        <a class="dx-tab" data-match="offreurs.html" href="offreurs.html">Les offreurs</a>
+        <span class="dx-sep" aria-hidden="true"></span>
 
-        <details class="dxPlus" role="list">
-          <summary class="dx-navLink dx-navLink--summary" role="listitem" aria-haspopup="menu">
-            Plus <span class="dx-caret" aria-hidden="true">▾</span>
-          </summary>
-          <div class="dxPlusMenu" role="menu">
-            <a role="menuitem" href="./paiement-ponctuel.html">Paiement ponctuel</a>
-            <a role="menuitem" href="./paiement-abonnement.html">Abonnement</a>
-            <a role="menuitem" href="./info-tarifs.html">Tarifs</a>
-            <a role="menuitem" href="./contact.html">Contact</a>
-            <a role="menuitem" href="./mentions-legales.html">Mentions légales</a>
-            <a role="menuitem" href="./politique-confidentialite.html">Confidentialité</a>
+        <div class="dx-dropdown" data-dx="dropdown">
+          <button
+            class="dx-tab dx-tab--btn"
+            type="button"
+            data-dx="dropdownToggle"
+            data-match="paiement-ponctuel.html,paiement-pack.html,paiement-abonnement.html,info-tarifs.html,contact.html,cgv.html,cookies.html,mentions-legales.html,politique-confidentialite.html"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            Plus
+            <svg class="dx-caret" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path d="M5 7l5 6 5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+
+          <div class="dx-menu" data-dx="dropdownMenu" role="menu" aria-label="Plus">
+            <a role="menuitem" data-match="paiement-ponctuel.html" href="paiement-ponctuel.html">Paiement ponctuel</a>
+            <a role="menuitem" data-match="paiement-pack.html" href="paiement-pack.html">Paiement pack</a>
+            <a role="menuitem" data-match="paiement-abonnement.html" href="paiement-abonnement.html">Paiement abonnement</a>
+            <div class="dx-menu-sep" aria-hidden="true"></div>
+            <a role="menuitem" data-match="info-tarifs.html" href="info-tarifs.html">Tarifs</a>
+            <a role="menuitem" data-match="contact.html" href="contact.html">Contact</a>
+            <a role="menuitem" data-match="cookies.html" href="cookies.html">Cookies</a>
+            <a role="menuitem" data-match="cgv.html" href="cgv.html">CGV</a>
+            <a role="menuitem" data-match="mentions-legales.html" href="mentions-legales.html">Mentions légales</a>
+            <a role="menuitem" data-match="politique-confidentialite.html" href="politique-confidentialite.html">Confidentialité</a>
           </div>
-        </details>
+        </div>
       </div>
     </nav>
 
-    <!-- Actions -->
     <div class="dx-actions">
-      <a class="dxBtn dxBtnPrimary" href="./offreur-login.html">S'identifier</a>
+      <a class="dx-cta" href="offreur-login.html">S&#39;identifier</a>
 
-      <button class="dxBurger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
+      <button
+        class="dx-burger"
+        type="button"
+        data-dx="burger"
+        aria-label="Ouvrir le menu"
+        aria-expanded="false"
+        aria-controls="dx-mobile-menu"
+      >
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
 
-  <!-- Mobile panel -->
-  <div class="dxMobilePanel" hidden>
-    <a class="dxMobileLink" href="./index.html">Accueil</a>
-    <a class="dxMobileLink" href="./demande.html">Faire une demande</a>
-    <a class="dxMobileLink" href="./mur-demandes.html">Mur des demandes</a>
-    <a class="dxMobileLink" href="./offreurs.html">Les offreurs</a>
+  <!-- Mobile menu -->
+  <div id="dx-mobile-menu" class="dx-mobile" data-dx="mobileMenu" hidden>
+    <a class="dx-mobile-cta" href="offreur-login.html">S&#39;identifier</a>
 
-    <details class="dxMobilePlus">
-      <summary class="dxMobileLink dxMobileLink--summary">
-        Plus <span class="dx-caret" aria-hidden="true">▾</span>
-      </summary>
-      <div class="dxMobilePlusMenu">
-        <a class="dxMobileSubLink" href="./paiement-ponctuel.html">Paiement ponctuel</a>
-        <a class="dxMobileSubLink" href="./paiement-abonnement.html">Abonnement</a>
-        <a class="dxMobileSubLink" href="./info-tarifs.html">Tarifs</a>
-        <a class="dxMobileSubLink" href="./contact.html">Contact</a>
-        <a class="dxMobileSubLink" href="./mentions-legales.html">Mentions légales</a>
-        <a class="dxMobileSubLink" href="./politique-confidentialite.html">Confidentialité</a>
-      </div>
-    </details>
+    <a data-match="index.html,/" href="index.html">Accueil</a>
+    <a data-match="demande.html" href="demande.html">Faire une demande</a>
+    <a data-match="mur-demandes.html" href="mur-demandes.html">Mur des demandes</a>
+    <a data-match="offreurs.html" href="offreurs.html">Les offreurs</a>
 
-    <a class="dxBtn dxBtnPrimary dxBtnMobile" href="./offreur-login.html">S'identifier</a>
+    <div class="dx-mobile-section">
+      <div class="dx-mobile-title">Plus</div>
+      <a data-match="paiement-ponctuel.html" href="paiement-ponctuel.html">Paiement ponctuel</a>
+      <a data-match="paiement-pack.html" href="paiement-pack.html">Paiement pack</a>
+      <a data-match="paiement-abonnement.html" href="paiement-abonnement.html">Paiement abonnement</a>
+      <a data-match="info-tarifs.html" href="info-tarifs.html">Tarifs</a>
+      <a data-match="contact.html" href="contact.html">Contact</a>
+      <a data-match="cookies.html" href="cookies.html">Cookies</a>
+      <a data-match="cgv.html" href="cgv.html">CGV</a>
+      <a data-match="mentions-legales.html" href="mentions-legales.html">Mentions légales</a>
+      <a data-match="politique-confidentialite.html" href="politique-confidentialite.html">Confidentialité</a>
+    </div>
   </div>
 </header>
