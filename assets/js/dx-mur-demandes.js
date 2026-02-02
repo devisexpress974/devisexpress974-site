@@ -20,6 +20,27 @@
 
   var all = [];
 
+  // ---- état offreur connecté (token) ----
+  var me = null;
+  var pendingUnlockId = '';
+
+  function getToken(){
+    try{ return localStorage.getItem('dx_token') || ''; }catch(e){ return ''; }
+  }
+  function isLoggedIn(){ return !!getToken(); }
+
+  async function loadMe(){
+    me = null;
+    if(!isLoggedIn()) return null;
+    if(!window.DX_API || !DX_API.getAny) return null;
+    try{
+      var res = await DX_API.getAny(['me','whoami'], {});
+      if(res && res.ok){ me = res.data || res.me || res.user || null; }
+    }catch(e){ me = null; }
+    return me;
+  }
+
+
   function render(list){
     var host = $('murList');
     if(!host) return;
@@ -95,14 +116,29 @@
     var title = esc(d.service || 'Demande');
     var where = esc((d.zone||'') + (d.commune ? (' — ' + d.commune) : ''));
 
+    // Exiger connexion avant paiement/déblocage
+    if(!isLoggedIn()){
+      var next = 'mur-demandes.html?unlock=' + encodeURIComponent(id);
+      location.href = './offreur-login.html?next=' + encodeURIComponent(next);
+      return;
+    }
+
     // Pages paiement présentes dans le projet
-    var p1 = './paiement-ponctuel.html?demandeId=' + encodeURIComponent(id);
-    var p2 = './paiement-pack10.html?demandeId=' + encodeURIComponent(id);
-    var p3 = './paiement-abonnement.html?demandeId=' + encodeURIComponent(id);
+    var p1 = './paiement-ponctuel.html?id=' + encodeURIComponent(id);
+    var p2 = './paiement-pack.html?id=' + encodeURIComponent(id);
+    var p3 = './paiement-abonnement.html?id=' + encodeURIComponent(id);
+
+    var instantHtml = '';
+    if(me && (String(me.plan||'').toUpperCase()==='ABO' || String(me.aboActive||me.abonnement||'').toUpperCase()==='OUI')){
+      instantHtml = '<button id="btnInstantUnlock" type="button" style="width:100%;padding:12px 14px;border-radius:12px;border:none;background:#ff3b0a;color:#fff;font-weight:1000;cursor:pointer;">Débloquer maintenant (abonné)</button>';
+    }else if(me && Number(me.credits||0) > 0){
+      instantHtml = '<button id="btnInstantUnlock" type="button" style="width:100%;padding:12px 14px;border-radius:12px;border:none;background:#ff3b0a;color:#fff;font-weight:1000;cursor:pointer;">Débloquer maintenant (utiliser 1 crédit • restants: ' + esc(me.credits) + ')</button>';
+    }
 
     content.innerHTML =
       '<div style="font-weight:900;margin-bottom:6px;">' + title + '</div>' +
       '<div style="color:#666;font-weight:800;margin-bottom:12px;">' + where + '</div>' +
+      (instantHtml ? ('<div style="margin:10px 0 12px;">' + instantHtml + '<div id="unlockMsg" style="margin-top:10px;font-weight:900;"></div></div>') : '') +
       '<div style="background:#f7f7f9;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:12px;margin-bottom:12px;">' +
       '<div style="font-weight:900;margin-bottom:8px;">Choisis ton accès :</div>' +
       '<div style="display:grid;gap:10px;">' +
@@ -113,6 +149,28 @@
       '</div>' +
       '<div style="color:#666;font-weight:700;font-size:13px;">Après paiement, le contact se débloque via le système d’accès (AccesDemandes).</div>';
     modal.style.display = 'flex';
+
+    // Débloquage instant (crédit ou abo)
+    var btnIU = document.getElementById('btnInstantUnlock');
+    if(btnIU){
+      btnIU.addEventListener('click', async function(){
+        var msg = document.getElementById('unlockMsg');
+        if(msg) msg.textContent = 'Déblocage en cours…';
+        try{
+          var t = (me && (String(me.plan||'').toUpperCase()==='ABO' || String(me.aboActive||me.abonnement||'').toUpperCase()==='OUI')) ? 'abonnement' : 'credit';
+          var res = await DX_API.postAny(['grantAccess','unlockDemande'], { demandeId: id, type: t });
+          if(res && res.ok){
+            if(msg) msg.textContent = 'Accès enregistré. Ouverture…';
+            setTimeout(function(){ location.href = './demande-detail.html?id=' + encodeURIComponent(id); }, 350);
+            return;
+          }
+          if(msg) msg.textContent = (res && (res.error||res.message)) ? (res.error||res.message) : 'Impossible.';
+        }catch(e){
+          if(msg) msg.textContent = e && e.message ? e.message : String(e);
+        }
+      });
+    }
+
   }
 
   async function load(){
@@ -127,6 +185,15 @@
         all = res.data || [];
         showStatus("");
         render(all);
+        if(pendingUnlockId){
+          var pid = String(pendingUnlockId);
+          var found = null;
+          for(var i=0;i<all.length;i++){
+            var xid = String(all[i].id || all[i].DemandeID || all[i].demandeId || '');
+            if(xid === pid){ found = all[i]; break; }
+          }
+          if(found){ pendingUnlockId = ''; openUnlock(found); }
+        }
       }else{
         showStatus("Erreur API : " + (res && (res.error || res.message) ? (res.error || res.message) : "inconnue"));
       }
@@ -148,6 +215,10 @@
   }
 
   document.addEventListener('DOMContentLoaded', function(){
+    try{
+      var params = new URLSearchParams(location.search);
+      pendingUnlockId = params.get('unlock') || '';
+    }catch(e){ pendingUnlockId = ''; }
     var close = $('unlockClose');
     var modal = $('unlockModal');
     if(close && modal){
@@ -162,8 +233,7 @@
 
     var s = $('murSearch');
     if(s) s.addEventListener('input', applySearch);
-
-    load();
+    loadMe().then(function(){ load(); }).catch(function(){ load(); });
   });
 
 })();

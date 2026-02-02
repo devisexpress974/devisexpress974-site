@@ -29,7 +29,7 @@ var SHEETS = {
 };
 
 var HEADERS = {
-  Demandes: ["Date","DemandeID","Service","ServiceAutre","Zone","Commune","Description","Budget","Nom","Tel","Email","Status"],
+  Demandes: ["Date","DemandeID","Service","ServiceAutre","Zone","Commune","Description","Budget","Nom","Tel","Email","Photo1","Photo2","Photo3","Status"],
   Offreurs: ["Date","OffreurID","Nom","Email","Tel","Service","Zone","Commune","Description","PasswordHash","Salt","NoteMoyenne","NombreAvis","Actif"],
   Access:   ["Date","EmailOffreur","OffreurID","DemandeID","Type","ExpireAt"],
   Avis:     ["Date","AvisID","OffreurID","Note","Commentaire","AuteurNom"],
@@ -177,18 +177,19 @@ function ensureSheetStrict_(name, headers){
     return sh;
   }
 
-  // si la feuille existe mais headers pas bons => on renomme l'ancienne et on recrée propre
-  var existing = sheetHeaders_(sh);
-  // On considère "OK" si tous les headers attendus existent EXACTEMENT au début.
-  var ok = arraysEqual_(existing.slice(0, headers.length), headers);
-
-  if(!ok){
-    renameOld_(ss, name);
-    var fresh = ss.insertSheet(name);
-    fresh.getRange(1,1,1,headers.length).setValues([headers]);
-    fresh.setFrozenRows(1);
-    return fresh;
-  }
+  // PATCH1 (sécurité) : normalise les en-têtes SANS renommer / recréer la feuille.
+  // On ne touche qu'à la ligne 1 (en-têtes) et on ajoute des colonnes si besoin.
+  try{
+    var need = headers || [];
+    var lastCol = sh.getLastColumn();
+    if(lastCol < need.length){
+      sh.insertColumnsAfter(lastCol, need.length - lastCol);
+    }
+    if(need.length){
+      sh.getRange(1,1,1,need.length).setValues([need]);
+    }
+    sh.setFrozenRows(1);
+  }catch(e){}
   return sh;
 }
 
@@ -199,7 +200,9 @@ function ensureAll_(){
   ensureSheetStrict_(SHEETS.AVIS,    HEADERS.Avis);
   ensureSheetStrict_(SHEETS.SESSIONS,HEADERS.Sessions);
   ensureSheetStrict_(SHEETS.RESETS,  HEADERS.Resets);
+  ensureExtraOffreursCols_();
 }
+
 
 function sheetToObjects_(sh){
   var values = sh.getDataRange().getValues();
@@ -276,7 +279,37 @@ function route_(action, e, body){
       case "ping":
         return json_({ ok:true, version: VERSION, time: nowIso_() });
 
-      case "addDemande":
+            case "whoami":
+      case "me":
+        return json_(whoami_(tokenFrom_(e, body)));
+
+            case "requestResetOffreur":
+      case "resetOffreur":
+        return json_(requestResetOffreur_(e, body));
+
+case "getDemande":
+      case "getDemandePublic":
+      case "getDemandeByIdPublic":
+        return json_(getDemande_(e, body));
+
+      case "hasAccess":
+        return json_(hasAccess_(e, body));
+
+      case "grantAccess":
+      case "unlockDemande":
+        return json_(grantAccess_(e, body));
+
+      case "activatePack":
+      case "buyPack10":
+      case "activatePack10":
+        return json_(activatePack_(tokenFrom_(e, body)));
+
+      case "activateAbonnement":
+      case "activateSubscription":
+      case "activateAbo":
+        return json_(activateAbonnement_(tokenFrom_(e, body)));
+
+case "addDemande":
       case "createDemande":
       case "addDemandePublic":
         return json_(addDemande_(body.payload || body));
@@ -335,17 +368,14 @@ function addDemande_(p){
 
   var id = uid_("dem");
 
-  // pièces jointes (optionnel) : liens ajoutés dans la description (sans toucher aux colonnes)
+  // pièces jointes (optionnel) : stocke jusqu'à 3 liens (Photo1..3) dans la feuille
   var pjUrls = saveAttachments_(p.attachments, "dem", id);
-  if(pjUrls && pjUrls.length){
-    description = description + "
+  var photo1 = (pjUrls && pjUrls.length > 0) ? String(pjUrls[0]||"") : "";
+  var photo2 = (pjUrls && pjUrls.length > 1) ? String(pjUrls[1]||"") : "";
+  var photo3 = (pjUrls && pjUrls.length > 2) ? String(pjUrls[2]||"") : "";
 
-Pièces jointes :
-- " + pjUrls.join("
-- ");
-  }
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
-  sh.appendRow([nowIso_(), id, service, serviceAutre, zone, commune, description, budget, nom, tel, email, "PUBLIÉ"]);
+  sh.appendRow([nowIso_(), id, service, serviceAutre, zone, commune, description, budget, nom, tel, email, photo1, photo2, photo3, "PUBLIÉ"]);
 
   // Mail demandeur
   sendMailSafe_(email, "DevisExpress974 — Demande publiée",
@@ -378,6 +408,8 @@ function listDemandesPublic_(){
       commune: rows[i].Commune,
       description: rows[i].Description,
       budget: rows[i].Budget,
+      photos: [rows[i].Photo1, rows[i].Photo2, rows[i].Photo3].filter(function(x){ return x && String(x).trim(); }),
+      status: rows[i].Status,
       createdAt: rows[i].Date
     });
   }
@@ -573,4 +605,336 @@ function resetAllTestData(){
     if(last > 1) sh.getRange(2,1,last-1, sh.getLastColumn()).clearContent();
   }
   return "OK";
+}
+
+
+// ======================
+// AUTH + STATUT OFFREUR (PATCH1)
+// ======================
+function tokenFrom_(e, body){
+  try{
+    if(body && body.token) return String(body.token||"");
+    if(e && e.parameter && e.parameter.token) return String(e.parameter.token||"");
+  }catch(err){}
+  return "";
+}
+
+function sessionGet_(token){
+  token = String(token||"").trim();
+  if(!token) return null;
+
+  var sh = ensureSheetStrict_(SHEETS.SESSIONS, HEADERS.Sessions);
+  var values = sh.getDataRange().getValues();
+  if(values.length < 2) return null;
+
+  var h = values[0];
+  var iTok = h.indexOf("Token");
+  var iEmail = h.indexOf("EmailOffreur");
+  var iOffId = h.indexOf("OffreurID");
+  var iExp = h.indexOf("ExpiresAt");
+  if(iTok < 0) return null;
+
+  var now = new Date();
+  for(var r=1;r<values.length;r++){
+    if(String(values[r][iTok]||"") === token){
+      var exp = null;
+      try{ exp = new Date(values[r][iExp]); }catch(e){}
+      if(exp && exp.getTime && exp.getTime() < now.getTime()){
+        // Token expiré => on supprime la session
+        try{ sh.deleteRow(r+1); }catch(e){}
+        return null;
+      }
+      return {
+        token: token,
+        email: String(values[r][iEmail]||"").toLowerCase(),
+        offreurId: String(values[r][iOffId]||"")
+      };
+    }
+  }
+  return null;
+}
+
+function ensureExtraOffreursCols_(){
+  var sh = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
+  ensureExtraHeader_(sh, "Credits");
+  ensureExtraHeader_(sh, "Plan");
+  ensureExtraHeader_(sh, "AboActive");
+  ensureExtraHeader_(sh, "TrialUsed");
+  ensureExtraHeader_(sh, "TrialEnd");
+}
+
+function ensureExtraHeader_(sh, headerName){
+  headerName = String(headerName||"").trim();
+  if(!headerName) return -1;
+  var lastCol = Math.max(1, sh.getLastColumn());
+  var hdr = sh.getRange(1,1,1,lastCol).getValues()[0];
+  var idx = hdr.indexOf(headerName);
+  if(idx >= 0) return idx;
+  sh.getRange(1, lastCol+1).setValue(headerName);
+  return lastCol;
+}
+
+function getOffreurRowById_(offreurId){
+  var sh = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
+  var values = sh.getDataRange().getValues();
+  if(values.length < 2) return null;
+
+  var h = values[0];
+  var iId = h.indexOf("OffreurID");
+  if(iId < 0) return null;
+
+  for(var r=1;r<values.length;r++){
+    if(String(values[r][iId]||"") === String(offreurId||"")){
+      return { sh: sh, headers: h, row: r+1, values: values[r] };
+    }
+  }
+  return null;
+}
+
+function getOffreurExtra_(rowObj){
+  var h = rowObj.headers;
+  var v = rowObj.values;
+  function g(name){
+    var i = h.indexOf(name);
+    return i>=0 ? v[i] : "";
+  }
+  return {
+    credits: Number(g("Credits")||0) || 0,
+    plan: String(g("Plan")||"FREE"),
+    aboActive: String(g("AboActive")||"NON"),
+    trialUsed: String(g("TrialUsed")||"NON"),
+    trialEnd: String(g("TrialEnd")||"")
+  };
+}
+
+function setOffreurExtra_(rowObj, patch){
+  var sh = rowObj.sh;
+  var h = rowObj.headers;
+  function set(name, value){
+    var idx = h.indexOf(name);
+    if(idx < 0){
+      // si pas là, on tente de l'ajouter
+      idx = ensureExtraHeader_(sh, name);
+      h = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+      rowObj.headers = h;
+      idx = h.indexOf(name);
+    }
+    sh.getRange(rowObj.row, idx+1).setValue(value);
+  }
+  if(patch.hasOwnProperty("Credits")) set("Credits", patch.Credits);
+  if(patch.hasOwnProperty("Plan")) set("Plan", patch.Plan);
+  if(patch.hasOwnProperty("AboActive")) set("AboActive", patch.AboActive);
+  if(patch.hasOwnProperty("TrialUsed")) set("TrialUsed", patch.TrialUsed);
+  if(patch.hasOwnProperty("TrialEnd")) set("TrialEnd", patch.TrialEnd);
+}
+
+function whoami_(token){
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Non connecté" };
+
+  var r = getOffreurRowById_(sess.offreurId);
+  if(!r) return { ok:false, error:"Compte introuvable" };
+
+  var extra = getOffreurExtra_(r);
+  return {
+    ok:true,
+    data:{
+      email: sess.email,
+      offreurId: sess.offreurId,
+      credits: extra.credits,
+      plan: extra.plan,
+      aboActive: extra.aboActive,
+      trialUsed: extra.trialUsed,
+      trialEnd: extra.trialEnd
+    }
+  };
+}
+
+function activatePack_(token){
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Connexion requise" };
+
+  var r = getOffreurRowById_(sess.offreurId);
+  if(!r) return { ok:false, error:"Compte introuvable" };
+
+  var extra = getOffreurExtra_(r);
+  var credits = Number(extra.credits||0) || 0;
+  credits = credits + 10;
+
+  setOffreurExtra_(r, { Credits: credits, Plan: "PACK" });
+
+  return { ok:true, credits: credits, plan:"PACK" };
+}
+
+function activateAbonnement_(token){
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Connexion requise" };
+
+  var r = getOffreurRowById_(sess.offreurId);
+  if(!r) return { ok:false, error:"Compte introuvable" };
+
+  // PATCH1 : activation simple (1 mois offert géré plus tard côté anti-abus + cron)
+  var now = new Date();
+  var trialEnd = new Date(now.getTime() + 1000*60*60*24*30);
+
+  setOffreurExtra_(r, { Plan: "ABO", AboActive: "OUI", TrialEnd: trialEnd.toISOString() });
+
+  return { ok:true, plan:"ABO", aboActive:"OUI", trialEnd: trialEnd.toISOString() };
+}
+
+function hasAccess_(e, body){
+  var token = tokenFrom_(e, body);
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:true, has:false };
+
+  var demandeId = String((body && (body.demandeId || body.id)) || (e && e.parameter && e.parameter.id) || "").trim();
+  if(!demandeId) return { ok:true, has:false };
+
+  // si abonné actif => accès
+  var r = getOffreurRowById_(sess.offreurId);
+  if(r){
+    var extra = getOffreurExtra_(r);
+    if(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI"){
+      return { ok:true, has:true, via:"abonnement" };
+    }
+  }
+
+  var sh = ensureSheetStrict_(SHEETS.ACCESS, HEADERS.Access);
+  var rows = sheetToObjects_(sh);
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].OffreurID||"") === sess.offreurId && String(rows[i].DemandeID||"") === demandeId){
+      return { ok:true, has:true, via: String(rows[i].Type||"") };
+    }
+  }
+  return { ok:true, has:false };
+}
+
+function grantAccess_(e, body){
+  var token = tokenFrom_(e, body);
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Connexion requise" };
+
+  var demandeId = String((body && (body.demandeId || body.id)) || (e && e.parameter && e.parameter.id) || "").trim();
+  var type = String((body && body.type) || "auto").trim().toLowerCase();
+  if(!demandeId) return { ok:false, error:"ID de demande manquant" };
+
+  // déjà accès ?
+  var has = hasAccess_(e, { token: token, demandeId: demandeId });
+  if(has && has.ok && has.has) return { ok:true, already:true };
+
+  var r = getOffreurRowById_(sess.offreurId);
+  if(!r) return { ok:false, error:"Compte introuvable" };
+  var extra = getOffreurExtra_(r);
+
+  // déterminer type auto
+  if(type === "auto"){
+    if(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI") type = "abonnement";
+    else if(Number(extra.credits||0) > 0) type = "credit";
+    else type = "ponctuel";
+  }
+
+  // règles
+  if(type === "credit"){
+    var credits = Number(extra.credits||0) || 0;
+    if(credits <= 0) return { ok:false, error:"Plus de crédits pack disponibles" };
+    credits = credits - 1;
+    setOffreurExtra_(r, { Credits: credits, Plan: String(extra.plan||"PACK") || "PACK" });
+    extra.credits = credits;
+  }
+
+  if(type === "abonnement"){
+    if(!(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI")){
+      return { ok:false, error:"Abonnement requis" };
+    }
+  }
+
+  // enregistre accès
+  var sh = ensureSheetStrict_(SHEETS.ACCESS, HEADERS.Access);
+  var exp = "";
+  sh.appendRow([nowIso_(), sess.email, sess.offreurId, demandeId, type, exp]);
+
+  return { ok:true, demandeId: demandeId, type: type, credits: extra.credits || 0 };
+}
+
+function getDemande_(e, body){
+  var id = String((e && e.parameter && e.parameter.id) || (body && (body.id || body.demandeId)) || "").trim();
+  if(!id) return { ok:false, error:"ID manquant" };
+
+  var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
+  var rows = sheetToObjects_(sh);
+
+  var row = null;
+  for(var i=0;i<rows.length;i++){
+    var rid = rows[i].DemandeID || rows[i].id || "";
+    if(String(rid) === id){ row = rows[i]; break; }
+  }
+  if(!row) return { ok:false, error:"Demande introuvable" };
+
+  // Masqué par défaut
+  var item = {
+    id: row.DemandeID,
+    service: row.Service,
+    serviceAutre: row.ServiceAutre,
+    zone: row.Zone,
+    commune: row.Commune,
+    description: row.Description,
+    budget: row.Budget,
+    photos: [row.Photo1, row.Photo2, row.Photo3].filter(function(x){ return x && String(x).trim(); }),
+    createdAt: row.Date
+  };
+
+  // Si accès => coordonnées
+  var token = tokenFrom_(e, body);
+  var sess = sessionGet_(token);
+  var canSee = false;
+
+  if(sess){
+    var r = getOffreurRowById_(sess.offreurId);
+    if(r){
+      var extra = getOffreurExtra_(r);
+      if(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI"){
+        canSee = true;
+      }
+    }
+    if(!canSee){
+      var ha = hasAccess_(e, { token: token, demandeId: id });
+      if(ha && ha.ok && ha.has) canSee = true;
+    }
+  }
+
+  if(canSee){
+    item.nom = row.Nom;
+    item.tel = row.Tel;
+    item.email = row.Email;
+  }
+  item.canSeeContact = canSee;
+
+  return { ok:true, data:item };
+}
+
+
+function requestResetOffreur_(e, body){
+  var email = String((body && body.email) || (body && body.payload && body.payload.email) || (e && e.parameter && e.parameter.email) || "").trim().toLowerCase();
+  if(!email) return { ok:false, error:"Email manquant" };
+
+  var token = randomToken_(32);
+  var now = new Date();
+  var exp = new Date(now.getTime() + 1000*60*30); // 30 minutes
+
+  var sh = ensureSheetStrict_(SHEETS.RESETS, HEADERS.Resets);
+  sh.appendRow([nowIso_(), token, email, exp.toISOString()]);
+
+  // Email (best effort)
+  try{
+    MailApp.sendEmail({
+      to: email,
+      subject: "DevisExpress974 — Réinitialisation du mot de passe",
+      body:
+        "Voici ton code de réinitialisation (valable 30 min):\n\n" +
+        token + "\n\n" +
+        "Si tu n'es pas à l'origine de cette demande, ignore cet email."
+    });
+  }catch(err){}
+
+  return { ok:true };
 }

@@ -1,4 +1,4 @@
-// demande-detail.js (v14)
+// demande-detail.js (PATCH1)
 document.addEventListener("DOMContentLoaded", async () => {
   const box = document.getElementById("box");
   const params = new URLSearchParams(location.search);
@@ -10,12 +10,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       .replaceAll('"',"&quot;").replaceAll("'","&#039;");
   }
 
+  if(!box){
+    return;
+  }
   if(!id){
     box.className = "notice err";
     box.textContent = "ID manquant.";
     return;
   }
 
+  // On tente d'abord l'endpoint complet (qui peut renvoyer les coordonnées si accès),
+  // sinon on retombe sur la liste publique.
   let res = await window.DX_API.getAny(
     ["getDemande","getDemandePublic","getDemandeByIdPublic"],
     { id }
@@ -46,6 +51,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   const zone = item.zone || item.Zone || "";
   const desc = item.description || item.Description || "";
   const budget = item.budget || item.Budget || "";
+  const canSee = !!(item.canSeeContact || item.hasAccess || item.canSee || false);
+
+  const tel = (item.tel || item.Tel || "").toString().trim();
+  const email = (item.email || item.Email || "").toString().trim();
+  const nom = (item.nom || item.Nom || "").toString().trim();
+
+  const contactHtml = (() => {
+    if(canSee && (tel || email)){
+      return `
+        <div class="card" style="padding:16px;margin-top:14px;border:1px solid rgba(0,0,0,.08);border-radius:14px;">
+          <div style="font-weight:1000;margin-bottom:6px;">Coordonnées débloquées ✅</div>
+          ${nom ? `<div class="muted" style="margin-bottom:8px;"><strong>Nom :</strong> ${esc(nom)}</div>` : ``}
+          ${tel ? `<div style="margin-bottom:6px;"><strong>Téléphone :</strong> <a href="tel:${esc(tel)}">${esc(tel)}</a></div>` : ``}
+          ${email ? `<div><strong>Email :</strong> <a href="mailto:${esc(email)}">${esc(email)}</a></div>` : ``}
+        </div>
+      `;
+    }
+    return `
+      <div class="card" style="padding:16px;margin-top:14px;border:1px solid rgba(0,0,0,.08);border-radius:14px;">
+        <div style="font-weight:1000;margin-bottom:6px;">Coordonnées masquées 🔒</div>
+        <div class="muted" style="margin-bottom:12px;">Débloque cette demande pour voir le téléphone/email.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a class="btn btnPrimary" href="paiement-ponctuel.html?id=${encodeURIComponent(id)}">Débloquer (0,99€)</a>
+          <a class="btn" href="paiement-pack.html?id=${encodeURIComponent(id)}">Pack 10 (2,99€)</a>
+          <a class="btn" href="paiement-abonnement.html?id=${encodeURIComponent(id)}">Abonnement (4,99€/mois)</a>
+        </div>
+      </div>
+    `;
+  })();
 
   box.className = "notice";
   box.innerHTML = `
@@ -53,6 +87,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     <div style="color:#64748b;font-weight:900;margin-bottom:10px;">${esc(commune)}${zone ? " • " + esc(zone) : ""}</div>
     <div style="font-weight:800;line-height:1.7;">${esc(desc)}</div>
     ${budget ? `<div style="margin-top:10px;color:#64748b;font-weight:900;">Budget : ${esc(budget)} €</div>` : ``}
-    <div style="margin-top:10px;color:#dc2626;font-weight:1000;">Coordonnées masquées (débloquage offreur requis)</div>
+    ${contactHtml}
   `;
 });

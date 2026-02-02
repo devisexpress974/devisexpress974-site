@@ -1,68 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Abonnement — DevisExpress974</title>
-  <meta name="theme-color" content="#ff3b0a" />
-  <link rel="stylesheet" href="./styles.css?v=32" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Abonnement — DevisExpress974</title>
+<meta content="#ff3b0a" name="theme-color"/>
+<link href="./styles.css?v=32" rel="stylesheet"/>
 </head>
-
 <body>
 <header id="siteHeader"></header>
-
 <main class="container" style="padding:24px 0;">
-  <div class="heroCard" style="padding:28px;">
-    <h1 style="margin:0 0 8px;">Abonnement</h1>
-    <p class="muted" style="margin:0 0 14px;"><strong>1er mois offert</strong>, puis <strong>4,99 €/mois</strong> — sans engagement.</p>
-
-    <div class="card" style="padding:18px; margin:16px 0;">
-      <h2 style="margin:0 0 8px;">Ce que tu obtiens</h2>
-      <ul style="margin:0 0 0 18px;">
-        <li><strong>Déblocage illimité</strong> de toutes les demandes</li>
-        <li>Réception d’e-mails automatiques des demandes de ton secteur (si activé)</li>
-        <li>Annulation possible à tout moment</li>
-      </ul>
-    </div>
-
-    <div class="card" style="padding:18px; margin:16px 0;">
-      <h2 style="margin:0 0 8px;">Paiement PayPal</h2>
-      <p class="muted" style="margin:0 0 12px;">Clique sur <strong>Payer</strong>. Si tu as un bloqueur, utilise <strong>Ouvrir PayPal</strong>.</p>
-      <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <a id="btnPay" class="btn btnPrimary" href="#" target="_blank" rel="noopener">Payer / S’abonner</a>
-        <a id="paypalLink" class="btn" href="#" target="_blank" rel="noopener">Ouvrir PayPal</a>
-      </div>
-      <p id="ppMissing" class="muted" style="margin:12px 0 0; display:none;">Lien PayPal abonnement non configuré pour le moment.</p>
-    </div>
-
-    <div class="card" style="padding:18px; margin:16px 0;">
-      <h2 style="margin:0 0 8px;">Après paiement</h2>
-      <p class="muted" style="margin:0 0 12px;">Clique ci-dessous pour activer ton abonnement sur le site (accès à toutes les demandes).</p>
-      <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <button id="btnPaid" class="btn btnPrimary">J’ai payé, activer mon abonnement</button>
-        <a class="btn" href="mur-demandes.html">Aller au mur des demandes</a>
-        <a class="btn" href="contact.html">Contact</a>
-      </div>
-      <p id="msg" class="muted" style="margin:12px 0 0;"></p>
-    </div>
-
-    <p class="muted" style="margin:8px 0 0;">Important : les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.</p>
-  </div>
+<div class="heroCard" style="padding:28px;">
+<h1 style="margin:0 0 8px;">Abonnement</h1>
+<p class="muted" style="margin:0 0 14px;"><strong>1er mois offert</strong>, puis <strong>4,99 €/mois</strong> — sans engagement.</p>
+<div class="card" style="padding:18px; margin:16px 0;">
+<h2 style="margin:0 0 8px;">Ce que tu obtiens</h2>
+<ul style="margin:0 0 0 18px;">
+<li><strong>Déblocage illimité</strong> de toutes les demandes</li>
+<li>Réception d’e-mails automatiques des demandes de ton secteur (si activé)</li>
+<li>Annulation possible à tout moment</li>
+</ul>
+</div>
+<div class="card" style="padding:18px; margin:16px 0;">
+<h2 style="margin:0 0 8px;">Paiement PayPal</h2>
+<p class="muted" style="margin:0 0 12px;">Clique sur <strong>Payer</strong>. Si tu as un bloqueur, utilise <strong>Ouvrir PayPal</strong>.</p>
+<div style="display:flex; gap:12px; flex-wrap:wrap;">
+<a class="btn btnPrimary" href="#" id="btnPay" rel="noopener" target="_blank">Payer / S’abonner</a>
+<a class="btn" href="#" id="paypalLink" rel="noopener" target="_blank">Ouvrir PayPal</a>
+</div>
+<p class="muted" id="ppMissing" style="margin:12px 0 0; display:none;">Lien PayPal abonnement non configuré pour le moment.</p>
+</div>
+<div class="card" style="padding:18px; margin:16px 0;">
+<h2 style="margin:0 0 8px;">Après paiement</h2>
+<p class="muted" style="margin:0 0 12px;">Clique ci-dessous pour activer ton abonnement sur le site (accès à toutes les demandes).</p>
+<div style="display:flex; gap:12px; flex-wrap:wrap;">
+<button class="btn btnPrimary" id="btnPaid">J’ai payé, activer mon abonnement</button>
+<a class="btn" href="mur-demandes.html">Aller au mur des demandes</a>
+<a class="btn" href="contact.html">Contact</a>
+</div>
+<p class="muted" id="msg" style="margin:12px 0 0;"></p>
+</div>
+<p class="muted" style="margin:8px 0 0;">Important : les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.</p>
+</div>
 </main>
-
 <footer class="siteFooter">
-  <div class="container">
-    <div class="footerRow">
-      <div>© DevisExpress974 — Tous droits réservés.</div>
-      <div class="footerLinks">
-        <a href="cvg.html">CGV</a>
-        <a href="confidentialite.html">Politique de confidentialité</a>
-        <a href="contact.html">Contact</a>
-      </div>
-    </div>
-  </div>
+<div class="container">
+<div class="footerRow">
+<div>© DevisExpress974 — Tous droits réservés.</div>
+<div class="footerLinks">
+<a href="cvg.html">CGV</a>
+<a href="confidentialite.html">Politique de confidentialité</a>
+<a href="contact.html">Contact</a>
+</div>
+</div>
+</div>
 </footer>
-
 <script src="./paypal-config.js?v=32"></script>
 <script>
   (function(){
@@ -81,7 +74,7 @@
   })();
 </script>
 <script src="/partials/header.js?v=32"></script>
-<script src="./dx.js?v=32"></script>
-<script src="./paiement-abonnement.js?v=32"></script>
+
+<script src="./api.js?v=PATCH1"></script><script src="./auth.js?v=PATCH1"></script><script src="./main.js?v=PATCH1"></script><script src="./paiement-abonnement.js?v=32"></script>
 </body>
 </html>

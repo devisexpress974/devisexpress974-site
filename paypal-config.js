@@ -27,3 +27,18 @@ window.DX_PAYPAL = {
     subscribeUrl: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-059089791K4448340NEBEK7I"
   }
 };
+
+// Helper: récupère un lien PayPal selon le type d'offre
+window.DX_PAYPAL.getLink = function(kind){
+  kind = (kind||"").toString().toLowerCase().trim();
+  if(kind === "ponctuel" || kind === "one" || kind === "single" || kind === "0.99"){
+    return (window.DX_PAYPAL.ponctuel && window.DX_PAYPAL.ponctuel.directLink) ? window.DX_PAYPAL.ponctuel.directLink : "";
+  }
+  if(kind === "pack" || kind === "pack10" || kind === "10" || kind === "2.99"){
+    return (window.DX_PAYPAL.pack10 && window.DX_PAYPAL.pack10.directLink) ? window.DX_PAYPAL.pack10.directLink : "";
+  }
+  if(kind === "abonnement" || kind === "abo" || kind === "subscription"){
+    return (window.DX_PAYPAL.abonnement && window.DX_PAYPAL.abonnement.subscribeUrl) ? window.DX_PAYPAL.abonnement.subscribeUrl : "";
+  }
+  return "";
+};

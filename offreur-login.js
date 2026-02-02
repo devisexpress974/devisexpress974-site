@@ -4,6 +4,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const msg = document.getElementById("msg");
   const btn = document.getElementById("btnLogin");
 
+  const params = new URLSearchParams(location.search);
+  const nextUrl = params.get('next') || 'mur-demandes.html';
+
   function show(type, text){
     msg.style.display = "block";
     msg.className = "notice " + (type||"");
@@ -30,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(res && res.ok){
       show("ok", "Connecté. Redirection…");
-      setTimeout(()=> location.href = "mur-demandes.html", 400);
+      setTimeout(()=> location.href = nextUrl, 400);
       return;
     }
     show("err", (res && (res.error||res.message)) ? (res.error||res.message) : "Connexion impossible.");
