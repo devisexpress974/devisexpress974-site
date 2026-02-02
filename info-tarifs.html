@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Infos & Tarifs — DevisExpress974</title>
   <meta name="theme-color" content="#ff3b0a" />
-  <link rel="stylesheet" href="./styles.css?v=32" />
-  <!-- Header DX : même menu/design que le reste du site -->
-  <script src="./assets/js/dx-include-header.js?v=32" defer></script>
+
+  <!-- CSS du site -->
+  <link rel="stylesheet" href="/styles.css?v=32" />
+  <!-- CSS menu (garantit le design du header même si l’auto-injection rate) -->
+  <link rel="stylesheet" href="/assets/css/dx-header.css?v=33" />
+
+  <!-- Header DX (même menu/design que le reste du site) -->
+  <script src="/assets/js/dx-include-header.js?v=33" defer></script>
 
   <!-- Styles UNIQUEMENT pour cette page (aucune autre page n'est impactée) -->
   <style>
@@ -16,8 +21,8 @@
     @media (max-width: 980px){.infoTarifsPage .cards3{grid-template-columns:1fr;}}
 
     .infoTarifsPage .tarifCard{position:relative;overflow:hidden;border:1px solid rgba(0,0,0,.08);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;}
-    .infoTarifsPage .tarifCard::before{content:"";position:absolute;inset:0;background:radial-gradient(650px circle at 18% 0%, var(--accent), transparent 55%);opacity:.10;pointer-events:none;}
-    .infoTarifsPage .tarifCard::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg, var(--accent), rgba(255,255,255,0));opacity:.95;pointer-events:none;}
+    .infoTarifsPage .tarifCard::before{content:"";position:absolute;inset:0;background:radial-gradient(650px circle at 18% 0%, var(--accent), transparent 55%);opacity:.12;pointer-events:none;}
+    .infoTarifsPage .tarifCard::after{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:linear-gradient(90deg, var(--accent), rgba(255,255,255,0));opacity:.95;pointer-events:none;}
     .infoTarifsPage .tarifCard:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(0,0,0,.10);border-color:rgba(0,0,0,.12);}
     .infoTarifsPage .tarifCard .btnPrimary{background:linear-gradient(90deg, var(--accent), #ff3b0a);border:none;}
 
@@ -25,113 +30,100 @@
     .infoTarifsPage .tarifCard--pack{--accent:#ff3b0a;}
     .infoTarifsPage .tarifCard--abo{--accent:#ffd140;}
 
-    .infoTarifsPage .tarifPrice{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-    .infoTarifsPage .tarifPrice .muted{margin:0;}
+    .infoTarifsPage .tarifSmallNote{font-size:13px;opacity:.85;margin-top:10px;line-height:1.35;}
   </style>
 </head>
 <body class="infoTarifsPage">
-<div id="dx-header-slot"></div>
+  <!-- Slot (gardé pour compatibilité). Le header est injecté par dx-include-header.js -->
+  <div id="dx-header-slot"></div>
 
-<main class="container" style="padding:24px 0;">
-  <div class="heroCard" style="padding:28px;">
-    <h1 style="margin:0 0 8px;">Infos & Tarifs</h1>
-    <p class="muted" style="margin:0 0 16px;">
-      Les coordonnées des demandeurs sont <strong>masquées</strong> sur le mur. Pour les voir et les contacter, l’offreur doit <strong>débloquer</strong>.
-    </p>
+  <main class="container" style="padding:24px 0;">
+    <div class="heroCard" style="padding:28px;">
+      <h1 style="margin:0 0 8px;">Infos & Tarifs</h1>
+      <p class="muted" style="margin:0 0 16px;">
+        Les coordonnées des demandeurs sont <strong>masquées</strong> sur le mur. Pour les voir et les contacter, l’offreur doit <strong>débloquer</strong>.
+      </p>
 
-    <h2 style="margin:18px 0 12px;">Formules Offreur</h2>
+      <h2 style="margin:18px 0 12px;">Formules Offreur</h2>
 
-    <div class="cards3">
+      <div class="cards3">
 
-      <!-- PONCTUEL -->
-      <section class="card tarifCard tarifCard--ponctuel" style="padding:18px; border-radius:16px;">
-        <h3 style="margin:0 0 6px;">Ponctuel</h3>
-        <div style="font-size:28px; font-weight:800; margin:0 0 10px;">0,99 €</div>
-        <div class="muted" style="font-weight:700; margin:0 0 12px;">Débloque 1 demande</div>
-        <ul style="margin:0 0 16px 18px;">
-          <li>Choisis une demande sur le mur</li>
-          <li>Coordonnées visibles après déblocage</li>
-          <li>Accès valable pour cette demande</li>
-        </ul>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <a class="btn btnPrimary" href="paiement-ponctuel.html">Débloquer</a>
-          <a id="ppPonctuel" class="btn" href="#" target="_blank" rel="noopener">Ouvrir PayPal</a>
-        </div>
-      </section>
+        <!-- PONCTUEL -->
+        <section class="card tarifCard tarifCard--ponctuel" style="padding:18px; border-radius:16px;">
+          <h3 style="margin:0 0 6px;">Ponctuel</h3>
+          <div style="font-size:28px; font-weight:800; margin:0 0 10px;">0,99 €</div>
+          <div class="muted" style="font-weight:700; margin:0 0 12px;">Débloque 1 demande</div>
+          <ul style="margin:0 0 16px 18px;">
+            <li>Choisis une demande sur le mur</li>
+            <li>Coordonnées visibles après déblocage</li>
+            <li>Accès valable pour cette demande</li>
+          </ul>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn btnPrimary" href="/mur-demandes.html">Aller au mur</a>
+            <a class="btn btnGhost" href="https://www.paypal.com/ncp/payment/4LRS689BCXY5G" target="_blank" rel="noopener">Payer 0,99 €</a>
+          </div>
+          <div class="tarifSmallNote">
+            Le paiement 0,99€ se fait <strong>depuis une demande</strong> (bouton « Débloquer » sur le mur). Cela évite l’erreur « ID de demande manquant ».
+          </div>
+        </section>
 
-      <!-- PACK 10 -->
-      <section class="card tarifCard tarifCard--pack" style="padding:18px; border-radius:16px;">
-        <h3 style="margin:0 0 6px;">Pack 10 demandes</h3>
-        <div style="font-size:28px; font-weight:800; margin:0 0 10px;">2,99 €</div>
-        <div class="muted" style="font-weight:700; margin:0 0 12px;">Débloque 10 demandes</div>
-        <ul style="margin:0 0 16px 18px;">
-          <li>10 déblocages à utiliser quand tu veux</li>
-          <li>Idéal pour tester le service</li>
-          <li>Tu gardes l’accès sur les demandes débloquées</li>
-        </ul>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <a class="btn btnPrimary" href="paiement-pack.html">Prendre le pack</a>
-          <a id="ppPack" class="btn" href="#" target="_blank" rel="noopener">Ouvrir PayPal</a>
-        </div>
-      </section>
+        <!-- PACK 10 -->
+        <section class="card tarifCard tarifCard--pack" style="padding:18px; border-radius:16px;">
+          <h3 style="margin:0 0 6px;">Pack 10 demandes</h3>
+          <div style="font-size:28px; font-weight:800; margin:0 0 10px;">2,99 €</div>
+          <div class="muted" style="font-weight:700; margin:0 0 12px;">Débloque 10 demandes</div>
+          <ul style="margin:0 0 16px 18px;">
+            <li>10 déblocages à utiliser quand tu veux</li>
+            <li>Idéal pour tester le service</li>
+            <li>Tu gardes l’accès sur les demandes débloquées</li>
+          </ul>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn btnPrimary" href="https://www.paypal.com/ncp/payment/H9VZ7RL35LE6G" target="_blank" rel="noopener">Payer 2,99 €</a>
+            <a class="btn" href="/mur-demandes.html">Retour au mur</a>
+          </div>
+          <div class="tarifSmallNote">
+            Paiement via PayPal (carte bancaire possible selon l’écran PayPal). Si tu as un bloqueur, ouvre dans un nouvel onglet.
+          </div>
+        </section>
 
-      <!-- ABONNEMENT -->
-      <section class="card tarifCard tarifCard--abo" style="padding:18px; border-radius:16px;">
-        <h3 style="margin:0 0 6px;">Abonnement</h3>
-        <div style="font-size:20px; font-weight:800; margin:0 0 6px;">1er mois offert</div>
-        <div class="muted" style="font-weight:700; margin:0 0 12px;">puis 4,99 €/mois — sans engagement</div>
-        <ul style="margin:0 0 16px 18px;">
-          <li>Débloque <strong>toutes</strong> les demandes</li>
-          <li>Réception d’e-mails automatiques des demandes de ton secteur</li>
-          <li>Annulation possible à tout moment</li>
-        </ul>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <a class="btn btnPrimary" href="paiement-abonnement.html">S’abonner</a>
-          <a id="ppAbo" class="btn" href="#" target="_blank" rel="noopener">Ouvrir PayPal</a>
-        </div>
-      </section>
+        <!-- ABONNEMENT -->
+        <section class="card tarifCard tarifCard--abo" style="padding:18px; border-radius:16px;">
+          <h3 style="margin:0 0 6px;">Abonnement</h3>
+          <div style="font-size:20px; font-weight:800; margin:0 0 6px;">1er mois offert</div>
+          <div class="muted" style="font-weight:700; margin:0 0 12px;">puis 4,99 €/mois — sans engagement</div>
+          <ul style="margin:0 0 16px 18px;">
+            <li>Débloque <strong>toutes</strong> les demandes</li>
+            <li>Réception d’e-mails automatiques des demandes de ton secteur</li>
+            <li>Annulation possible à tout moment</li>
+          </ul>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn btnPrimary" href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-059089791K4448340NEBEK7I" target="_blank" rel="noopener">S’abonner</a>
+            <a class="btn" href="/mur-demandes.html">Retour au mur</a>
+          </div>
+          <div class="tarifSmallNote">
+            ⚠️ Les abonnements PayPal peuvent parfois demander une connexion PayPal. Si tu veux un abonnement <strong>100% carte</strong> sans compte PayPal, il faudra passer sur Stripe (ou un autre prestataire).
+          </div>
+        </section>
 
-    </div>
+      </div>
 
-    <div class="card" style="padding:14px 18px; margin-top:18px;">
-      <strong>Important :</strong> les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.
-    </div>
-  </div>
-</main>
-
-<footer class="siteFooter">
-  <div class="container">
-    <div class="footerRow">
-      <div>© DevisExpress974 — Tous droits réservés.</div>
-      <div class="footerLinks">
-        <a href="cvg.html">CGV</a>
-        <a href="confidentialite.html">Politique de confidentialité</a>
-        <a href="contact.html">Contact</a>
+      <div class="card" style="padding:14px 18px; margin-top:18px;">
+        <strong>Important :</strong> les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.
       </div>
     </div>
-  </div>
-</footer>
+  </main>
 
-<script src="./paypal-config.js?v=32"></script>
-<script>
-  (function(){
-    var get = (window.DX_PAYPAL && window.DX_PAYPAL.getLink) ? window.DX_PAYPAL.getLink : function(){ return ''; };
-    var p1 = document.getElementById('ppPonctuel');
-    var p2 = document.getElementById('ppPack');
-    var p3 = document.getElementById('ppAbo');
-    var l1 = get('ponctuel');
-    var l2 = get('pack');
-    var l3 = get('abonnement');
-
-    if(p1 && l1) p1.href = l1;
-    if(p2 && l2) p2.href = l2;
-    if(p3 && l3) p3.href = l3;
-
-    // Si lien manquant, on cache juste le bouton PayPal (le bouton principal vers la page de paiement reste)
-    if(p1 && !l1) p1.style.display = 'none';
-    if(p2 && !l2) p2.style.display = 'none';
-    if(p3 && !l3) p3.style.display = 'none';
-  })();
-</script>
+  <footer class="siteFooter">
+    <div class="container">
+      <div class="footerRow">
+        <div>© DevisExpress974 — Tous droits réservés.</div>
+        <div class="footerLinks">
+          <a href="/cvg.html">CGV</a>
+          <a href="/confidentialite.html">Politique de confidentialité</a>
+          <a href="/contact.html">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
