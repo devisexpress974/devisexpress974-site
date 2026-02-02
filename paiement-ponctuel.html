@@ -1,88 +1,79 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Paiement ponctuel | DevisExpress974</title>
-  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  <title>Paiement ponctuel — DevisExpress974</title>
+  <meta name="theme-color" content="#ff3b0a" />
   <link rel="stylesheet" href="./styles.css?v=32" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=33" />
-
-  <script defer src="./assets/js/dx-include-header.js?v=33"></script>
 </head>
+
 <body>
-  <div id="dx-header-slot"></div>
-<main>
-  <div class="container">
-    <section class="card pad">
-      <h1 class="pageTitle">Paiement ponctuel</h1>
-      <p class="pageLead">Débloque les coordonnées d’<strong>une</strong> demande pour la contacter. Tarif : <strong>0,99&nbsp;€</strong>.</p>
+<header id="siteHeader"></header>
 
-      <div class="hr"></div>
+<main class="container" style="padding:24px 0;">
+  <div class="heroCard" style="padding:28px;">
+    <h1 style="margin:0 0 8px;">Déblocage ponctuel</h1>
+    <p class="muted" style="margin:0 0 14px;">Débloque les coordonnées d’une demande pour la contacter. Tarif : <strong>0,99 €</strong>.</p>
 
-      <div class="priceRow">
-        <div class="priceRowLeft">
-          <div class="muted">Paiement PayPal</div>
-          <div class="small muted">Si le bouton ne s’affiche pas (bloqueur), utilise le lien PayPal.</div>
-        </div>
-        <div class="priceRowRight">
-          <a class="btn" href="https://www.paypal.com/ncp/links/4LRS689BCXY5G" target="_blank" rel="noopener">Ouvrir PayPal</a>
-        </div>
+    <div class="card" style="padding:18px; margin:16px 0;">
+      <h2 style="margin:0 0 8px;">Paiement PayPal</h2>
+      <p class="muted" style="margin:0 0 12px;">Clique sur <strong>Payer</strong>. Si tu as un bloqueur, utilise le bouton <strong>Ouvrir PayPal</strong>.</p>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a id="btnPay" class="btn btnPrimary" href="#" target="_blank" rel="noopener">Payer 0,99 €</a>
+        <a id="paypalLink" class="btn" href="#" target="_blank" rel="noopener">Ouvrir PayPal</a>
       </div>
 
-      <div class="paypalWrap">
-        <div id="paypal-container-H9VZ7RL35LE6G"></div>
-      </div>
+      <p id="ppMissing" class="muted" style="margin:12px 0 0; display:none;">Lien PayPal non configuré.</p>
+    </div>
 
-      <div class="hr"></div>
-
-      <div class="notice">
-        <strong>Après paiement</strong> : clique ci-dessous pour enregistrer l’accès et afficher les coordonnées.
-      </div>
-
-      <div class="actionsRow">
-        <button id="btnUnlock" class="btn btnPrimary">J’ai payé, débloquer ma demande</button>
+    <div class="card" style="padding:18px; margin:16px 0;">
+      <h2 style="margin:0 0 8px;">Après paiement</h2>
+      <p class="muted" style="margin:0 0 12px;">Clique ci-dessous pour enregistrer l’accès et afficher les coordonnées.</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button id="btnPaid" class="btn btnPrimary">J’ai payé, débloquer ma demande</button>
         <a class="btn" href="mur-demandes.html">Retour au mur</a>
       </div>
+      <p id="msg" class="muted" style="margin:12px 0 0;"></p>
+    </div>
 
-      <div id="msg" class="muted" style="margin-top:12px;"></div>
-    </section>
+    <p class="muted" style="margin:8px 0 0;">Important : les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.</p>
   </div>
 </main>
+
 <footer class="siteFooter">
-  <div class="container footerInner">
-    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
-    <div class="footerLinks" aria-label="Liens légaux">
-      <a href="mentions-legales.html">Mentions légales</a>
-      <a href="cgv.html">CGV</a>
-      <a href="politique-confidentialite.html">Politique de confidentialité</a>
-      <a href="cookies.html">Cookies</a>
-      <a href="contact.html">Contact</a>
+  <div class="container">
+    <div class="footerRow">
+      <div>© DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks">
+        <a href="cvg.html">CGV</a>
+        <a href="confidentialite.html">Politique de confidentialité</a>
+        <a href="contact.html">Contact</a>
+      </div>
     </div>
   </div>
 </footer>
-<script src="paypal-config.js?v=27"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=BAAsO3Qoc0mstsiZkLHiiwoz3z_OXdhUeMLCgqtqQIYYiVaecy392odEq9KJjoZ6DsBctZbSAJCGzxlEhs&components=hosted-buttons&disable-funding=venmo&currency=EUR"></script>
+
+<script src="./paypal-config.js?v=32"></script>
 <script>
   (function(){
-    try {
-      if (window.paypal && paypal.HostedButtons) {
-        paypal.HostedButtons({
-          hostedButtonId: "H9VZ7RL35LE6G",
-        }).render("#paypal-container-H9VZ7RL35LE6G");
-      }
-    } catch(e) {
-      console.warn(e);
+    var link = (window.DX_PAYPAL && window.DX_PAYPAL.getLink) ? window.DX_PAYPAL.getLink('ponctuel') : '';
+    var a1 = document.getElementById('btnPay');
+    var a2 = document.getElementById('paypalLink');
+    var missing = document.getElementById('ppMissing');
+    if(link){
+      a1.href = link;
+      a2.href = link;
+    } else {
+      a1.style.display = 'none';
+      a2.style.display = 'none';
+      missing.style.display = 'block';
     }
   })();
 </script>
-<script src="api.js?v=27"></script>
-<script src="auth.js?v=27"></script>
-<script src="main.js?v=27"></script>
-<script src="paiement-ponctuel.js?v=27"></script>
-
+<script src="/partials/header.js?v=32"></script>
+<script src="./dx.js?v=32"></script>
+<script src="./paiement-ponctuel.js?v=32"></script>
 </body>
 </html>
-
