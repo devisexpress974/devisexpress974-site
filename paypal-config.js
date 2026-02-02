@@ -1,55 +1,29 @@
-/* paypal-config.js
-   Centralise les liens PayPal (DevisExpress974)
-   - ponctuel: 0,99€ (débloque 1 demande)
-   - pack: 2,99€ (10 demandes)
-   - abonnement: 1er mois offert puis 4,99€/mois
-*/
-(function(){
-  var PAYPAL = {
-    currency: 'EUR',
+// paypal-config.js — DevisExpress974
+// Configuration centralisée des liens PayPal pour les 3 offres offreur.
+// NOTE : Avec PayPal, tu ne peux pas masquer PayPal à 100% (c'est la plateforme de paiement).
+// Les liens ci-dessous ouvrent la page PayPal qui propose souvent un paiement par carte (selon pays/compte PayPal).
 
-    // 0,99€
-    ponctuel: {
-      label: 'Ponctuel 0,99€',
-      ncpLink: 'https://www.paypal.com/ncp/links/4LRS689BCXY5G',
-      hostedButtonId: '',
-      directLink: ''
-    },
+window.DX_PAYPAL = {
+  // 0,99€ — 1 demande
+  ponctuel: {
+    label: "Ponctuel",
+    priceText: "0,99 €",
+    ncpLinksId: "4LRS689BCXY5G",
+    directLink: "https://www.paypal.com/ncp/payment/4LRS689BCXY5G"
+  },
 
-    // 2,99€ (Pack 10 demandes)
-    // NOTE: ici on utilise un Hosted Button PayPal (ID connu) => lien direct webscr
-    pack: {
-      label: 'Pack 10 demandes 2,99€',
-      ncpLink: '',
-      hostedButtonId: 'H9VZ7RL35LE6G',
-      directLink: ''
-    },
+  // 2,99€ — 10 demandes
+  pack10: {
+    label: "Pack 10 demandes",
+    priceText: "2,99 €",
+    ncpLinksId: "H9VZ7RL35LE6G",
+    directLink: "https://www.paypal.com/ncp/payment/H9VZ7RL35LE6G"
+  },
 
-    // 4,99€/mois (abonnement)
-    abonnement: {
-      label: 'Abonnement 4,99€/mois',
-      // lien de souscription PayPal (plan)
-      ncpLink: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-059089791K4448340NEBEK7I',
-      hostedButtonId: '',
-      directLink: ''
-    }
-  };
-
-  // Calcule un lien payable “direct” quand on n'a qu'un hostedButtonId
-  function buildLink(plan){
-    if(!plan) return '';
-    if(plan.directLink) return plan.directLink;
-    if(plan.ncpLink) return plan.ncpLink;
-    if(plan.hostedButtonId){
-      return 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=' + encodeURIComponent(plan.hostedButtonId);
-    }
-    return '';
+  // 4,99€/mois — abonnement (1er mois offert)
+  abonnement: {
+    label: "Abonnement",
+    priceText: "4,99 €/mois",
+    subscribeUrl: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-059089791K4448340NEBEK7I"
   }
-
-  PAYPAL.getLink = function(key){
-    try{ return buildLink(PAYPAL[key]); }catch(e){ return ''; }
-  };
-
-  // Expose
-  window.DX_PAYPAL = PAYPAL;
-})();
+};
