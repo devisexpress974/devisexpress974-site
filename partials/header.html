@@ -1,95 +1,66 @@
-<!-- partials/header.html — DevisExpress974 (DX topbar) -->
+<!-- DX HEADER v31 -->
 <header class="dxTopbar" data-dx-header>
-  <style>
-    /* Styles scopés au header uniquement */
-    .dxTopbar{background:#fff;border-bottom:1px solid rgba(0,0,0,.06);}
-    .dxTopbar .dxWrap{max-width:1100px;margin:0 auto;padding:16px 18px;display:flex;align-items:center;gap:18px;}
-    .dxBrand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;min-width:240px;}
-    .dxBrand img{width:36px;height:36px;object-fit:contain;}
-    .dxBrand .dxBrandTitle{font-weight:900;font-size:28px;line-height:1;color:#ff3b0a;}
-    .dxBrand .dxBrandTag{font-weight:600;color:#6b7280;font-size:14px;margin-top:4px}
-    .dxNavPill{flex:1;display:flex;justify-content:center;}
-    .dxNav{background:#eef2f7;border:1px solid rgba(0,0,0,.06);border-radius:999px;padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:nowrap}
-    .dxNav a,.dxNav summary{list-style:none;cursor:pointer;text-decoration:none;color:#374151;font-weight:800;padding:10px 16px;border-radius:999px;display:flex;align-items:center;gap:8px;white-space:nowrap}
-    .dxNav a:hover,.dxNav summary:hover{background:rgba(255,59,10,.10)}
-    .dxNav a.is-active{background:linear-gradient(90deg,#ffb44a,#ff3b0a);color:#111827;box-shadow:0 6px 14px rgba(255,59,10,.25)}
-    .dxMore{position:relative}
-    .dxMore summary::-webkit-details-marker{display:none}
-    .dxDropdown{position:absolute;top:calc(100% + 10px);left:0;min-width:220px;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:8px;box-shadow:0 12px 28px rgba(0,0,0,.12);display:none;z-index:50}
-    .dxMore[open] .dxDropdown{display:block}
-    .dxDropdown a{border-radius:10px;padding:10px 12px;font-weight:800}
-    .dxCta{margin-left:auto;text-decoration:none;background:linear-gradient(90deg,#ffb44a,#ff3b0a);color:#111827;font-weight:900;border-radius:999px;padding:14px 18px;box-shadow:0 10px 22px rgba(255,59,10,.25)}
-    .dxCta:hover{filter:brightness(1.03)}
-    .dxToggle{display:none;border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:14px;padding:10px 12px;font-weight:900}
-    @media (max-width: 980px){
-      .dxBrand{min-width:auto}
-      .dxNavPill{justify-content:flex-start}
-      .dxNav{display:none;border-radius:18px;padding:10px;gap:8px}
-      .dxNav.is-open{display:flex;flex-direction:column;align-items:stretch;background:#fff;border-radius:18px}
-      .dxNav a,.dxNav summary{border-radius:14px;width:100%;justify-content:space-between}
-      .dxDropdown{position:static;box-shadow:none;border:none;padding:0;margin-top:6px;display:block}
-      .dxMore[open] .dxDropdown{display:block}
-      .dxToggle{display:inline-flex}
-      .dxCta{display:none}
-      .dxTopbar .dxWrap{flex-wrap:wrap}
-    }
-  </style>
-
-  <div class="dxWrap">
-    <a class="dxBrand" href="/index.html" aria-label="DevisExpress974">
-      <img src="/assets/img/logo-eclair-orange.png" alt="DevisExpress974" />
-      <div>
-        <div class="dxBrandTitle">DevisExpress974</div>
-        <div class="dxBrandTag">1 clic - plusieurs devis - 100% 974</div>
-      </div>
+  <div class="dx-header-inner">
+    <!-- Brand -->
+    <a class="dx-brand" href="./index.html" aria-label="DevisExpress974 - Accueil">
+      <img class="dx-logo" src="./assets/img/logo-eclair-orange.png" alt="Logo DevisExpress974" />
+      <span class="dx-brandText">
+        <span class="dx-title">DevisExpress974</span>
+        <span class="dx-tagline">1 clic - plusieurs devis - 100% 974</span>
+      </span>
     </a>
 
-    <div class="dxNavPill">
-      <nav class="dxNav" id="dxNav" aria-label="Navigation">
-        <a href="/index.html" data-nav="index">Accueil</a>
-        <a href="/demande.html" data-nav="demande">Faire une demande</a>
-        <a href="/mur-demandes.html" data-nav="mur">Mur des demandes</a>
-        <a href="/offreurs.html" data-nav="offreurs">Les offreurs</a>
+    <!-- Desktop nav pills -->
+    <nav class="dx-navWrap" aria-label="Navigation principale">
+      <div class="dx-navPills">
+        <a class="dx-navLink" href="./index.html">Accueil</a>
+        <a class="dx-navLink" href="./demande.html">Faire une demande</a>
+        <a class="dx-navLink" href="./mur-demandes.html">Mur des demandes</a>
+        <a class="dx-navLink" href="./offreurs.html">Les offreurs</a>
 
-        <details class="dxMore">
-          <summary>Plus <span aria-hidden="true">▾</span></summary>
-          <div class="dxDropdown" role="menu" aria-label="Plus">
-            <a href="/info-tarifs.html" role="menuitem">Infos &amp; Tarifs</a>
-            <a href="/contact.html" role="menuitem">Contact</a>
-            <a href="/cvg.html" role="menuitem">CGV</a>
-            <a href="/confidentialite.html" role="menuitem">Confidentialité</a>
+        <details class="dxPlus" role="list">
+          <summary class="dx-navLink dx-navLink--summary" role="listitem" aria-haspopup="menu">
+            Plus <span class="dx-caret" aria-hidden="true">▾</span>
+          </summary>
+          <div class="dxPlusMenu" role="menu">
+            <a role="menuitem" href="./info-tarifs.html">Infos &amp; tarifs</a>
+            <a role="menuitem" href="./contact.html">Contact</a>
+            <a role="menuitem" href="./cgv.html">CGV</a>
+            <a role="menuitem" href="./politique-confidentialite.html">Confidentialité</a>
           </div>
         </details>
-      </nav>
-    </div>
+      </div>
+    </nav>
 
-    <a class="dxCta" href="/offreur-login.html">S'identifier</a>
-    <button class="dxToggle" id="dxNavToggle" type="button" aria-label="Menu">☰</button>
+    <!-- Actions -->
+    <div class="dx-actions">
+      <a class="dxBtn dxBtnPrimary" href="./offreur-login.html">S'identifier</a>
+
+      <button class="dxBurger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 
-  <script>
-    // Active link + fermeture dropdown au clic externe
-    (function(){
-      try{
-        var path = (location.pathname || "/").toLowerCase();
-        var links = document.querySelectorAll('[data-dx-header] .dxNav a[data-nav]');
-        links.forEach(function(a){
-          var key = a.getAttribute('data-nav');
-          var active =
-            (key === "index" && (path === "/" || path.endsWith("/index.html"))) ||
-            (key === "demande" && (path.endsWith("/demande.html"))) ||
-            (key === "mur" && (path.endsWith("/mur-demandes.html"))) ||
-            (key === "offreurs" && (path.endsWith("/offreurs.html")));
-          if(active) a.classList.add("is-active");
-        });
+  <!-- Mobile panel -->
+  <div class="dxMobilePanel" hidden>
+    <a class="dxMobileLink" href="./index.html">Accueil</a>
+    <a class="dxMobileLink" href="./demande.html">Faire une demande</a>
+    <a class="dxMobileLink" href="./mur-demandes.html">Mur des demandes</a>
+    <a class="dxMobileLink" href="./offreurs.html">Les offreurs</a>
 
-        document.addEventListener("click", function(e){
-          var open = document.querySelector('[data-dx-header] details.dxMore[open]');
-          if(!open) return;
-          if(open.contains(e.target)) return;
-          open.removeAttribute("open");
-        });
-      }catch(e){}
-    })();
-  </script>
+    <details class="dxMobilePlus">
+      <summary class="dxMobileLink dxMobileLink--summary">
+        Plus <span class="dx-caret" aria-hidden="true">▾</span>
+      </summary>
+      <div class="dxMobilePlusMenu">
+        <a class="dxMobileSubLink" href="./info-tarifs.html">Infos &amp; tarifs</a>
+        <a class="dxMobileSubLink" href="./contact.html">Contact</a>
+        <a class="dxMobileSubLink" href="./cgv.html">CGV</a>
+        <a class="dxMobileSubLink" href="./politique-confidentialite.html">Confidentialité</a>
+      </div>
+    </details>
+
+    <a class="dxBtn dxBtnPrimary dxBtnMobile" href="./offreur-login.html">S'identifier</a>
+  </div>
 </header>
