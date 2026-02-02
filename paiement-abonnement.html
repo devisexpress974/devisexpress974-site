@@ -1,97 +1,87 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Paiement abonnement | DevisExpress974</title>
-  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  <title>Abonnement — DevisExpress974</title>
+  <meta name="theme-color" content="#ff3b0a" />
   <link rel="stylesheet" href="./styles.css?v=32" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=33" />
-
-  <script defer src="./assets/js/dx-include-header.js?v=33"></script>
 </head>
+
 <body>
-  <div id="dx-header-slot"></div>
-<main>
-  <div class="container">
-    <section class="card pad">
-      <h1 class="pageTitle">Paiement abonnement</h1>
-      <p class="pageLead">Pour les offreurs qui répondent souvent : <strong>4,99&nbsp;€/mois</strong> (paiement récurrent PayPal).</p>
+<header id="siteHeader"></header>
 
-      <div class="hr"></div>
+<main class="container" style="padding:24px 0;">
+  <div class="heroCard" style="padding:28px;">
+    <h1 style="margin:0 0 8px;">Abonnement</h1>
+    <p class="muted" style="margin:0 0 14px;"><strong>1er mois offert</strong>, puis <strong>4,99 €/mois</strong> — sans engagement.</p>
 
-      <div class="priceRow">
-        <div class="priceRowLeft">
-          <div class="muted">Paiement PayPal</div>
-          <div class="small muted">Si le bouton ne s’affiche pas (bloqueur), utilise le lien PayPal.</div>
-        </div>
-        <div class="priceRowRight">
-          <a id="paypalLink" class="btn" href="#" target="_blank" rel="noopener" style="display:none;">Ouvrir PayPal</a>
-        </div>
+    <div class="card" style="padding:18px; margin:16px 0;">
+      <h2 style="margin:0 0 8px;">Ce que tu obtiens</h2>
+      <ul style="margin:0 0 0 18px;">
+        <li><strong>Déblocage illimité</strong> de toutes les demandes</li>
+        <li>Réception d’e-mails automatiques des demandes de ton secteur (si activé)</li>
+        <li>Annulation possible à tout moment</li>
+      </ul>
+    </div>
+
+    <div class="card" style="padding:18px; margin:16px 0;">
+      <h2 style="margin:0 0 8px;">Paiement PayPal</h2>
+      <p class="muted" style="margin:0 0 12px;">Clique sur <strong>Payer</strong>. Si tu as un bloqueur, utilise <strong>Ouvrir PayPal</strong>.</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a id="btnPay" class="btn btnPrimary" href="#" target="_blank" rel="noopener">Payer / S’abonner</a>
+        <a id="paypalLink" class="btn" href="#" target="_blank" rel="noopener">Ouvrir PayPal</a>
       </div>
+      <p id="ppMissing" class="muted" style="margin:12px 0 0; display:none;">Lien PayPal abonnement non configuré pour le moment.</p>
+    </div>
 
-      <div class="paypalWrap">
-        <div id="paypal-container-abonnement"></div>
-      </div>
-
-      <div id="paypalMissing" class="notice warn" style="display:none; margin-top:12px;">
-        Bouton PayPal abonnement non configuré pour le moment.
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="actionsRow">
+    <div class="card" style="padding:18px; margin:16px 0;">
+      <h2 style="margin:0 0 8px;">Après paiement</h2>
+      <p class="muted" style="margin:0 0 12px;">Clique ci-dessous pour activer ton abonnement sur le site (accès à toutes les demandes).</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button id="btnPaid" class="btn btnPrimary">J’ai payé, activer mon abonnement</button>
         <a class="btn" href="mur-demandes.html">Aller au mur des demandes</a>
         <a class="btn" href="contact.html">Contact</a>
       </div>
-    </section>
+      <p id="msg" class="muted" style="margin:12px 0 0;"></p>
+    </div>
+
+    <p class="muted" style="margin:8px 0 0;">Important : les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.</p>
   </div>
 </main>
+
 <footer class="siteFooter">
-  <div class="container footerInner">
-    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
-    <div class="footerLinks" aria-label="Liens légaux">
-      <a href="mentions-legales.html">Mentions légales</a>
-      <a href="cgv.html">CGV</a>
-      <a href="politique-confidentialite.html">Politique de confidentialité</a>
-      <a href="cookies.html">Cookies</a>
-      <a href="contact.html">Contact</a>
+  <div class="container">
+    <div class="footerRow">
+      <div>© DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks">
+        <a href="cvg.html">CGV</a>
+        <a href="confidentialite.html">Politique de confidentialité</a>
+        <a href="contact.html">Contact</a>
+      </div>
     </div>
   </div>
 </footer>
-<script src="paypal-config.js?v=27"></script>
+
+<script src="./paypal-config.js?v=32"></script>
 <script>
   (function(){
-    var cfg = (window.DX_PAYPAL && window.DX_PAYPAL.abonnement) ? window.DX_PAYPAL.abonnement : null;
-    var link = document.getElementById('paypalLink');
-    var missing = document.getElementById('paypalMissing');
-    if (cfg && cfg.ncpLink) {
-      link.href = cfg.ncpLink;
-      link.style.display = '';
-    }
-    // Hosted Buttons (si un hostedButtonId est fourni)
-    if (cfg && cfg.hostedButtonId && window.DX_PAYPAL && window.DX_PAYPAL.hostedClientId) {
-      var s = document.createElement('script');
-      s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(window.DX_PAYPAL.hostedClientId) + '&components=hosted-buttons&disable-funding=venmo&currency=EUR';
-      s.onload = function(){
-        try {
-          if (window.paypal && paypal.HostedButtons) {
-            paypal.HostedButtons({ hostedButtonId: cfg.hostedButtonId }).render('#paypal-container-abonnement');
-          }
-        } catch(e){ console.warn(e); }
-      };
-      document.head.appendChild(s);
+    var link = (window.DX_PAYPAL && window.DX_PAYPAL.getLink) ? window.DX_PAYPAL.getLink('abonnement') : '';
+    var a1 = document.getElementById('btnPay');
+    var a2 = document.getElementById('paypalLink');
+    var missing = document.getElementById('ppMissing');
+    if(link){
+      a1.href = link;
+      a2.href = link;
     } else {
-      missing.style.display = '';
+      a1.style.display = 'none';
+      a2.style.display = 'none';
+      missing.style.display = 'block';
     }
   })();
 </script>
-<script src="api.js?v=27"></script>
-<script src="auth.js?v=27"></script>
-<script src="main.js?v=27"></script>
-
+<script src="./partials/header.js?v=32"></script>
+<script src="./dx.js?v=32"></script>
+<script src="./paiement-abonnement.js?v=32"></script>
 </body>
 </html>
-
