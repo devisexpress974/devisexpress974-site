@@ -8,122 +8,96 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="./styles.css?v=32" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=32" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=33" />
 
-  <script defer src="./assets/js/dx-include-header.js?v=32"></script>
+  <script defer src="./assets/js/dx-include-header.js?v=33"></script>
 </head>
 <body>
   <div id="dx-header-slot"></div>
 <main>
   <div class="container">
+
     <section class="card pad">
-      <h1 class="pageTitle">Infos &amp; Tarifs</h1>
-      <p class="pageLead">Côté demandeur : <strong>gratuit</strong>. Côté offreur : tu choisis une formule pour <strong>débloquer les coordonnées</strong> et contacter.</p>
+      <h1 class="sectionTitle" style="margin-top:0;">Infos &amp; Tarifs</h1>
+      <p class="muted" style="margin-bottom:0;">
+        <strong>Demandeur :</strong> gratuit. Tu publies une demande, elle apparaît sur le mur <em>sans coordonnées</em>.
+        <br>
+        <strong>Offreur :</strong> tu peux débloquer des demandes et recevoir les demandes de ton secteur selon ta formule.
+      </p>
+    </section>
 
-      <div class="hr"></div>
+    <section class="card pad" style="margin-top:16px;">
+      <h2 class="sectionTitle" style="margin-top:0;">Formules Offreur</h2>
 
-      <h2 class="h2">Comment ça marche</h2>
-      <div class="stepsGrid">
-        <div class="stepCard">
-          <div class="stepN">1</div>
-          <div>
-            <div class="stepT">Le demandeur publie</div>
-            <div class="muted">Sa demande apparaît sur le mur, sans coordonnées.</div>
-          </div>
-        </div>
-        <div class="stepCard">
-          <div class="stepN">2</div>
-          <div>
-            <div class="stepT">L’offreur trouve une demande</div>
-            <div class="muted">Filtre par service / commune et ouvre le détail.</div>
-          </div>
-        </div>
-        <div class="stepCard">
-          <div class="stepN">3</div>
-          <div>
-            <div class="stepT">Déblocage selon formule</div>
-            <div class="muted">Paiement puis accès aux coordonnées pour contacter.</div>
-          </div>
-        </div>
-      </div>
+      <div class="heroGrid" style="grid-template-columns:repeat(3, minmax(0,1fr));gap:16px;margin-top:12px;">
+        <!-- Ponctuel -->
+        <div class="card pad" style="box-shadow:none;">
+          <h3 style="margin:0 0 6px;">Ponctuel</h3>
+          <div class="statValue" style="margin:0 0 6px;">0,99 €</div>
+          <div class="muted" style="margin:0 0 10px;">Débloque <strong>1</strong> demande</div>
 
-      <div class="hr"></div>
-
-      <h2 class="h2">Formules côté offreur</h2>
-
-      <div class="pricingGrid">
-        <article class="priceCard">
-          <div class="priceHead">
-            <h3 class="h3">Ponctuel</h3>
-            <div class="price">0,99&nbsp;€</div>
-            <div class="muted">Accès sur une demande.</div>
-          </div>
           <ul class="list">
-            <li>Débloque les coordonnées d’une demande</li>
-            <li>Idéal pour tester / besoin ponctuel</li>
+            <li>Choisis une demande sur le mur</li>
+            <li>Coordonnées visibles après déblocage</li>
+            <li>Accès valable pour cette demande</li>
           </ul>
-          <div class="priceActions">
-            <a class="btn btnPrimary" href="paiement-ponctuel.html">Payer (ponctuel)</a>
+
+          <div class="btnRow" style="margin-top:12px;">
+            <a class="btn btnPrimary" href="paiement-ponctuel.html">Débloquer</a>
             <a class="btn" href="https://www.paypal.com/ncp/links/4LRS689BCXY5G" target="_blank" rel="noopener">Ouvrir PayPal</a>
           </div>
-        </article>
+        </div>
 
-        <article class="priceCard">
-          <div class="priceHead">
-            <h3 class="h3">Abonnement</h3>
-            <div class="price">4,99&nbsp;€/mois</div>
-            <div class="muted">Pour débloquer plus souvent.</div>
-          </div>
-          <ul class="list">
-            <li>Accès récurrent (selon ta formule)</li>
-            <li>Pratique si tu réponds à des demandes régulièrement</li>
-          </ul>
-          <div class="priceActions">
-            <a class="btn btnPrimary" href="paiement-abonnement.html">Payer (abonnement)</a>
-          </div>
-        </article>
+        <!-- Pack 10 -->
+        <div class="card pad" style="box-shadow:none;">
+          <h3 style="margin:0 0 6px;">Pack 10 demandes</h3>
+          <div class="statValue" style="margin:0 0 6px;">2,99 €</div>
+          <div class="muted" style="margin:0 0 10px;">Débloque <strong>10</strong> demandes</div>
 
-        <article class="priceCard">
-          <div class="priceHead">
-            <h3 class="h3">Pack</h3>
-            <div class="price">Paiement unique</div>
-            <div class="muted">Un lot d’accès (selon ton pack).</div>
-          </div>
           <ul class="list">
-            <li>Plus avantageux qu’un à un</li>
-            <li>Parfait si tu réponds à plusieurs demandes</li>
+            <li>10 déblocages à utiliser quand tu veux</li>
+            <li>Idéal pour tester le service</li>
+            <li>Tu gardes l’accès sur les demandes débloquées</li>
           </ul>
-          <div class="priceActions">
-            <a class="btn btnPrimary" href="paiement-pack.html">Payer (pack)</a>
+
+          <div class="btnRow" style="margin-top:12px;">
+            <a class="btn btnPrimary" href="paiement-pack.html">Prendre le pack</a>
           </div>
-        </article>
+        </div>
+
+        <!-- Abonnement -->
+        <div class="card pad" style="box-shadow:none;">
+          <h3 style="margin:0 0 6px;">Abonnement</h3>
+          <div class="statValue" style="margin:0 0 6px;">1er mois offert</div>
+          <div class="muted" style="margin:-4px 0 10px;">puis 4,99 €/mois — sans engagement</div>
+
+          <ul class="list">
+            <li>Débloque <strong>toutes</strong> les demandes</li>
+            <li>Réception d’e-mails automatiques des demandes de ton secteur</li>
+            <li>Annulation possible à tout moment</li>
+          </ul>
+
+          <div class="btnRow" style="margin-top:12px;">
+            <a class="btn btnPrimary" href="paiement-abonnement.html">S’abonner</a>
+          </div>
+        </div>
       </div>
 
-      <div class="hr"></div>
-
-      <h2 class="h2">Conditions &amp; usage</h2>
-      <details class="details">
-        <summary>Coordonnées masquées</summary>
-        <p class="muted">Sur le mur, les coordonnées (téléphone / email) restent masquées. Elles s’affichent uniquement après déblocage côté offreur.</p>
-      </details>
-      <details class="details">
-        <summary>Notes / avis</summary>
-        <p class="muted">Après un échange réel, le demandeur peut laisser un avis pour aider la communauté.</p>
-      </details>
-      <details class="details">
-        <summary>Règles simples</summary>
-        <ul class="list">
-          <li>Respect et langage correct (sinon suppression).</li>
-          <li>Pas de spam / pas de demandes illégales.</li>
-          <li>Chaque demande est destinée à recevoir plusieurs devis.</li>
-        </ul>
-      </details>
-
-      <div class="callout">
-        <div><strong>Besoin d’aide ?</strong> Écris-nous via la page Contact.</div>
-        <a class="btn" href="contact.html">Contact</a>
+      <div class="noteBox" style="margin-top:14px;">
+        <strong>Important :</strong> les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.
       </div>
     </section>
+
+    <section class="card pad" style="margin-top:16px;">
+      <h2 class="sectionTitle" style="margin-top:0;">Besoin d’aide ?</h2>
+      <p class="muted">Une question, une réclamation, ou une demande de support : utilise la page contact.</p>
+      <div class="btnRow" style="margin-top:10px;">
+        <a class="btn btnPrimary" href="contact.html">Contacter DevisExpress974</a>
+        <a class="btn" href="cgv.html">CGV</a>
+        <a class="btn" href="politique-confidentialite.html">Confidentialité</a>
+      </div>
+    </section>
+
   </div>
 </main>
 <footer class="siteFooter">

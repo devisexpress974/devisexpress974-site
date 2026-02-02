@@ -1,150 +1,101 @@
-/* DevisExpress974 — DX Header (v32)
-   - Active tab highlighting
-   - Dropdown "Plus" (desktop)
-   - Hamburger menu (mobile)
-*/
+// DX HEADER v33
 (function () {
-  function getCurrentFile() {
-    var p = window.location.pathname || '';
-    // Remove trailing slash
-    if (p.endsWith('/')) return 'index.html';
-    var last = p.split('/').filter(Boolean).pop();
-    return last || 'index.html';
-  }
+  function setActiveLinks(root) {
+    const path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
 
-  function matchesFile(matchAttr, file) {
-    if (!matchAttr) return false;
-    var parts = matchAttr.split(',').map(function (s) { return (s || '').trim(); }).filter(Boolean);
-    for (var i = 0; i < parts.length; i++) {
-      if (parts[i] === file) return true;
-      if (parts[i] === '/' && file === 'index.html') return true;
-    }
-    return false;
-  }
+    const allLinks = root.querySelectorAll("a.dx-navLink, a.dxMobileLink");
+    allLinks.forEach(a => a.classList.remove("is-active"));
 
-  function clearActive(root) {
-    root.querySelectorAll('.is-active').forEach(function (el) {
-      el.classList.remove('is-active');
+    allLinks.forEach(a => {
+      const href = (a.getAttribute("href") || "").toLowerCase();
+      const file = href.split("/").pop();
+      if (!file) return;
+      if (file === path) a.classList.add("is-active");
+      if (path === "" && file === "index.html") a.classList.add("is-active");
     });
   }
 
-  function setActive(root) {
-    var file = getCurrentFile();
+  function init(rootDoc) {
+    const header = rootDoc.querySelector(".dxTopbar[data-dx-header]");
+    if (!header) return;
 
-    // Main tabs + dropdown toggle + dropdown items + mobile links
-    var all = root.querySelectorAll('[data-match]');
-    for (var i = 0; i < all.length; i++) {
-      var el = all[i];
-      if (matchesFile(el.getAttribute('data-match'), file)) {
-        el.classList.add('is-active');
-      }
-    }
-  }
+    const burger = header.querySelector(".dxBurger");
+    const panel = header.querySelector(".dxMobilePanel");
 
-  function setupDropdown(root) {
-    var dropdown = root.querySelector('[data-dx="dropdown"]');
-    if (!dropdown) return;
+    // safety
+    if (panel) panel.hidden = true;
 
-    var toggle = dropdown.querySelector('[data-dx="dropdownToggle"]');
-    var menu = dropdown.querySelector('[data-dx="dropdownMenu"]');
-    if (!toggle || !menu) return;
+    setActiveLinks(rootDoc);
 
-    function close() {
-      dropdown.classList.remove('is-open');
-      toggle.setAttribute('aria-expanded', 'false');
-    }
-    function open() {
-      dropdown.classList.add('is-open');
-      toggle.setAttribute('aria-expanded', 'true');
-    }
-    function isOpen() {
-      return dropdown.classList.contains('is-open');
+    function openMenu() {
+      header.classList.add("dx-open");
+      if (panel) panel.hidden = false;
+      if (burger) burger.setAttribute("aria-expanded", "true");
     }
 
-    toggle.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (isOpen()) close();
-      else open();
-    });
+    function closeMenu() {
+      header.classList.remove("dx-open");
+      if (panel) panel.hidden = true;
+      if (burger) burger.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleMenu() {
+      const isOpen = header.classList.contains("dx-open");
+      if (isOpen) closeMenu();
+      else openMenu();
+    }
+
+    if (burger) {
+      burger.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMenu();
+      });
+    }
 
     // Close when clicking outside
-    document.addEventListener('click', function (e) {
-      if (!dropdown.contains(e.target)) close();
+    document.addEventListener("click", (e) => {
+      if (!header.classList.contains("dx-open")) return;
+      if (!header.contains(e.target)) closeMenu();
     });
 
     // Close on ESC
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') close();
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeMenu();
     });
 
-    // Close when a dropdown link is clicked
-    menu.addEventListener('click', function (e) {
-      var t = e.target;
-      if (t && t.tagName === 'A') close();
+    // If resizing to desktop, close panel
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 980) closeMenu();
     });
 
-    // Expose close for burger
-    return close;
-  }
 
-  function setupBurger(root, closeDropdownFn) {
-    var btn = root.querySelector('[data-dx="burger"]');
-    var menu = root.querySelector('[data-dx="mobileMenu"]');
-    if (!btn || !menu) return;
-
-    function close() {
-      menu.hidden = true;
-      btn.setAttribute('aria-expanded', 'false');
-    }
-    function open() {
-      if (typeof closeDropdownFn === 'function') closeDropdownFn();
-      menu.hidden = false;
-      btn.setAttribute('aria-expanded', 'true');
-    }
-    function toggle() {
-      if (menu.hidden) open();
-      else close();
-    }
-
-    btn.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggle();
+    // Close dropdowns when clicking outside
+    document.addEventListener("click", (ev) => {
+      const t = ev.target;
+      const d1 = header.querySelector(".dxPlus");
+      const d2 = header.querySelector(".dxMobilePlus");
+      if (d1 && d1.open && !d1.contains(t)) d1.open = false;
+      if (d2 && d2.open && !d2.contains(t)) d2.open = false;
     });
 
-    // Close when a link is clicked
-    menu.addEventListener('click', function (e) {
-      var t = e.target;
-      if (t && t.tagName === 'A') close();
-    });
-
-    // Click outside closes
-    document.addEventListener('click', function (e) {
-      if (!root.contains(e.target)) close();
-    });
-
-    // ESC closes
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') close();
-    });
-
-    // If resize to desktop, close
-    window.addEventListener('resize', function () {
-      if (window.innerWidth > 860) close();
+    // Make <details> dropdown nicer: close on link click
+    header.querySelectorAll(".dxPlusMenu a, .dxMobilePlusMenu a").forEach(a => {
+      a.addEventListener("click", () => {
+        closeMenu();
+        const d1 = header.querySelector(".dxPlus");
+        const d2 = header.querySelector(".dxMobilePlus");
+        if (d1) d1.open = false;
+        if (d2) d2.open = false;
+      });
     });
   }
 
-  window.__dxInitHeader = function () {
-    var root = document.querySelector('.dx-header');
-    if (!root) return;
-    if (root.dataset.dxInited === '1') return;
-    root.dataset.dxInited = '1';
+  window.DXHeader = { init };
 
-    clearActive(root);
-    setActive(root);
-
-    var closeDropdownFn = setupDropdown(root);
-    setupBurger(root, closeDropdownFn);
-  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => init(document));
+  } else {
+    init(document);
+  }
 })();
