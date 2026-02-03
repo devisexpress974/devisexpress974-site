@@ -1,4 +1,4 @@
-\
+
 /* DX35 - demande submit wiring (Patch9)
    - Validation pro : tel OU email, tel 974, email format, description >=100
    - Consentements : démarchage (oui/non) + accept CGV obligatoire
@@ -176,8 +176,6 @@
     var nom = String(($('nomPrenom') && $('nomPrenom').value) || '').trim();
     var telRaw = String(($('telephone') && $('telephone').value) || '').trim();
     var emailRaw = String(($('email') && $('email').value) || '').trim();
-
-    var demarchageOk = !!($('demarchageOui') && $('demarchageOui').checked);
     var acceptCgv = !!($('acceptCgv') && $('acceptCgv').checked);
 
     // règles mini
@@ -260,7 +258,6 @@
         nom: nom,
         tel: telRaw,
         email: email,
-        demarchageOK: demarchageOk,
         acceptCGV: acceptCgv,
         attachments: attachments
       };
