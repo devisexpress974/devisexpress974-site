@@ -10,8 +10,8 @@
 <meta content="0" http-equiv="Expires"/>
 <meta content="#ff3b0a" name="theme-color"/>
 <!-- CSS GLOBAL (IMPORTANT : le / au début pour que ça marche sur TOUTES les pages Netlify) -->
-<link href="./styles.css?v=32" rel="stylesheet"/>
-<link href="./assets/css/dx-header.css?v=5" rel="stylesheet"/>
+<link href="./styles.css?v=34" rel="stylesheet"/>
+<link href="./assets/css/dx-header.css?v=34" rel="stylesheet"/>
 <!-- Header injecté (DX header) -->
 <!-- Styles spécifiques à la page -->
 <style>
@@ -109,7 +109,9 @@
     .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
     .errorLine{ display:none; margin-top:10px; font-weight:1000; color:#b00020; }
   </style>
-<script defer="" src="./assets/js/dx-include-header.js?v=5"></script>
+<script defer="" src="./assets/js/dx-include-header.js?v=34"></script>
+  <script src="./services_devisexpress974.js?v=1"></script>
+  <script defer src="./assets/js/dx-services.js?v=1"></script>
 </head>
 <body>
 <div id="dx-header-slot"></div>
@@ -254,41 +256,11 @@
 </footer>
 
 <!-- Optionnel : si ton site utilise api.js pour envoyer la demande -->
-<script src="./api.js?v=1"></script>
+<script src="api.js?v=34"></script>
+<script src="auth.js?v=34"></script>
+<script src="main.js?v=34"></script>
 
 <!-- ✅ Ajout : chargeur de métiers (JSON) -->
-<script src="./assets/js/services-loader.js?v=32"></script>
-<script>
-  (async () => {
-    const sel = document.getElementById("typeService");
-    const wrap = document.getElementById("serviceAutreWrap");
-
-    // Sauvegarde fallback : si JSON ne charge pas, on laisse tes options d'origine
-    const fallbackHTML = sel ? sel.innerHTML : "";
-
-    try {
-      const services = await DX_loadServices(); // lit ./assets/data/services_devisexpress974.json
-      // Remplit la liste avec catégories (optgroup) et métiers complets
-      DX_fillServiceSelect(sel, services, "Choisir un service…");
-    } catch (e) {
-      // fallback sans casse : on garde tes anciennes options
-      if (sel) sel.innerHTML = fallbackHTML;
-      console.warn("Liste métiers JSON non chargée, fallback activé.", e);
-    }
-
-    // Show/hide “Autre”
-    if (sel && wrap) {
-      // version robuste : affiche si le texte commence par "Autre"
-      const refresh = () => {
-        const v = (sel.value || "").toLowerCase().trim();
-        wrap.style.display = v.startsWith("autre") ? "" : "none";
-      };
-      sel.addEventListener("change", refresh);
-      refresh();
-    }
-  })();
-</script>
-
 <!-- Sécurité : limiter à 3 fichiers -->
 <script>
     (function(){
@@ -308,6 +280,29 @@
     })();
   </script>
 
-<script defer="True" src="./assets/js/dx-demande-submit.js?v=33"></script>
+<script defer="True" src="./assets/js/dx-demande-submit.js?v=34"></script>
+
+<script>
+/* dxToggleAutreService: affiche le champ "Autre" si l'utilisateur choisit "Autre" */
+(function() {
+  function toggle() {
+    var sel = document.getElementById("typeService");
+    var inp = document.getElementById("autreService");
+    if (!sel || !inp) return;
+    var wrap = inp.closest(".field") || inp.parentElement;
+    if (!wrap) return;
+    var v = (sel.value || "").toLowerCase();
+    var show = (v === "autre");
+    wrap.style.display = show ? "" : "none";
+    if (!show) inp.value = "";
+    inp.required = show;
+  }
+  document.addEventListener("change", function(e) {
+    if (e.target && e.target.id === "typeService") toggle();
+  });
+  document.addEventListener("DOMContentLoaded", toggle);
+})();
+</script>
+
 </body>
 </html>

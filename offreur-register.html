@@ -7,10 +7,12 @@
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="./styles.css?v=32" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=33" />
+  <link rel="stylesheet" href="./styles.css?v=34" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=34" />
 
-  <script defer src="./assets/js/dx-include-header.js?v=33"></script>
+  <script defer src="./assets/js/dx-include-header.js?v=34"></script>
+  <script src="./services_devisexpress974.js?v=1"></script>
+  <script defer src="./assets/js/dx-services.js?v=1"></script>
 </head>
 <body>
   <div id="dx-header-slot"></div>
@@ -271,43 +273,34 @@
   </div>
 </footer>
 
-<script src="api.js?v=27"></script>
-<script src="auth.js?v=27"></script>
-<script src="main.js?v=27"></script>
+<script src="api.js?v=34"></script>
+<script src="auth.js?v=34"></script>
+<script src="main.js?v=34"></script>
 
 <!-- ✅ Ajout : chargeur de métiers (JSON) -->
-<script src="./assets/js/services-loader.js?v=32"></script>
+<script src="offreur-register.js?v=34"></script>
+
 <script>
-  (async () => {
-    const sel = document.getElementById("service");
-    const wrap = document.getElementById("serviceAutreWrap");
-
-    if (!sel) return;
-
-    // fallback : si JSON ne charge pas, on garde tes options actuelles
-    const fallbackHTML = sel.innerHTML;
-
-    try {
-      const services = await DX_loadServices(); // ./assets/data/services_devisexpress974.json
-      DX_fillServiceSelect(sel, services, "Choisir un service…");
-    } catch (e) {
-      sel.innerHTML = fallbackHTML;
-      console.warn("Liste métiers JSON non chargée, fallback activé.", e);
-    }
-
-    // show/hide “Autre”
-    if (wrap) {
-      const refresh = () => {
-        const v = (sel.value || "").toLowerCase().trim();
-        wrap.style.display = v.startsWith("autre") ? "" : "none";
-      };
-      sel.addEventListener("change", refresh);
-      refresh();
-    }
-  })();
+/* dxToggleAutreService: affiche le champ "Autre" si l'utilisateur choisit "Autre" */
+(function() {
+  function toggle() {
+    var sel = document.getElementById("service");
+    var inp = document.getElementById("autreService");
+    if (!sel || !inp) return;
+    var wrap = inp.closest(".field") || inp.parentElement;
+    if (!wrap) return;
+    var v = (sel.value || "").toLowerCase();
+    var show = (v === "autre");
+    wrap.style.display = show ? "" : "none";
+    if (!show) inp.value = "";
+    inp.required = show;
+  }
+  document.addEventListener("change", function(e) {
+    if (e.target && e.target.id === "service") toggle();
+  });
+  document.addEventListener("DOMContentLoaded", toggle);
+})();
 </script>
-
-<script src="offreur-register.js?v=27"></script>
 
 </body>
 </html>
