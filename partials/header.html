@@ -33,8 +33,10 @@
     </nav>
 
     <!-- Actions -->
-    <div class="dx-actions">
-      <a class="dxBtn dxBtnPrimary" href="./offreur-login.html">S'identifier</a>
+    <div class="dx-actions" id="headerRight">
+      <a class="dxBtn dxBtnPrimary" id="loginCta" href="./offreur-login.html">S'identifier</a>
+      <a class="dxBtn dxBtnGhost" id="accountLink" href="./offreur-compte.html" style="display:none;">Mon compte</a>
+      <button class="dxBtn dxBtnGhost" id="logoutBtn" type="button" style="display:none;">Déconnexion</button>
 
       <button class="dxBurger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -61,6 +63,8 @@
       </div>
     </details>
 
-    <a class="dxBtn dxBtnPrimary dxBtnMobile" href="./offreur-login.html">S'identifier</a>
+    <a class="dxBtn dxBtnPrimary dxBtnMobile" id="loginCtaMobile" href="./offreur-login.html">S'identifier</a>
+    <a class="dxBtn dxBtnGhost dxBtnMobile" id="accountLinkMobile" href="./offreur-compte.html" style="display:none;">Mon compte</a>
+    <button class="dxBtn dxBtnGhost dxBtnMobile" id="logoutMobileBtn" type="button" style="display:none;">Déconnexion</button>
   </div>
 </header>

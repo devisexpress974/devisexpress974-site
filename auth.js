@@ -1,4 +1,4 @@
-// auth.js (v14) - Auth offreur complet (Apps Script)
+// auth.js (v15) - Auth offreur complet (Apps Script)
 (() => {
   function setToken(token){
     try { localStorage.setItem("dx_token", token || ""); } catch {}
@@ -48,6 +48,8 @@
     const logoutBtn = document.getElementById("logoutBtn");
     const headerRight = document.getElementById("headerRight");
     const loginCtaMobile = document.getElementById("loginCtaMobile");
+    const accountLink = document.getElementById("accountLink");
+    const accountLinkMobile = document.getElementById("accountLinkMobile");
     const logoutMobileBtn = document.getElementById("logoutMobileBtn");
     // desktop elements may exist on all pages, mobile ones are optional
     if(!loginCta || !logoutBtn || !headerRight) return;
@@ -91,19 +93,36 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logoutBtn");
-    if(logoutBtn){
-      logoutBtn.addEventListener("click", async () => {
-        logoutBtn.disabled = true;
-        logoutBtn.textContent = "Déconnexion…";
+  
+  function bindLogoutButtons(){
+    const btns = [
+      document.getElementById("logoutBtn"),
+      document.getElementById("logoutMobileBtn"),
+    ].filter(Boolean);
+
+    btns.forEach((btn) => {
+      if(btn.dataset.dxBound === "1") return;
+      btn.dataset.dxBound = "1";
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        const old = btn.textContent;
+        btn.textContent = "Déconnexion…";
         try { await logout(); } finally {
           location.href = "index.html";
         }
       });
-    }
-    refreshHeader();
+    });
+  }
+
+  async function initHeader(){
+    // called after header injection too
+    bindLogoutButtons();
+    await refreshHeader();
+  }
+
+document.addEventListener("DOMContentLoaded", () => {
+    initHeader();
   });
 
-  window.DX_AUTH = { login, register, requestReset, logout, whoami, getToken };
+  window.DX_AUTH = { login, register, requestReset, logout, whoami, getToken, refreshHeader, initHeader };
 })();

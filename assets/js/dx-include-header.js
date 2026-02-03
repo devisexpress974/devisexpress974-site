@@ -1,6 +1,6 @@
-// DX INCLUDE HEADER v33
+// DX INCLUDE HEADER v34
 (function () {
-  const V = "33";
+  const V = "34";
   const HEADER_PARTIAL = "./partials/header.html?v=" + V;
   const CSS_FILE = "./assets/css/dx-header.css?v=" + V;
   const JS_FILE = "./assets/js/dx-header.js?v=" + V;
@@ -57,6 +57,15 @@
       if (window.DXHeader && typeof window.DXHeader.init === "function") {
         window.DXHeader.init(document);
       }
+
+      try {
+        if (window.DX_AUTH && typeof window.DX_AUTH.initHeader === "function") {
+          window.DX_AUTH.initHeader();
+        } else if (window.DX_AUTH && typeof window.DX_AUTH.refreshHeader === "function") {
+          window.DX_AUTH.refreshHeader();
+        }
+      } catch (e) {}
+
     } catch (e) {
       console.error("[DX] Header injection error:", e);
     }
