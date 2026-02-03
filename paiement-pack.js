@@ -1,74 +1,45 @@
-// paiement-pack.js (PATCH1)
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const msg = document.getElementById("msg");
-  const btnPay = document.getElementById("btnPay");
-  const paypalLink = document.getElementById("paypalLink");
-  const ppMissing = document.getElementById("ppMissing");
-  const btnPaid = document.getElementById("btnPaid");
-
+  const btn = document.getElementById("btnPaid");
   const params = new URLSearchParams(location.search);
-  const demandeId = params.get("id") || params.get("demandeId") || "";
+  const id = params.get("id") || params.get("demandeId") || "";
+  const nextUrl = "paiement-pack.html" + (location.search || "");
 
-  function show(text){
-    if(!msg) return;
-    msg.textContent = text || "";
-  }
-
-  // Exiger connexion (compte offreur)
-  const token = (() => { try { return localStorage.getItem("dx_token") || ""; } catch { return ""; } })();
+  const token = localStorage.getItem("dx_token") || "";
   if(!token){
-    const next = "paiement-pack.html" + (demandeId ? ("?id=" + encodeURIComponent(demandeId)) : "");
-    location.href = "offreur-login.html?next=" + encodeURIComponent(next);
+    location.href = "offreur-login.html?next=" + encodeURIComponent(nextUrl);
     return;
   }
 
-  // Lien PayPal
-  const cfg = window.DX_PAYPAL && window.DX_PAYPAL.pack10 ? window.DX_PAYPAL.pack10 : null;
-  if(!cfg || !cfg.directLink){
-    if(ppMissing) ppMissing.style.display = "block";
-    if(btnPay) btnPay.setAttribute("aria-disabled","true");
-    if(btnPay) btnPay.href = "#";
-    if(paypalLink) paypalLink.href = "#";
-  }else{
-    if(ppMissing) ppMissing.style.display = "none";
-    if(btnPay) btnPay.href = cfg.directLink;
-    if(paypalLink) paypalLink.href = cfg.directLink;
+  function show(type, text){
+    msg.style.display = "block";
+    msg.className = "notice " + (type||"");
+    msg.textContent = text;
   }
 
-  if(btnPaid){
-    btnPaid.addEventListener("click", async () => {
-      btnPaid.disabled = true;
-      show("Activation du pack en cours…");
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    const old = btn.textContent;
+    btn.textContent = "Activation…";
 
-      try{
-        const res = await window.DX_API.postAny(["activatePack","buyPack10","activatePack10"], { });
+    const act = await DX_API.post("activatePack", {});
+    if(!act || !act.ok){
+      btn.disabled = false; btn.textContent = old;
+      return show("err", act?.error || "Activation impossible");
+    }
 
-        if(!(res && res.ok)){
-          btnPaid.disabled = false;
-          return show((res && (res.error||res.message)) ? (res.error||res.message) : "Impossible.");
-        }
-
-        // Optionnel : si on vient d'une demande, on débloque tout de suite avec 1 crédit
-        if(demandeId){
-          show("Pack activé. Déblocage de la demande…");
-          const res2 = await window.DX_API.postAny(["grantAccess","unlockDemande"], { demandeId, type: "credit" });
-          if(res2 && res2.ok){
-            show("Accès enregistré. Ouverture…");
-            setTimeout(()=> location.href = "demande-detail.html?id=" + encodeURIComponent(demandeId), 450);
-            return;
-          }
-          // Pack ok mais pas débloqué : on renvoie au mur
-          show("Pack activé. Va sur le mur pour débloquer cette demande.");
-          setTimeout(()=> location.href = "mur-demandes.html?unlock=" + encodeURIComponent(demandeId), 900);
-          return;
-        }
-
-        show("Pack activé. Tu peux débloquer jusqu’à 10 demandes depuis le mur.");
-        setTimeout(()=> location.href = "mur-demandes.html", 900);
-      }catch(e){
-        btnPaid.disabled = false;
-        show(e && e.message ? e.message : String(e));
+    if(id){
+      const res = await DX_API.postAny(["grantAccess","unlockDemande"], { demandeId:id, type:"pack" });
+      if(res?.ok){
+        show("ok","Pack activé + accès OK");
+        setTimeout(()=> location.href="demande-detail.html?id="+encodeURIComponent(id), 450);
+        return;
       }
-    });
-  }
+      btn.disabled = false; btn.textContent = old;
+      return show("err", res?.error || "Pack OK mais déblocage KO");
+    }
+
+    show("ok","Pack activé");
+    setTimeout(()=> location.href="mur-demandes.html", 450);
+  });
 });

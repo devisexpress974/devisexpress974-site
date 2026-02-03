@@ -56,6 +56,7 @@
 </div>
 </div>
 </footer>
+
 <script src="./paypal-config.js?v=32"></script>
 <script>
   (function(){
@@ -73,8 +74,14 @@
     }
   })();
 </script>
-<script src="/partials/header.js?v=32"></script>
 
-<script src="./api.js?v=PATCH1"></script><script src="./auth.js?v=PATCH1"></script><script src="./main.js?v=PATCH1"></script><script src="./paiement-abonnement.js?v=32"></script>
+<!-- AJOUT demandé : AVANT header.js -->
+<script src="./api.js?v=32"></script>
+<script src="./auth.js?v=32"></script>
+<script src="./main.js?v=32"></script>
+
+<script src="/partials/header.js?v=32"></script>
+<script src="./paiement-abonnement.js?v=32"></script>
+
 </body>
 </html>
