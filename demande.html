@@ -154,6 +154,7 @@
 <label for="typeService">Type de service *</label>
 <select id="typeService" name="typeService" required="">
 <option value="">Choisir un service…</option>
+<!-- ✅ Fallback (si JSON ne charge pas) : on garde tes options actuelles -->
 <option>Bâtiment / Travaux</option>
 <option>Plomberie</option>
 <option>Électricité</option>
@@ -169,10 +170,13 @@
 <option>Autre</option>
 </select>
 </div>
-<div class="formRow">
+
+<!-- ✅ Ajout : wrap pour afficher/cacher automatiquement quand “Autre” est choisi -->
+<div class="formRow" id="serviceAutreWrap" style="display:none;">
 <label for="autreService">Autre (si besoin)</label>
 <input id="autreService" name="autreService" placeholder="Optionnel" type="text"/>
 </div>
+
 <div class="formRow">
 <label for="zone">Zone *</label>
 <select id="zone" name="zone" required="">
@@ -248,9 +252,43 @@
 </nav>
 </div>
 </footer>
-<!-- Scripts header injecté -->
+
 <!-- Optionnel : si ton site utilise api.js pour envoyer la demande -->
 <script src="./api.js?v=1"></script>
+
+<!-- ✅ Ajout : chargeur de métiers (JSON) -->
+<script src="./assets/js/services-loader.js?v=32"></script>
+<script>
+  (async () => {
+    const sel = document.getElementById("typeService");
+    const wrap = document.getElementById("serviceAutreWrap");
+
+    // Sauvegarde fallback : si JSON ne charge pas, on laisse tes options d'origine
+    const fallbackHTML = sel ? sel.innerHTML : "";
+
+    try {
+      const services = await DX_loadServices(); // lit ./assets/data/services_devisexpress974.json
+      // Remplit la liste avec catégories (optgroup) et métiers complets
+      DX_fillServiceSelect(sel, services, "Choisir un service…");
+    } catch (e) {
+      // fallback sans casse : on garde tes anciennes options
+      if (sel) sel.innerHTML = fallbackHTML;
+      console.warn("Liste métiers JSON non chargée, fallback activé.", e);
+    }
+
+    // Show/hide “Autre”
+    if (sel && wrap) {
+      // version robuste : affiche si le texte commence par "Autre"
+      const refresh = () => {
+        const v = (sel.value || "").toLowerCase().trim();
+        wrap.style.display = v.startsWith("autre") ? "" : "none";
+      };
+      sel.addEventListener("change", refresh);
+      refresh();
+    }
+  })();
+</script>
+
 <!-- Sécurité : limiter à 3 fichiers -->
 <script>
     (function(){
@@ -269,5 +307,7 @@
       });
     })();
   </script>
-<script defer="True" src="./assets/js/dx-demande-submit.js?v=33"></script></body>
+
+<script defer="True" src="./assets/js/dx-demande-submit.js?v=33"></script>
+</body>
 </html>
