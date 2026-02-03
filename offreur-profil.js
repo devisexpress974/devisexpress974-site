@@ -1,311 +1,184 @@
-// offreur-profil.js (Patch3) — Profil + statut + logout (safe)
-(() => {
-  const $ = (id) => document.getElementById(id);
+// offreur-profil.js (profil PUBLIC)
+// Affiche un profil offreur depuis offreur-profil.html?id=XXXX
+// - Sans coordonnées (confidentialité)
+// - Chargement via backend (GAS via netlify/functions/gas ou API existante)
 
-  const COMMUNES = {
-    Nord: ["Saint-Denis","Sainte-Marie","Sainte-Suzanne"],
-    Est: ["Saint-André","Bras-Panon","Saint-Benoît","Sainte-Rose","Saint-Philippe","Salazie","La Plaine-des-Palmistes"],
-    Ouest: ["Le Port","La Possession","Saint-Paul","Trois-Bassins","Saint-Leu"],
-    Sud: ["Les Avirons","L’Étang-Salé","Saint-Louis","Entre-Deux","Le Tampon","Cilaos","Saint-Pierre","Petite-Île","Saint-Joseph"]
-  };
+(function () {
+  "use strict";
 
-  function allCommunes(){
-    const out = [];
-    Object.keys(COMMUNES).forEach(z => COMMUNES[z].forEach(c => out.push(c)));
-    return out;
+  const $ = (sel) => document.querySelector(sel);
+
+  function esc(s) {
+    return (s ?? "").toString()
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
-  function setNotice(text, kind){
-    const el = $("msg");
-    if(!el) return;
-    el.className = "notice " + (kind === "ok" ? "ok" : kind === "bad" ? "bad" : "");
-    el.textContent = text || "";
-    el.style.display = text ? "block" : "none";
+  function setBox(html, isError) {
+    const box = $("#box");
+    if (!box) return;
+    box.className = isError ? "notice" : "notice muted";
+    box.innerHTML = html;
   }
 
-  function pill(label, value, state){
-    const dot = state === "ok" ? "ok" : state === "warn" ? "warn" : state === "off" ? "off" : "";
-    return `<span class="pill"><span class="dot ${dot}"></span><span>${label}</span><span style="opacity:.75">•</span><span>${value}</span></span>`;
+  function qp(obj) {
+    const u = new URLSearchParams();
+    Object.entries(obj || {}).forEach(([k, v]) => {
+      if (v === undefined || v === null || v === "") return;
+      u.set(k, String(v));
+    });
+    const s = u.toString();
+    return s ? `?${s}` : "";
   }
 
-  async function loadServices(){
-    const sel = $("service");
-    if(!sel) return;
-
-    // fallback minimal
-    sel.innerHTML = `<option value="">Choisir…</option>`;
-
-    try{
-      const res = await fetch("./services_devisexpress974.json?v=1", { cache:"no-store" });
-      const list = await res.json();
-
-      // group by category
-      const groups = {};
-      (list || []).forEach(it => {
-        const cat = String(it.category || "Autres").trim();
-        if(!groups[cat]) groups[cat] = [];
-        groups[cat].push(it);
-      });
-
-      const cats = Object.keys(groups).sort((a,b)=>a.localeCompare(b, "fr"));
-      cats.forEach(cat => {
-        const og = document.createElement("optgroup");
-        og.label = cat;
-        groups[cat].sort((a,b)=>String(a.label).localeCompare(String(b.label), "fr")).forEach(it => {
-          const opt = document.createElement("option");
-          opt.value = String(it.label || "").trim();   // IMPORTANT : on garde le label (compat avec données actuelles)
-          opt.textContent = String(it.label || "").trim();
-          og.appendChild(opt);
-        });
-        sel.appendChild(og);
-      });
-
-      // add "Autre"
-      const opt = document.createElement("option");
-      opt.value = "Autre (à préciser)";
-      opt.textContent = "Autre (à préciser)";
-      sel.appendChild(opt);
-
-    }catch(e){
-      // si le JSON n'est pas encore en place, on laisse juste le fallback
-      sel.innerHTML = `<option value="">Choisir…</option>
-        <option>Plomberie</option>
-        <option>Électricité</option>
-        <option>Maçonnerie</option>
-        <option>Peinture</option>
-        <option>Jardinage</option>
-        <option>Ménage</option>
-        <option>Informatique</option>
-        <option>Autre (à préciser)</option>`;
+  async function fetchJson(url, opt) {
+    const res = await fetch(url, opt || {});
+    const txt = await res.text();
+    try {
+      return JSON.parse(txt);
+    } catch (e) {
+      return { ok: false, error: "Réponse non JSON", raw: (txt || "").slice(0, 180) };
     }
   }
 
-  function refreshCommuneOptions(zone, selected){
-    const sel = $("commune");
-    if(!sel) return;
+  async function callBackend(route, query) {
+    query = query || {};
 
-    const z = String(zone||"").trim();
-    let list = [];
-    if(!z || z === "Sur toute l'île"){
-      list = allCommunes().slice().sort((a,b)=>a.localeCompare(b,"fr"));
-    }else{
-      list = (COMMUNES[z] || []).slice();
+    // 1) Si ton api.js expose déjà une fonction, on l'utilise (si elle existe).
+    try {
+      if (window.DX_API && typeof window.DX_API.call === "function") {
+        return await window.DX_API.call(route, query);
+      }
+      if (typeof window.apiCall === "function") {
+        return await window.apiCall(route, query);
+      }
+      if (typeof window.apiGet === "function") {
+        return await window.apiGet(route, query);
+      }
+    } catch (e) {}
+
+    // 2) Fallback vers Netlify Function
+    const base = (window.DX_API_BASE || window.API_BASE || "").toString().trim();
+    const fn = base || "/.netlify/functions/gas";
+
+    const tries = [
+      fn + qp({ route, ...query }),
+      fn + qp({ action: route, ...query }),
+      fn + qp({ path: route, ...query }),
+      fn + qp({ fn: route, ...query }),
+    ];
+
+    for (const url of tries) {
+      try {
+        const js = await fetchJson(url);
+        if (js && (js.ok === true || js.offreur || js.user || js.data)) return js;
+      } catch (e) {}
     }
 
-    sel.innerHTML = `<option value="">Choisir…</option>`;
-    list.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c;
-      opt.textContent = c;
-      sel.appendChild(opt);
+    const postOpt = (payload) => ({
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    if(selected) sel.value = selected;
-  }
-
-  function toggleServiceAutre(){
-    const s = ($("service")?.value || "").toLowerCase();
-    const wrap = $("serviceAutreWrap");
-    if(!wrap) return;
-    if(s.indexOf("autre") === 0){
-      wrap.style.display = "";
-    }else{
-      wrap.style.display = "none";
-      const input = $("serviceAutre");
-      if(input) input.value = "";
-    }
-  }
-
-  async function requireLogin(){
-    // DX_AUTH présent ? sinon on fait direct via API
-    let me = null;
-    try{
-      if(window.DX_AUTH && typeof window.DX_AUTH.whoami === "function"){
-        me = await window.DX_AUTH.whoami();
-      }else{
-        me = await window.DX_API.getAny(["whoami","me"], {});
-      }
-    }catch(e){}
-
-    if(!me || !me.ok){
-      const next = encodeURIComponent("offreur-profil.html");
-      location.href = `offreur-login.html?next=${next}`;
-      return null;
-    }
-    return me;
-  }
-
-  function renderStatus(me){
-    const el = $("statusPills");
-    if(!el) return;
-
-    const user = (me && me.user) ? me.user : (me && me.data ? me.data : {});
-    const plan = String((user && user.plan) || (me && me.data && me.data.plan) || "FREE");
-    const credits = String((user && user.credits) || (me && me.data && me.data.credits) || "0");
-    const abo = String((user && user.aboActive) || (me && me.data && me.data.aboActive) || "NON");
-    const trialEnd = String((user && user.trialEnd) || (me && me.data && me.data.trialEnd) || "");
-
-    const pills = [];
-    if(plan === "ABO" || abo === "OUI"){
-      pills.push(pill("Abonnement", "Actif", "ok"));
-    }else{
-      pills.push(pill("Abonnement", "Inactif", "off"));
+    for (const payload of [
+      { route, ...query },
+      { action: route, ...query },
+      { path: route, ...query },
+      { fn: route, ...query },
+    ]) {
+      try {
+        const js = await fetchJson(fn, postOpt(payload));
+        if (js && (js.ok === true || js.offreur || js.user || js.data)) return js;
+      } catch (e) {}
     }
 
-    if(plan === "PACK"){
-      pills.push(pill("Crédits", credits, credits !== "0" ? "ok" : "warn"));
+    return { ok: false, error: "Impossible de joindre le backend" };
+  }
+
+  function pick(obj, keys) {
+    for (const k of keys) {
+      if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
     }
-
-    if(trialEnd){
-      pills.push(pill("Fin essai", trialEnd, "warn"));
-    }
-
-    el.innerHTML = pills.join("");
+    return "";
   }
 
-  async function loadProfile(){
-    const res = await window.DX_API.get("getOffreurProfile", {});
-    if(res && res.ok && res.user) return res.user;
+  function buildProfileHtml(p) {
+    const publicName =
+      pick(p, ["publicName", "PublicName"]) ||
+      pick(p, ["pseudo", "Pseudo"]) ||
+      pick(p, ["entreprise", "Entreprise"]) ||
+      pick(p, ["nom", "Nom"]) ||
+      "Offreur";
 
-    // fallback : au moins email/offreurId
-    return null;
+    const service = pick(p, ["service", "Service"]) || pick(p, ["service_id", "Service_id"]);
+    const zone = pick(p, ["zone", "Zone"]);
+    const commune = pick(p, ["commune", "Commune"]);
+    const desc = pick(p, ["description", "Description", "bio", "Bio"]);
+
+    const showNoteRaw = pick(p, ["showNote", "ShowNote", "show_note", "Show_Note"]);
+    const showNote = String(showNoteRaw).toLowerCase() === "true" || showNoteRaw === 1 || showNoteRaw === "1" || showNoteRaw === true;
+
+    const note = pick(p, ["note", "Note", "rating", "Rating"]);
+    const nbAvis = pick(p, ["nbAvis", "NbAvis", "reviewsCount", "ReviewsCount"]);
+
+    const chips = [service, commune, zone].filter(Boolean).map((x) => `<span class="chip">${esc(x)}</span>`).join(" ");
+
+    const noteLine = (showNote && note)
+      ? `<div style="margin-top:10px;"><strong>Note :</strong> ${esc(note)}${nbAvis ? ` <span class="muted">(${esc(nbAvis)} avis)</span>` : ""}</div>`
+      : `<div style="margin-top:10px;" class="muted"><strong>Note :</strong> non affichée</div>`;
+
+    return `
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div>
+          <div class="sectionTitle" style="margin:0; font-size:20px;">${esc(publicName)}</div>
+          <div class="muted" style="margin-top:4px;">Profil public — coordonnées masquées</div>
+        </div>
+
+        ${chips ? `<div style="display:flex; flex-wrap:wrap; gap:8px;">${chips}</div>` : ""}
+
+        ${desc ? `<div><strong>À propos :</strong><div class="muted" style="margin-top:6px; line-height:1.5;">${esc(desc)}</div></div>` : ""}
+
+        ${noteLine}
+
+        <div class="muted" style="margin-top:8px;">
+          Pour contacter cet offreur : publie une demande, puis débloque les coordonnées depuis le mur (si ton offre te le permet).
+        </div>
+
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="btn" href="offreurs.html">Retour aux offreurs</a>
+          <a class="btn" href="mur-demandes.html">Voir le mur</a>
+        </div>
+      </div>
+    `;
   }
 
-  function fillForm(u){
-    if(!u) return;
+  document.addEventListener("DOMContentLoaded", async () => {
+    const y = document.getElementById("y");
+    if (y) y.textContent = String(new Date().getFullYear());
 
-    $("nom").value = u.nom || "";
-    $("email").value = u.email || "";
-    $("tel").value = u.tel || "";
-    $("entreprise").value = u.entreprise || "";
-    $("pseudo").value = u.pseudo || "";
-    $("displayMode").value = (u.displayMode || "NOM").toUpperCase();
-    $("showNote").value = (u.showNote || "OUI").toUpperCase();
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id") || "";
 
-    $("zone").value = u.zone || "";
-    refreshCommuneOptions(u.zone, u.commune || "");
-
-    $("description").value = u.description || "";
-    $("serviceAutre").value = u.serviceAutre || "";
-  }
-
-  async function setServiceValue(value){
-    const sel = $("service");
-    if(!sel) return;
-
-    // sometimes options load async
-    const v = String(value||"").trim();
-    if(!v) return;
-
-    // try set now
-    sel.value = v;
-
-    // if not found yet, retry a bit
-    if(sel.value !== v){
-      let tries = 0;
-      const t = setInterval(() => {
-        tries++;
-        sel.value = v;
-        if(sel.value === v || tries > 20){
-          clearInterval(t);
-          toggleServiceAutre();
-        }
-      }, 100);
-    }else{
-      toggleServiceAutre();
-    }
-  }
-
-  async function boot(){
-    // year in footer if present
-    try{ const y = document.getElementById("y"); if(y) y.textContent = String(new Date().getFullYear()); }catch(e){}
-
-    const me = await requireLogin();
-    if(!me) return;
-
-    renderStatus(me);
-
-    await loadServices();
-
-    // load profile from backend
-    const u = await loadProfile();
-    if(u){
-      fillForm(u);
-      await setServiceValue(u.service);
-      toggleServiceAutre();
+    if (!id) {
+      setBox(`Profil introuvable : il manque l’identifiant.<br><br><a class="btn" href="offreurs.html">Retour</a>`, true);
       return;
     }
 
-    // fallback: fill with whoami
-    const user = me.user || me.data || {};
-    $("email").value = user.email || "";
-    $("nom").value = user.nom || "";
-    $("tel").value = user.tel || "";
-  }
+    setBox("Chargement…", false);
 
-  document.addEventListener("change", (e) => {
-    if(e.target && e.target.id === "zone"){
-      refreshCommuneOptions(e.target.value, "");
-    }
-    if(e.target && e.target.id === "service"){
-      toggleServiceAutre();
-    }
-  });
+    const resp = await callBackend("getOffreurProfile", { id });
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const form = $("profileForm");
-    if(form){
-      form.addEventListener("submit", async (ev) => {
-        ev.preventDefault();
-        setNotice("", "");
-
-        const payload = {
-          nom: $("nom").value,
-          tel: $("tel").value,
-          entreprise: $("entreprise").value,
-          pseudo: $("pseudo").value,
-          displayMode: $("displayMode").value,
-          showNote: $("showNote").value,
-          service: $("service").value,
-          serviceAutre: $("serviceAutre").value,
-          zone: $("zone").value,
-          commune: $("commune").value,
-          description: $("description").value
-        };
-
-        try{
-          const res = await window.DX_API.post("updateOffreurProfile", payload);
-          if(res && res.ok){
-            setNotice("✅ Profil enregistré.", "ok");
-            // refresh pills using fresh whoami
-            try{
-              const me = await window.DX_API.getAny(["whoami","me"], {});
-              if(me && me.ok) renderStatus(me);
-            }catch(e){}
-          }else{
-            setNotice("❌ " + (res && res.error ? res.error : "Erreur lors de l’enregistrement."), "bad");
-          }
-        }catch(e){
-          setNotice("❌ Erreur réseau.", "bad");
-        }
-      });
+    if (!resp || resp.ok === false) {
+      const err = resp?.error ? esc(resp.error) : "Erreur inconnue";
+      setBox(`Impossible de charger ce profil.<br><span class="muted">${err}</span><br><br><a class="btn" href="offreurs.html">Retour</a>`, true);
+      return;
     }
 
-    const btnLogout = $("btnLogout");
-    if(btnLogout){
-      btnLogout.addEventListener("click", async () => {
-        try{
-          if(window.DX_AUTH && typeof window.DX_AUTH.logout === "function"){
-            await window.DX_AUTH.logout();
-          }else{
-            await window.DX_API.postAny(["logout","logoutOffreur"], {});
-          }
-        }catch(e){}
-        try{ localStorage.removeItem("dx_token"); }catch(e){}
-        location.href = "offreur-login.html";
-      });
-    }
-
-    boot();
+    const p = resp.offreur || resp.user || resp.data || resp;
+    setBox(buildProfileHtml(p), false);
   });
 })();
