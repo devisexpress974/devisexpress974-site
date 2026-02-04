@@ -45,21 +45,6 @@
     .counter{ font-weight:900; font-size:12px; color:var(--muted); text-align:right; }
     .legalRow{ margin-top:10px; padding-top:10px; border-top:1px dashed rgba(0,0,0,.12); }
   </style>
-  <script>
-  (function(){
-    function escHtml(s){
-      s = (s===null || s===undefined) ? "" : String(s);
-      return s
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#39;");
-    }
-    window.esc_ = window.esc_ || escHtml;
-  })();
-  </script>
-
 </head>
 <body>
   <div id="dx-header-slot"></div>
@@ -138,7 +123,7 @@
             <label for="besoin">Décris ton besoin *</label>
             <div>
               <textarea id="besoin" name="besoin" placeholder="Ex : je cherche un plombier pour..." required></textarea>
-              <div class="counter"><span id="descCount">0</span>/100 caractères minimum</div>
+              <div class="counter"><span id="descCount">0</span>/50 caractères minimum</div>
               <div class="help">Évite les insultes. Les demandes non conformes peuvent être mises en vérification.</div>
             </div>
           </div>
@@ -146,7 +131,7 @@
           <div class="formRow">
             <label for="pieces">Pièces jointes (max 3)</label>
             <input id="pieces" name="pieces" type="file" accept=".jpg,.jpeg,.png,.pdf" multiple/>
-            <div class="help" style="grid-column:1 / -1;">Formats : JPG, PNG, PDF. Taille conseillée : 1,5 Mo max par fichier.</div>
+            <div class="help" style="grid-column:1 / -1;">Formats : JPG, PNG, PDF. Taille conseillée : 5 Mo max par fichier.</div>
           </div>
 
           <div class="formRow">

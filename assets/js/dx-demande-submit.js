@@ -1,22 +1,8 @@
-// --- safety: global HTML escape helper (used by some pages) ---
-(function(){
-  function escHtml(s){
-    s = (s===null || s===undefined) ? "" : String(s);
-    return s
-      .replace(/&/g,"&amp;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;")
-      .replace(/'/g,"&#39;");
-  }
-  window.esc_ = window.esc_ || escHtml;
-})();
-
 
 /* DX35 - demande submit wiring (Patch9)
    - Validation pro : tel OU email, tel 974, email format, description >=100
    - Consentements : démarchage (oui/non) + accept CGV obligatoire
-   - Pièces jointes : jpg/png/pdf, max 3, 1.5 Mo max par fichier
+   - Pièces jointes : jpg/png/pdf, max 3, 5 Mo max par fichier
    - Flags soft : incohérence service/description + langage inadapté (avertissement)
    Dépend de api.js (window.DX_API). */
 
@@ -95,8 +81,8 @@
       if(!okType || !okExt){
         throw new Error("Fichier non autorisé : " + (f.name||""));
       }
-      if(f.size && f.size > (1500*1024)){
-        throw new Error("Fichier trop lourd (max 1,5 Mo) : " + (f.name||""));
+      if(f.size && f.size > (5*1024*1024)){
+        throw new Error("Fichier trop lourd (max 5 Mo) : " + (f.name||""));
       }
 
       var dataUrl = await readAsDataURL(f);
@@ -205,8 +191,8 @@
       showStatus("Tu as choisi « Autre » : précise le service.", "error");
       return;
     }
-    if(description.length < 100){
-      showStatus("La description doit faire au moins 100 caractères.", "error");
+    if(description.length < 50){
+      showStatus("La description doit faire au moins 50 caractères.", "error");
       return;
     }
     if(!acceptCgv){
