@@ -1,3 +1,17 @@
+// --- safety: global HTML escape helper (used by some pages) ---
+(function(){
+  function escHtml(s){
+    s = (s===null || s===undefined) ? "" : String(s);
+    return s
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;");
+  }
+  window.esc_ = window.esc_ || escHtml;
+})();
+
 
 /* DX35 - demande submit wiring (Patch9)
    - Validation pro : tel OU email, tel 974, email format, description >=100

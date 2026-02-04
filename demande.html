@@ -45,6 +45,21 @@
     .counter{ font-weight:900; font-size:12px; color:var(--muted); text-align:right; }
     .legalRow{ margin-top:10px; padding-top:10px; border-top:1px dashed rgba(0,0,0,.12); }
   </style>
+  <script>
+  (function(){
+    function escHtml(s){
+      s = (s===null || s===undefined) ? "" : String(s);
+      return s
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#39;");
+    }
+    window.esc_ = window.esc_ || escHtml;
+  })();
+  </script>
+
 </head>
 <body>
   <div id="dx-header-slot"></div>
