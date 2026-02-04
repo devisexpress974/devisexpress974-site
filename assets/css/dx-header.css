@@ -194,14 +194,20 @@
   box-shadow: 0 10px 22px rgba(0,0,0,0.08);
   cursor:pointer;
   padding: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
 }
+
 .dxBurger span{
   display:block;
   height: 2px;
   background: #111;
   border-radius: 2px;
   margin: 5px 0;
+  width: 100%;
 }
+
 
 .dxMobilePanel{
   width: min(1200px, calc(100% - 32px));

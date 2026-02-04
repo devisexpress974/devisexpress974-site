@@ -1,6 +1,6 @@
 // DX INCLUDE HEADER v34
 (function () {
-  const V = "34";
+  const V = "37";
   const HEADER_PARTIAL = "./partials/header.html?v=" + V;
   const CSS_FILE = "./assets/css/dx-header.css?v=" + V;
   const JS_FILE = "./assets/js/dx-header.js?v=" + V;
