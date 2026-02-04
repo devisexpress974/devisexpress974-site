@@ -1,51 +1,131 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Détail demande | DevisExpress974</title>
+  <title>Détail de la demande | DevisExpress974</title>
+
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="./styles.css?v=32" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=33" />
+  <meta name="theme-color" content="#ff3b0a" />
 
-  <script defer src="./assets/js/dx-include-header.js?v=33"></script>
+  <link rel="stylesheet" href="./styles.css?v=35" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=35" />
+  <script defer src="./assets/js/dx-include-header.js?v=35"></script>
+
+  <style>
+    .pageWrap{ padding:18px 0 36px; }
+    .card{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:16px; }
+    .grid{ display:grid; grid-template-columns: 1.4fr .6fr; gap:12px; }
+    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+
+    .kv{ display:grid; grid-template-columns: 140px 1fr; gap:8px 12px; }
+    @media (max-width: 520px){ .kv{ grid-template-columns: 1fr; } }
+
+    .muted{ opacity:.75; }
+    .pills{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 0; }
+    .pill{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; border:1px solid var(--border); background:#fff; font-weight:800; font-size:12px; }
+    .dot{ width:10px; height:10px; border-radius:50%; background:#bbb; display:inline-block; }
+    .dot.ok{ background:#2e7d32; }
+    .dot.warn{ background:#ff7a00; }
+    .dot.off{ background:#b00020; }
+
+    .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; padding:10px 14px; border-radius:12px; border:1px solid var(--border); font-weight:900; cursor:pointer; text-decoration:none; }
+    .btnPrimary{ background:linear-gradient(180deg,#ffb44d,#ff8a00); color:#111; border:none; }
+    .btnGhost{ background:#fff; color:#111; }
+    .btnSmall{ padding:8px 10px; border-radius:10px; font-weight:800; font-size:12px; }
+    .alert{ padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:#fff7e6; }
+    .error{ background:#ffe9ee; border-color:#ffb5c2; }
+    .okBox{ background:#ecfff2; border-color:#9be1b2; }
+    .pre{ white-space:pre-wrap; }
+    .attList{ list-style:none; padding-left:0; margin:8px 0 0; display:grid; gap:8px; }
+  </style>
 </head>
+
 <body>
-  <div id="dx-header-slot"></div>
-<main>
-  <div class="container">
-    <section class="card pad">
-      <h1 class="heroTitle" style="font-size:34px;">Détail de la demande</h1>
-      <p class="heroSub">Coordonnées masquées. Déblocage via formule offreur.</p>
+  <!-- Header injecté par dx-include-header.js -->
+  <header class="siteHeader" id="dxHeaderMount"></header>
 
-      <div id="box" class="notice muted" style="margin-top:12px;">Chargement…</div>
+  <main class="container pageWrap">
+    <h1 style="margin:0 0 12px;">Détail de la demande</h1>
 
-      <div class="btnRow" style="margin-top:14px;">
-        <a class="btn" href="mur-demandes.html">Retour au mur</a>
-        <a class="btn btnPrimary" href="offreur-login.html">Débloquer / Contacter</a>
-      </div>
-    </section>
-  </div>
-</main>
-<footer class="siteFooter">
-  <div class="container footerInner">
-    <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
-    <div class="footerLinks" aria-label="Liens légaux">
-      <a href="mentions-legales.html">Mentions légales</a>
-      <a href="cgv.html">CGV</a>
-      <a href="politique-confidentialite.html">Politique de confidentialité</a>
-      <a href="cookies.html">Cookies</a>
-      <a href="contact.html">Contact</a>
+    <div id="topAlert" class="alert error" style="display:none;"></div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="pills">
+          <span class="pill"><span id="dotLogin" class="dot off"></span><span id="txtLogin">Non connecté</span></span>
+          <span class="pill"><span id="dotAccess" class="dot off"></span><span id="txtAccess">Coordonnées masquées</span></span>
+        </div>
+
+        <h2 style="margin:14px 0 10px;">Infos</h2>
+        <div class="kv">
+          <div class="muted">Service</div><div id="vService">—</div>
+          <div class="muted">Zone</div><div id="vZone">—</div>
+          <div class="muted">Commune</div><div id="vCommune">—</div>
+          <div class="muted">Budget</div><div id="vBudget">—</div>
+          <div class="muted">Date</div><div id="vDate">—</div>
+        </div>
+
+        <h2 style="margin:14px 0 10px;">Description</h2>
+        <div id="vDesc" class="pre">—</div>
+
+        <div id="attachBox" style="margin-top:14px; display:none;">
+          <h3 style="margin:0 0 8px;">Pièces jointes</h3>
+          <ul id="attachList" class="attList"></ul>
+          <div class="muted" style="font-size:12px; margin-top:6px;">
+            Les pièces jointes s’affichent uniquement si tu as débloqué les coordonnées.
+          </div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h2 style="margin:0 0 10px;">Coordonnées</h2>
+
+        <div id="coordsMasked" class="alert" style="margin-bottom:12px;">
+          Les coordonnées sont <b>masquées</b> sur le mur et dans le détail.
+          <br/>Débloque pour contacter le demandeur.
+        </div>
+
+        <div id="coordsBox" class="okBox alert" style="display:none; margin-bottom:12px;">
+          <div><b>Téléphone :</b> <span id="vTel">—</span></div>
+          <div style="margin-top:6px;"><b>Email :</b> <span id="vEmail">—</span></div>
+        </div>
+
+        <div id="loginBox" class="alert" style="display:none; margin-bottom:12px;">
+          Pour débloquer, tu dois être connecté en tant que prestataire.
+          <div class="actions" style="margin-top:10px;">
+            <a id="btnLogin" class="btn btnPrimary" href="./offreur-login.html">S’identifier</a>
+          </div>
+        </div>
+
+        <div id="payBox" style="display:none;">
+          <div class="muted" style="font-size:13px; margin-bottom:8px;">Choisis une option :</div>
+          <div class="actions">
+            <a id="btnPay1" class="btn btnPrimary" href="./paiement-ponctuel.html">Débloquer 0,99€</a>
+            <a id="btnPayPack" class="btn btnGhost" href="./paiement-pack.html">Pack 10 (2,99€)</a>
+            <a id="btnPayAbo" class="btn btnGhost" href="./paiement-abonnement.html">Abonnement (4,99€)</a>
+          </div>
+          <div class="muted" style="font-size:12px; margin-top:10px;">
+            Après paiement, reviens ici : la page affichera automatiquement les coordonnées si l’accès est actif.
+          </div>
+        </div>
+
+        <div class="muted" style="font-size:12px; margin-top:14px;">
+          Astuce : si tu reçois ce lien par email, garde-le. Il pointe sur la demande exacte.
+        </div>
+      </aside>
     </div>
-  </div>
-</footer>
-<script src="api.js?v=27"></script>
-<script src="auth.js?v=27"></script>
-<script src="main.js?v=27"></script>
-<script src="demande-detail.js?v=27"></script>
+  </main>
 
+  <footer class="container" style="padding:18px 0 40px; opacity:.85;">
+    © DevisExpress974 — Tous droits réservés.
+  </footer>
+
+  <script src="./auth.js?v=35"></script>
+  <script src="./api.js?v=35"></script>
+  <script src="./demande-detail.js?v=35"></script>
 </body>
 </html>
-

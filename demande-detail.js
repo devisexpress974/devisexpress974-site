@@ -1,92 +1,224 @@
-// demande-detail.js (PATCH1)
-document.addEventListener("DOMContentLoaded", async () => {
-  const box = document.getElementById("box");
-  const params = new URLSearchParams(location.search);
-  const id = params.get("id") || "";
+/* DevisExpress974 — demande-detail.js (Patch10)
+   Objectif :
+   - Afficher une demande (public) et masquer les coordonnées
+   - Si prestataire connecté : appeler getDemande et afficher coordonnées si CanSeeContact == true
+   - Proposer les liens de paiement pour débloquer (sans casser l'existant)
+*/
+(function () {
+  "use strict";
 
-  function esc(s){
-    return (s??"").toString()
-      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  function qs() { return new URLSearchParams(window.location.search || ""); }
+  function el(id) { return document.getElementById(id); }
+
+  function showAlert(msg) {
+    var box = el("topAlert");
+    if (!box) return;
+    box.textContent = msg || "";
+    box.style.display = msg ? "block" : "none";
   }
 
-  if(!box){
-    return;
-  }
-  if(!id){
-    box.className = "notice err";
-    box.textContent = "ID manquant.";
-    return;
-  }
-
-  // On tente d'abord l'endpoint complet (qui peut renvoyer les coordonnées si accès),
-  // sinon on retombe sur la liste publique.
-  let res = await window.DX_API.getAny(
-    ["getDemande","getDemandePublic","getDemandeByIdPublic"],
-    { id }
-  );
-
-  let item = null;
-  if(res && res.ok){
-    item = res.data || res.item || null;
-  }
-
-  if(!item){
-    const res2 = await window.DX_API.getAny(
-      ["listDemandesPublic","listDemandes","getDemandesPublic"],
-      {}
-    );
-    const arr = (res2 && res2.ok) ? (res2.data || res2.items || res2.demandes || []) : [];
-    item = Array.isArray(arr) ? arr.find(d => String(d.id||d.DemandeID||d.demandeId||"") === String(id)) : null;
-  }
-
-  if(!item){
-    box.className = "notice err";
-    box.textContent = "Demande introuvable.";
-    return;
-  }
-
-  const service = item.service || item.Service || "Service";
-  const commune = item.commune || item.Commune || "Commune";
-  const zone = item.zone || item.Zone || "";
-  const desc = item.description || item.Description || "";
-  const budget = item.budget || item.Budget || "";
-  const canSee = !!(item.canSeeContact || item.hasAccess || item.canSee || false);
-
-  const tel = (item.tel || item.Tel || "").toString().trim();
-  const email = (item.email || item.Email || "").toString().trim();
-  const nom = (item.nom || item.Nom || "").toString().trim();
-
-  const contactHtml = (() => {
-    if(canSee && (tel || email)){
-      return `
-        <div class="card" style="padding:16px;margin-top:14px;border:1px solid rgba(0,0,0,.08);border-radius:14px;">
-          <div style="font-weight:1000;margin-bottom:6px;">Coordonnées débloquées ✅</div>
-          ${nom ? `<div class="muted" style="margin-bottom:8px;"><strong>Nom :</strong> ${esc(nom)}</div>` : ``}
-          ${tel ? `<div style="margin-bottom:6px;"><strong>Téléphone :</strong> <a href="tel:${esc(tel)}">${esc(tel)}</a></div>` : ``}
-          ${email ? `<div><strong>Email :</strong> <a href="mailto:${esc(email)}">${esc(email)}</a></div>` : ``}
-        </div>
-      `;
+  function getTokenGuess_() {
+    try {
+      if (window.DX_AUTH) {
+        if (typeof DX_AUTH.getToken === "function") return DX_AUTH.getToken();
+        if (typeof DX_AUTH.token === "function") return DX_AUTH.token();
+        if (typeof DX_AUTH.getSession === "function") {
+          var s = DX_AUTH.getSession();
+          if (typeof s === "string") return s;
+          if (s && typeof s.token === "string") return s.token;
+        }
+      }
+      return (
+        localStorage.getItem("dx_token") ||
+        localStorage.getItem("dx_session") ||
+        localStorage.getItem("sessionToken") ||
+        ""
+      );
+    } catch (e) {
+      return "";
     }
-    return `
-      <div class="card" style="padding:16px;margin-top:14px;border:1px solid rgba(0,0,0,.08);border-radius:14px;">
-        <div style="font-weight:1000;margin-bottom:6px;">Coordonnées masquées 🔒</div>
-        <div class="muted" style="margin-bottom:12px;">Débloque cette demande pour voir le téléphone/email.</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <a class="btn btnPrimary" href="paiement-ponctuel.html?id=${encodeURIComponent(id)}">Débloquer (0,99€)</a>
-          <a class="btn" href="paiement-pack.html?id=${encodeURIComponent(id)}">Pack 10 (2,99€)</a>
-          <a class="btn" href="paiement-abonnement.html?id=${encodeURIComponent(id)}">Abonnement (4,99€/mois)</a>
-        </div>
-      </div>
-    `;
-  })();
+  }
 
-  box.className = "notice";
-  box.innerHTML = `
-    <div style="font-weight:1000;margin-bottom:6px;">${esc(service)}</div>
-    <div style="color:#64748b;font-weight:900;margin-bottom:10px;">${esc(commune)}${zone ? " • " + esc(zone) : ""}</div>
-    <div style="font-weight:800;line-height:1.7;">${esc(desc)}</div>
-    ${budget ? `<div style="margin-top:10px;color:#64748b;font-weight:900;">Budget : ${esc(budget)} €</div>` : ``}
-    ${contactHtml}
-  `;
-});
+  async function apiCall(action, payload) {
+    payload = payload || {};
+    // Priorité à DX_API si présent
+    try {
+      if (window.DX_API && typeof DX_API.call === "function") {
+        return await DX_API.call(action, payload);
+      }
+    } catch (e) { /* fallback */ }
+
+    // Fallback Netlify function
+    var url = "/.netlify/functions/gas?action=" + encodeURIComponent(action);
+    var res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  function fmtDate(v) {
+    if (!v) return "—";
+    // Si c'est déjà une string, on laisse.
+    try {
+      var d = new Date(v);
+      if (isNaN(d.getTime())) return String(v);
+      return d.toLocaleString("fr-FR");
+    } catch (e) {
+      return String(v);
+    }
+  }
+
+  function setText(id, v) {
+    var node = el(id);
+    if (node) node.textContent = (v === undefined || v === null || v === "") ? "—" : String(v);
+  }
+
+  function setLoginUI(isLogged) {
+    var dot = el("dotLogin"), txt = el("txtLogin");
+    if (dot) {
+      dot.classList.remove("ok", "warn", "off");
+      dot.classList.add(isLogged ? "ok" : "off");
+    }
+    if (txt) txt.textContent = isLogged ? "Connecté" : "Non connecté";
+
+    var loginBox = el("loginBox");
+    if (loginBox) loginBox.style.display = isLogged ? "none" : "block";
+  }
+
+  function setAccessUI(canSee) {
+    var dot = el("dotAccess"), txt = el("txtAccess");
+    if (dot) {
+      dot.classList.remove("ok", "warn", "off");
+      dot.classList.add(canSee ? "ok" : "off");
+    }
+    if (txt) txt.textContent = canSee ? "Coordonnées visibles" : "Coordonnées masquées";
+
+    var masked = el("coordsMasked");
+    var coords = el("coordsBox");
+    if (masked) masked.style.display = canSee ? "none" : "block";
+    if (coords) coords.style.display = canSee ? "block" : "none";
+
+    var payBox = el("payBox");
+    if (payBox) payBox.style.display = canSee ? "none" : "block";
+  }
+
+  function setLinks(demandeId) {
+    var back = "demande-detail.html?id=" + encodeURIComponent(demandeId);
+
+    var l1 = el("btnPay1");
+    var lp = el("btnPayPack");
+    var la = el("btnPayAbo");
+    // On passe plusieurs noms de params pour compatibilité.
+    if (l1) l1.href = "./paiement-ponctuel.html?demandeId=" + encodeURIComponent(demandeId) + "&return=" + encodeURIComponent(back);
+    if (lp) lp.href = "./paiement-pack.html?demandeId=" + encodeURIComponent(demandeId) + "&return=" + encodeURIComponent(back);
+    if (la) la.href = "./paiement-abonnement.html?demandeId=" + encodeURIComponent(demandeId) + "&return=" + encodeURIComponent(back);
+
+    var login = el("btnLogin");
+    if (login) login.href = "./offreur-login.html?redirect=" + encodeURIComponent(back);
+  }
+
+  function renderAttachments(att) {
+    var box = el("attachBox");
+    var list = el("attachList");
+    if (!box || !list) return;
+
+    list.innerHTML = "";
+    if (!att) {
+      box.style.display = "none";
+      return;
+    }
+
+    // att peut être string (JSON), array, ou texte
+    var arr = null;
+    try {
+      if (Array.isArray(att)) arr = att;
+      else if (typeof att === "string" && att.trim().charAt(0) === "[") arr = JSON.parse(att);
+    } catch (e) {}
+
+    if (!arr || !arr.length) {
+      box.style.display = "none";
+      return;
+    }
+
+    arr.forEach(function (it, i) {
+      var li = document.createElement("li");
+      li.className = "alert";
+      var name = (it && (it.name || it.filename)) ? (it.name || it.filename) : ("Pièce " + (i + 1));
+      var url = it && (it.url || it.link);
+      if (url) {
+        li.innerHTML = '<a class="btn btnSmall btnGhost" target="_blank" rel="noopener" href="' + String(url) + '">Ouvrir</a> ' +
+                       '<span style="margin-left:10px; font-weight:900;">' + name + '</span>';
+      } else {
+        li.innerHTML = '<span style="font-weight:900;">' + name + "</span>";
+      }
+      list.appendChild(li);
+    });
+
+    box.style.display = "block";
+  }
+
+  async function main() {
+    showAlert("");
+
+    var p = qs();
+    var demandeId = p.get("id") || p.get("demandeId") || p.get("demande") || "";
+    if (!demandeId) {
+      showAlert("Erreur : ID de demande manquant dans l’URL (ex: demande-detail.html?id=... ).");
+      return;
+    }
+
+    setLinks(demandeId);
+
+    var token = getTokenGuess_();
+    var isLogged = !!token;
+    setLoginUI(isLogged);
+
+    // 1) Public : on récupère toujours un minimum (service, commune, description...)
+    var pub = await apiCall("getDemandePublic", { demandeId: demandeId });
+    if (!pub || pub.ok !== true) {
+      showAlert((pub && pub.error) ? pub.error : "Impossible de charger la demande.");
+      return;
+    }
+
+    var base = pub.data || pub.demande || pub.item || {};
+    setText("vService", base.ServiceLabel || base.Service || base.ServiceId || "—");
+    setText("vZone", base.Zone || "—");
+    setText("vCommune", base.Commune || "—");
+    setText("vBudget", base.Budget ? (String(base.Budget) + " €") : "—");
+    setText("vDate", fmtDate(base.CreatedAt || base.Date || base.Timestamp));
+    setText("vDesc", base.Description || base.Besoin || base.Texte || "—");
+
+    // 2) Si connecté : on tente la version privée (qui met CanSeeContact)
+    if (isLogged) {
+      var priv = await apiCall("getDemande", { token: token, demandeId: demandeId });
+      if (priv && priv.ok === true) {
+        var d = priv.data || priv.demande || priv.item || {};
+        var canSee = !!d.CanSeeContact;
+
+        setAccessUI(canSee);
+
+        if (canSee) {
+          setText("vTel", d.Tel || d.Telephone || "—");
+          setText("vEmail", d.Email || "—");
+          renderAttachments(d.Attachments || d.Pieces || d.Files || null);
+        } else {
+          renderAttachments(null);
+        }
+      } else {
+        // Token invalide → on repasse en mode non connecté
+        setLoginUI(false);
+        setAccessUI(false);
+      }
+    } else {
+      setAccessUI(false);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    main().catch(function (e) {
+      showAlert("Erreur inattendue : " + (e && e.message ? e.message : String(e)));
+    });
+  });
+})();
