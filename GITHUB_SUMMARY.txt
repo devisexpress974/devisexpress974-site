@@ -1,1 +1,1 @@
-PATCH 18.2 — Mur: teaser + “Voir plus” (login) ; Offreurs: liste sur filtres
+PATCH19 — Profil offreur: statut + SIREN + métier verrouillé abo

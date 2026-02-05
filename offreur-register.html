@@ -8,9 +8,9 @@
 <meta content="no-store, max-age=0" http-equiv="Cache-Control"/>
 <meta content="no-cache" http-equiv="Pragma"/>
 <meta content="0" http-equiv="Expires"/>
-<link href="./styles.css?v=34" rel="stylesheet"/>
-<link href="./assets/css/dx-header.css?v=39" rel="stylesheet"/>
-<script defer="" src="./assets/js/dx-include-header.js?v=39"></script>
+<link href="./styles.css?v=42" rel="stylesheet"/>
+<link href="./assets/css/dx-header.css?v=40" rel="stylesheet"/>
+<script defer="" src="./assets/js/dx-include-header.js?v=40"></script>
 </head>
 <body>
 <div id="dx-header-slot"></div>
@@ -39,6 +39,22 @@
 <label for="password">Mot de passe <span class="req">*</span></label>
 <input class="input" id="password" placeholder="8 caractères minimum" required="" type="password"/>
 </div>
+<div class="field">
+  <label for="typeOffreur">Statut <span class="req">*</span></label>
+  <div class="selectWrap">
+    <select id="typeOffreur" class="input" required>
+      <option value="PRO">Professionnel</option>
+      <option value="PARTICULIER">Particulier</option>
+    </select>
+  </div>
+  <div class="help">Tu peux être particulier et proposer un service. Le statut sert surtout à l’affichage.</div>
+</div>
+
+<div class="field">
+  <label for="siren">SIREN / SIRET (optionnel)</label>
+  <input class="input" id="siren" placeholder="9 ou 14 chiffres (optionnel)"/>
+</div>
+
 <div class="field">
 <label for="service">Service principal <span class="req">*</span></label>
 <div class="selectWrap">
@@ -219,11 +235,11 @@
 </div>
 </div>
 </footer>
-<script src="api.js?v=34"></script>
-<script src="auth.js?v=34"></script>
-<script src="main.js?v=34"></script>
+<script src="api.js?v=42"></script>
+<script src="auth.js?v=42"></script>
+<script src="main.js?v=42"></script>
 <!-- ✅ Ajout : chargeur de métiers (JSON) -->
-<script src="./assets/js/services-loader.js?v=34"></script>
+<script src="./assets/js/services-loader.js?v=42"></script>
 <script>
   (async () => {
     const sel = document.getElementById("service");
@@ -254,6 +270,6 @@
   })();
 </script>
 <script src="dx-geo-communes.js?v=1"></script>
-<script src="offreur-register.js?v=34"></script>
+<script src="offreur-register.js?v=42"></script>
 </body>
 </html>

@@ -1,3 +1,4 @@
-- Mur des demandes : sans compte, affiche un échantillon (par service) + CTA connexion.
-- Page Offreurs : n’affiche rien tant qu’un service n’est pas sélectionné (page plus rapide).
-- Aucun impact sur paiements, matching, mails.
+- Ajoute les champs "Statut (PRO/PARTICULIER)" et "SIREN/SIRET (optionnel)" sur offreur-register + offreur-compte
+- Ajoute validation SIREN/SIRET (9 ou 14 chiffres) + prise en charge serviceAutre à l’inscription
+- Verrouille la modification du métier sur le profil quand l’abonnement est actif (UI)
+- Corrige la redirection login->offreur-compte (next)

@@ -128,7 +128,7 @@
     }catch(e){}
 
     if(!me || !me.ok){
-      const next = encodeURIComponent("offreur-profil.html");
+      const next = encodeURIComponent("offreur-compte.html");
       location.href = `offreur-login.html?next=${next}`;
       return null;
     }
@@ -163,6 +163,33 @@
     el.innerHTML = pills.join("");
   }
 
+
+  function isAboActive(me){
+    const user = (me && me.user) ? me.user : (me && me.data ? me.data : {});
+    const plan = String((user && user.plan) || "").toUpperCase();
+    const abo = String((user && user.aboActive) || "").toUpperCase();
+    return plan === "ABO" || abo === "OUI" || abo === "TRUE" || abo === "1";
+  }
+
+  function lockServiceUI(isLocked){
+    const sel = $("service");
+    if(!sel) return;
+    const wrapAutre = $("serviceAutreWrap");
+    const hint = $("serviceLockHint");
+
+    sel.disabled = !!isLocked;
+    if(isLocked){
+      if(hint) hint.style.display = "block";
+      // on ne veut pas permettre de modifier "Autre" non plus
+      if(wrapAutre) wrapAutre.style.display = "none";
+      const input = $("serviceAutre");
+      if(input) input.value = (input.value || "");
+    }else{
+      if(hint) hint.style.display = "none";
+      toggleServiceAutre();
+    }
+  }
+
   async function loadProfile(){
     const res = await window.DX_API.get("getOffreurProfile", {});
     if(res && res.ok && res.user) return res.user;
@@ -177,6 +204,8 @@
     $("nom").value = u.nom || "";
     $("email").value = u.email || "";
     $("tel").value = u.tel || "";
+    const typeEl = $("typeOffreur"); if(typeEl) typeEl.value = (u.typeOffreur || "PRO").toUpperCase();
+    const sirenEl = $("siren"); if(sirenEl) sirenEl.value = u.siren || "";
     $("entreprise").value = u.entreprise || "";
     $("pseudo").value = u.pseudo || "";
     $("displayMode").value = (u.displayMode || "NOM").toUpperCase();
@@ -225,7 +254,10 @@
 
     renderStatus(me);
 
+    const locked = isAboActive(me);
+
     await loadServices();
+    lockServiceUI(locked);
 
     // load profile from backend
     const u = await loadProfile();
@@ -270,8 +302,17 @@
           serviceAutre: $("serviceAutre").value,
           zone: $("zone").value,
           commune: $("commune").value,
-          description: $("description").value
+          description: $("description").value,
+          typeOffreur: $("typeOffreur") ? $("typeOffreur").value : "PRO",
+          siren: $("siren") ? String($("siren").value||"").replace(/[^0-9]/g,"").trim() : ""
         };
+
+
+        // validate SIREN/SIRET if filled
+        if(payload.siren && !(payload.siren.length === 9 || payload.siren.length === 14)){
+          setNotice("❌ SIREN/SIRET : 9 ou 14 chiffres (ou laisse vide).", "bad");
+          return;
+        }
 
         try{
           const res = await window.DX_API.post("updateOffreurProfile", payload);

@@ -10,9 +10,9 @@
   <meta http-equiv="Expires" content="0" />
   <meta name="theme-color" content="#ff3b0a" />
 
-  <link rel="stylesheet" href="./styles.css?v=34" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
-  <script defer src="./assets/js/dx-include-header.js?v=39"></script>
+  <link rel="stylesheet" href="./styles.css?v=42" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=40" />
+  <script defer src="./assets/js/dx-include-header.js?v=40"></script>
 
   <style>
     .pageWrap{ padding:18px 0 26px; }
@@ -41,9 +41,9 @@
   </style>
 
   <!-- Core JS (important order) -->
-  <script src="./api.js?v=34"></script>
-  <script src="./auth.js?v=34"></script>
-  <script src="./main.js?v=34"></script>
+  <script src="./api.js?v=42"></script>
+  <script src="./auth.js?v=42"></script>
+  <script src="./main.js?v=42"></script>
 </head>
 <body>
   <div id="dx-header-slot"></div>
@@ -91,7 +91,23 @@
             <input id="tel" class="input" type="tel" required placeholder="0692…">
           </div>
 
+          
           <div class="field">
+            <label for="typeOffreur">Statut</label>
+            <div class="selectWrap">
+              <select id="typeOffreur" class="input">
+                <option value="PRO">Professionnel</option>
+                <option value="PARTICULIER">Particulier</option>
+              </select>
+            </div>
+            <div class="hint">Le statut sert à l’affichage. Tu peux être particulier et proposer un service.</div>
+          </div>
+
+          <div class="field">
+            <label for="siren">SIREN / SIRET (optionnel)</label>
+            <input id="siren" class="input" placeholder="9 ou 14 chiffres (optionnel)">
+          </div>
+<div class="field">
             <label for="entreprise">Entreprise (optionnel)</label>
             <input id="entreprise" class="input" placeholder="Ex : Plomberie Dupont">
           </div>
@@ -130,6 +146,7 @@
                 <option value="">Chargement…</option>
               </select>
             </div>
+            <div class="hint" id="serviceLockHint" style="display:none;">Métier verrouillé pendant l’abonnement.</div>
           </div>
 
           <div class="field" id="serviceAutreWrap" style="display:none;">
@@ -191,7 +208,7 @@
     </div>
   </footer>
 
-  <script src="./offreur-compte.js?v=35"></script>
+  <script src="./offreur-compte.js?v=42"></script>
   <script src="./assets/js/dx-compte-abonnement-card.js?v=1"></script>
 </body>
 </html>
