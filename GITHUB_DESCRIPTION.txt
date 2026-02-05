@@ -1,5 +1,4 @@
-- Uniformise toutes les pages (dx-header.css + dx-include-header.js) sur v39
-- Supprime l'ancien header.js des pages paiement, remplace par dx-header-slot
-- Injection header robuste : fetch partials/header.html, sinon fallback embarqué
-- Menu hamburger mobile réel (ouvrir/fermer, clic dehors, ESC, fermeture après clic)
-- Burger sans bouton rond + panneau mobile overlay scrollable
+- Burger mobile redesign : icône 3 barres + libellé MENU (sans bouton rond)
+- Actions alignées à droite sur mobile, header plus proche du bord
+- Cache-bust interne (b=40) pour forcer prise en compte CSS/partials
+- Aucun changement de logique menu : ouverture/fermeture mobile inchangée

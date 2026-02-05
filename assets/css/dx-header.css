@@ -1,4 +1,4 @@
-/* DX HEADER v39 */
+/* DX HEADER v40 */
 
 :root{
   --dx-orange1:#ff8a2a;
@@ -161,6 +161,7 @@
   display:flex;
   align-items:center;
   gap: 10px;
+  margin-left: auto;
 }
 
 .dxBtn{
@@ -186,22 +187,42 @@
 
 .dxBurger{
   display:none;
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.14);
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 10px 22px rgba(0,0,0,0.08);
-  cursor:pointer;
-  padding: 10px;
+  border: 0;
+  background: transparent;
+  padding: 6px 4px;
+  cursor: pointer;
+  border-radius: 10px;
+  min-width: 44px; /* zone de tap */
+  text-align: center;
+  user-select: none;
 }
-.dxBurger span{
+.dxBurger:focus{ outline: 2px solid rgba(255,59,10,0.35); outline-offset: 2px; }
+.dxBurgerIcon{
+  width: 26px;
+  height: 18px;
   display:block;
-  height: 2px;
-  background: #111;
-  border-radius: 2px;
-  margin: 5px 0;
-  width: 100%;
+  position: relative;
+  background: linear-gradient(#111 0 0) center/100% 2px no-repeat;
+}
+.dxBurgerIcon::before,
+.dxBurgerIcon::after{
+  content:"";
+  position:absolute;
+  left:0;
+  width:100%;
+  height:2px;
+  background:#111;
+  border-radius:2px;
+}
+.dxBurgerIcon::before{ top:0; }
+.dxBurgerIcon::after{ bottom:0; }
+.dxBurgerLabel{
+  display:block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--dx-ink2);
 }
 
 .dxMobilePanel{
@@ -256,11 +277,12 @@
 .dxBtnMobile{margin-top: 10px; width: 100%;}
 
 @media (max-width: 980px){
-  .dx-brand{min-width: 0;}
+.dx-brand{min-width: 0;}
   .dx-tagline{display:none;}
 
   .dx-navWrap{display:none;}
-  .dxBurger{display:inline-flex;}
+    .dx-header-inner{ width: calc(100% - 16px); }
+  .dxBurger{display:flex; flex-direction:column; align-items:center; justify-content:center;}
 }
 
 @media (max-width: 520px){

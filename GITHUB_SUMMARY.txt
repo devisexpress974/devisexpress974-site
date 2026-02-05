@@ -1,1 +1,1 @@
-Patch 18.1F — Header unifié v39 + menu mobile fonctionnel (fallback)
+Patch 18.1G — Burger mobile style “MENU” (sans rond) + align droite
