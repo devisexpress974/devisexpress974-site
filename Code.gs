@@ -2,7 +2,7 @@
 // ✅ Fix: si tes onglets ont de "mauvais" en-têtes, on les répare automatiquement.
 //    (Sinon les champs deviennent undefined => le mur ne peut pas filtrer/service/mail offreur impossible.)
 
-var VERSION = "v24-es5";
+var VERSION = "v25-es5";
 
 // ======================
 // CONFIG (Script Properties)
@@ -1397,45 +1397,114 @@ function getDemande_(e, body){
   }
   if(!row) return { ok:false, error:"Demande introuvable" };
 
+  var active = true;
+  try { active = isDemandeActive_(row); } catch(err){ active = true; }
+
   // Masqué par défaut
+  var photos = [row.Photo1, row.Photo2, row.Photo3].filter(function(x){ return x && String(x).trim(); });
   var item = {
     id: row.DemandeID,
+    DemandeID: row.DemandeID,
     service: row.Service,
+    Service: row.Service,
     serviceAutre: row.ServiceAutre,
+    ServiceAutre: row.ServiceAutre,
     zone: row.Zone,
+    Zone: row.Zone,
     commune: row.Commune,
+    Commune: row.Commune,
     description: row.Description,
+    Description: row.Description,
     budget: row.Budget,
-    photos: [row.Photo1, row.Photo2, row.Photo3].filter(function(x){ return x && String(x).trim(); }),
-    createdAt: row.Date
+    Budget: row.Budget,
+    photos: photos,
+    Photos: photos,
+    attachments: photos,
+    Attachments: photos,
+    createdAt: row.Date,
+    CreatedAt: row.Date,
+    status: row.Status,
+    Status: row.Status,
+    expiresAt: row.ExpiresAt,
+    ExpiresAt: row.ExpiresAt,
+    isActive: active
   };
 
-  // Si accès => coordonnées
+  // Si accès => coordonnées (et PJ)
   var token = tokenFrom_(e, body);
   var sess = sessionGet_(token);
-  var canSee = false;
 
-  if(sess){
+  var canSee = false;
+  var reason = "";
+
+  if(!active){
+    canSee = false;
+    reason = "DEMANDE_INACTIVE";
+  } else if(!sess){
+    canSee = false;
+    reason = "NOT_LOGGED";
+  } else {
     var r = getOffreurRowById_(sess.offreurId);
-    if(r){
+    if(!r){
+      canSee = false;
+      reason = "NO_ACCOUNT";
+    } else {
       var extra = getOffreurExtra_(r);
       var osvc = String(r.obj.Service||"").trim();
-      if(isAboOk_(extra) && matchService_(osvc, row.Service)){
+      var match = matchService_(osvc, row.Service);
+
+      if(!match){
+        canSee = false;
+        reason = "NOT_MATCH_SERVICE";
+      } else if(isAboOk_(extra)){
         canSee = true;
+        reason = "";
+      } else {
+        var ha = hasAccess_(e, { token: token, demandeId: id });
+        if(ha && ha.ok && ha.has){
+          canSee = true;
+          reason = "";
+        } else {
+          // abonnement non actif (essai terminé / non payé) ou paiement requis
+          if(String(extra.plan||"").toUpperCase() === "ABO"){
+            reason = "ABO_INACTIVE";
+          } else {
+            reason = "PAY_REQUIRED";
+          }
+        }
       }
-    }
-    if(!canSee){
-      var ha = hasAccess_(e, { token: token, demandeId: id });
-      if(ha && ha.ok && ha.has) canSee = true;
+
+      // Infos utiles pour l'UI
+      item.plan = String(extra.plan||"FREE");
+      item.Plan = String(extra.plan||"FREE");
+      item.credits = Number(extra.credits||0) || 0;
+      item.Credits = Number(extra.credits||0) || 0;
+      item.aboActive = String(extra.aboActive||"NON");
+      item.AboActive = String(extra.aboActive||"NON");
+      item.trialUsed = String(extra.trialUsed||"NON");
+      item.TrialUsed = String(extra.trialUsed||"NON");
+      item.trialEnd = String(extra.trialEnd||"");
+      item.TrialEnd = String(extra.trialEnd||"");
+      item.offreurService = osvc;
+      item.OffreurService = osvc;
     }
   }
 
   if(canSee){
     item.nom = row.Nom;
+    item.Nom = row.Nom;
     item.tel = row.Tel;
+    item.Tel = row.Tel;
+    item.telephone = row.Tel;
+    item.Telephone = row.Tel;
     item.email = row.Email;
+    item.Email = row.Email;
   }
+
   item.canSeeContact = canSee;
+  item.CanSeeContact = canSee;
+  item.accessReason = reason;
+  item.AccessReason = reason;
 
   return { ok:true, data:item };
 }

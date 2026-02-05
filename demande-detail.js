@@ -128,21 +128,72 @@ function setTextfunction setText(id, v) {
     if (loginBox) loginBox.style.display = isLogged ? "none" : "block";
   }
 
-  function setAccessUI(canSee) {
+  function setAccessUI(canSee, isLogged, reason, planData) {
     var dot = el("dotAccess"), txt = el("txtAccess");
     if (dot) {
       dot.classList.remove("ok", "warn", "off");
-      dot.classList.add(canSee ? "ok" : "off");
+      if (canSee) dot.classList.add("ok");
+      else if (reason && reason !== "PAY_REQUIRED") dot.classList.add("warn");
+      else dot.classList.add("off");
     }
-    if (txt) txt.textContent = canSee ? "Coordonnées visibles" : "Coordonnées masquées";
+
+    // Texte état
+    var label = canSee ? "Coordonnées visibles" : "Coordonnées masquées";
+    if (!canSee && reason === "NOT_MATCH_SERVICE") label = "Hors métier";
+    if (!canSee && reason === "DEMANDE_INACTIVE") label = "Demande expirée/clôturée";
+    if (!canSee && reason === "ABO_INACTIVE") label = "Abonnement inactif";
+    if (txt) txt.textContent = label;
 
     var masked = el("coordsMasked");
     var coords = el("coordsBox");
     if (masked) masked.style.display = canSee ? "none" : "block";
     if (coords) coords.style.display = canSee ? "block" : "none";
 
+    // Paiement : uniquement si connecté + demande active + pas hors métier
     var payBox = el("payBox");
-    if (payBox) payBox.style.display = canSee ? "none" : "block";
+    if (payBox) {
+      var showPay = (!canSee) && !!isLogged && reason !== "NOT_MATCH_SERVICE" && reason !== "DEMANDE_INACTIVE";
+      payBox.style.display = showPay ? "block" : "none";
+    }
+
+    // Message en haut (optionnel)
+    if (!canSee) {
+      if (reason === "NOT_MATCH_SERVICE") {
+        showAlert("Cette demande ne correspond pas à ton métier : tu ne peux pas débloquer ses coordonnées.");
+      } else if (reason === "DEMANDE_INACTIVE") {
+        showAlert("Cette demande est expirée ou clôturée : les coordonnées ne sont plus accessibles.");
+      } else if (reason === "ABO_INACTIVE") {
+        showAlert("Ton abonnement n’est pas actif (essai terminé ou non payé). Tu peux activer l’abonnement ou débloquer au coup par coup.");
+      } else if (!isLogged) {
+        showAlert("");
+      } else {
+        showAlert("");
+      }
+    } else {
+      showAlert("");
+    }
+
+    // Ajuste les libellés des boutons selon plan/crédits
+    try {
+      var b1 = el("btnPay1"), bp = el("btnPayPack"), ba = el("btnPayAbo");
+      if (planData && planData.plan) {
+        var p = String(planData.plan || "").toUpperCase();
+        var credits = Number(planData.credits || 0) || 0;
+
+        if (p === "ABO" && planData.aboActive === true) {
+          // Normalement coords visibles, mais on ne force rien ici
+        }
+
+        // Optionnel : petit indice via titre
+        if (bp) bp.textContent = "Pack 10 (2,99€)";
+        if (b1) b1.textContent = "Débloquer 0,99€";
+        if (ba) ba.textContent = "Abonnement (4,99€)";
+
+        // Si l'utilisateur a des crédits, le pack est moins pertinent, mais on le laisse visible.
+        // Si hors métier / expirée, le payBox est déjà caché.
+        if (credits > 0 && b1) b1.textContent = "Débloquer (1 crédit / 0,99€)";
+      }
+    } catch (e) {}
   }
 
   function setLinks(demandeId) {
@@ -240,24 +291,41 @@ function setTextfunction setText(id, v) {
       var priv = await apiCall("getDemande", { token: token, demandeId: demandeId });
       if (priv && priv.ok === true) {
         var d = priv.data || priv.demande || priv.item || {};
-        var canSee = !!d.CanSeeContact;
+        var canSee = !!(d.CanSeeContact || d.canSeeContact || d.canSee);
+        var reason = (d.AccessReason || d.accessReason || "");
 
-        setAccessUI(canSee);
+        // Récupère plan/crédits (utile pour l’UX si coordonnées masquées)
+        var planData = null;
+        try {
+          var mp = await apiCall("getMyPlan", { token: token });
+          if (mp && mp.ok === true) {
+            var md = mp.data || mp.me || mp.user || {};
+            planData = {
+              plan: md.plan || md.Plan || "",
+              credits: md.credits || md.Credits || 0,
+              aboActive: (String(md.aboActive || md.AboActive || "NON").toUpperCase() === "OUI"),
+              trialUsed: (String(md.trialUsed || md.TrialUsed || "NON").toUpperCase() === "OUI"),
+              trialEnd: md.trialEnd || md.TrialEnd || ""
+            };
+          }
+        } catch (e) {}
+
+        setAccessUI(canSee, true, reason, planData);
 
         if (canSee) {
-          setText("vTel", d.Tel || d.Telephone || "—");
-          setText("vEmail", d.Email || "—");
-          renderAttachments(d.Attachments || d.Pieces || d.Files || null);
+          setText("vTel", d.Tel || d.tel || d.Telephone || d.telephone || "—");
+          setText("vEmail", d.Email || d.email || "—");
+          renderAttachments(d.Attachments || d.attachments || d.Photos || d.photos || d.Pieces || d.Files || null);
         } else {
           renderAttachments(null);
         }
       } else {
         // Token invalide → on repasse en mode non connecté
         setLoginUI(false);
-        setAccessUI(false);
+        setAccessUI(false, false, "NOT_LOGGED", null);
       }
     } else {
-      setAccessUI(false);
+      setAccessUI(false, false, "NOT_LOGGED", null);
     }
   }
 
