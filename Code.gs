@@ -18,6 +18,70 @@ function cfg_(){
   };
 }
 
+// ======================
+// DEMANDEUR : lien retrait sécurisé (id + k)
+// ======================
+function getOrCreateSecret_(propName){
+  var v = PROP.getProperty(propName);
+  if(v) return v;
+  // 32 caractères pseudo-aléatoires
+  var seed = Utilities.getUuid().replace(/-/g,"") + Utilities.getUuid().replace(/-/g,"");
+  v = seed.slice(0,32);
+  PROP.setProperty(propName, v);
+  return v;
+}
+
+function withdrawKey_(demandeId){
+  var secret = getOrCreateSecret_("DX_DEMANDE_WITHDRAW_SECRET");
+  var bytes = Utilities.computeHmacSha256Signature(String(demandeId||""), secret);
+  return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/,"");
+}
+
+function verifyWithdrawKey_(demandeId, k){
+  if(!demandeId || !k) return false;
+  var expect = withdrawKey_(demandeId);
+  return String(k).trim() === String(expect).trim();
+}
+
+function findDemandeRowIndexById_(sh, demandeId){
+  var values = sh.getDataRange().getValues();
+  if(!values || values.length < 2) return -1;
+  var headers = values[0].map(function(x){ return String(x||"").trim(); });
+  var idxId = headers.indexOf("DemandeID");
+  if(idxId < 0) idxId = headers.indexOf("id");
+  if(idxId < 0) return -1;
+
+  for(var r=1;r<values.length;r++){
+    if(String(values[r][idxId]||"") === String(demandeId)) return r+1; // 1-indexed
+  }
+  return -1;
+}
+
+function withdrawDemande_(p){
+  p = p || {};
+  var id = String(p.id||"").trim();
+  var k = String(p.k||"").trim();
+  if(!id || !k) return { ok:false, error:"Lien invalide (paramètres manquants)" };
+  if(!verifyWithdrawKey_(id, k)) return { ok:false, error:"Lien invalide ou expiré" };
+
+  var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
+  var rowIndex = findDemandeRowIndexById_(sh, id);
+  if(rowIndex < 2) return { ok:false, error:"Demande introuvable" };
+
+  var headers = sh.getDataRange().getValues()[0].map(function(x){ return String(x||"").trim(); });
+  var idxStatus = headers.indexOf("Status");
+  if(idxStatus < 0) idxStatus = headers.indexOf("Statut");
+  if(idxStatus < 0) return { ok:false, error:"Colonne Status introuvable" };
+
+  var cur = String(sh.getRange(rowIndex, idxStatus+1).getValue()||"").trim();
+  if(cur && String(cur).toUpperCase().indexOf("SUPPRIM") === 0) return { ok:true, removed:true };
+
+  // Marque comme supprimée => sort du mur (public + connecté)
+  sh.getRange(rowIndex, idxStatus+1).setValue("SUPPRIMÉ");
+  return { ok:true, removed:true };
+}
+
+
 var SHEETS = {
   DEMANDES: "Demandes",
   OFFREURS: "Offreurs",
@@ -30,7 +94,7 @@ var SHEETS = {
 };
 
 var HEADERS = {
-  Demandes: ["Date","DemandeID","Service","ServiceAutre","Zone","Commune","Description","Budget","Nom","Tel","Email","Photo1","Photo2","Photo3","Status"],
+  Demandes: ["Date","DemandeID","Service","ServiceAutre","Zone","Commune","Description","Budget","Nom","Tel","Email","Photo1","Photo2","Photo3","Status","OptInContact"],
   Offreurs: ["Date","OffreurID","Nom","Email","Tel","Service","ServiceAutre","Zone","Commune","Description","TypeOffreur","Siren","Entreprise","Pseudo","DisplayMode","ShowNote","PasswordHash","Salt","NoteMoyenne","NombreAvis","Actif"],
   Access:   ["Date","EmailOffreur","OffreurID","DemandeID","Type","ExpireAt"],
   Avis:     ["Date","AvisID","OffreurID","Note","Commentaire","AuteurNom"],
@@ -161,6 +225,11 @@ function arraysEqual_(a,b){
   for(var i=0;i<a.length;i++) if(String(a[i]) !== String(b[i])) return false;
   return true;
 }
+function isYes_(v){
+  v = String(v||"").trim().toUpperCase();
+  return (v === "OUI" || v === "YES" || v === "TRUE" || v === "1");
+}
+
 
 function renameOld_(ss, name){
   var sh = ss.getSheetByName(name);
@@ -368,10 +437,14 @@ case "addDemande":
       case "addDemandePublic":
         return json_(addDemande_(body.payload || body));
 
+      case "withdrawDemande":
+        return json_(withdrawDemande_(body.payload || body));
+
+
       case "listDemandesPublic":
       case "getDemandesPublic":
       case "listDemandes":
-        return json_(listDemandesPublic_());
+        return json_(listDemandesPublic_(body || {}));
 
       case "registerOffreur":
       case "createOffreur":
@@ -388,7 +461,7 @@ case "addDemande":
 
       case "listOffreursPublic":
       case "getOffreursPublic":
-        return json_(listOffreursPublic_());
+        return json_(listOffreursPublic_(body || {}));
 
       case "getOffreurProfile":
       case "getOffreurProfilePublic":
@@ -426,8 +499,23 @@ function addDemande_(p){
   var serviceAutre = String(p.serviceAutre||"").trim();
   var budget = (p.budget !== undefined && p.budget !== null && p.budget !== "") ? String(p.budget) : "";
 
-  if(!service || !zone || !commune || !description || !nom || !tel || !email){
+  var acceptCgv = (p.acceptCGV !== undefined) ? p.acceptCGV : (p.acceptCgv !== undefined ? p.acceptCgv : "");
+  var optInContact = (p.optInContact !== undefined) ? p.optInContact : (p.optIn || p.consentContact || p.acceptContact || "");
+
+  if(!service || !zone || !commune || !description || !nom){
     return { ok:false, error:"Champs obligatoires manquants" };
+  }
+  if(description.length < 50){
+    return { ok:false, error:"Description trop courte (min 50 caractères)" };
+  }
+  if(!tel && !email){
+    return { ok:false, error:"Contact manquant (téléphone ou email)" };
+  }
+  if(!isYes_(acceptCgv)){
+    return { ok:false, error:"Acceptation CGV requise" };
+  }
+  if(!isYes_(optInContact)){
+    return { ok:false, error:"Consentement contact requis" };
   }
 
   var id = uid_("dem");
@@ -439,11 +527,30 @@ function addDemande_(p){
   var photo3 = (pjUrls && pjUrls.length > 2) ? String(pjUrls[2]||"") : "";
 
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
-  sh.appendRow([nowIso_(), id, service, serviceAutre, zone, commune, description, budget, nom, tel, email, photo1, photo2, photo3, "PUBLIÉ"]);
+  var optInVal = isYes_(optInContact) ? "OUI" : "NON";
+  sh.appendRow([nowIso_(), id, service, serviceAutre, zone, commune, description, budget, nom, tel, email, photo1, photo2, photo3, "PUBLIÉ", optInVal]);
 
-  // Mail demandeur
-  sendMailSafe_(email, "DevisExpress974 — Demande publiée",
-    "<p>Bonjour " + nom + ",</p><p>Ta demande a bien été publiée sur le mur (coordonnées masquées).</p><p><strong>ID :</strong> " + id + "</p><p>DevisExpress974</p>");
+  // Mail demandeur (si email fourni)
+  if(email){
+    var cMail = cfg_();
+    var site = cMail.SITE_URL ? String(cMail.SITE_URL).replace(/\/+$/,"") : "";
+    var viewHtml = "";
+    if(site){
+      var viewUrl = site + "/demande-detail.html?id=" + encodeURIComponent(id);
+      viewHtml = '<p><strong>Voir ma demande :</strong> <a href="' + viewUrl + '">clique ici</a></p>';
+    }
+    var withdrawHtml = "";
+    if(site){
+      var withdrawUrl = site + "/retirer-demande.html?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id));
+      withdrawHtml = '<p><strong>Retirer ma demande :</strong> <a href="' + withdrawUrl + '">clique ici</a></p>';
+    }
+    var bodyHtml = "<p>Bonjour " + nom + ",</p>" +
+      "<p>Ta demande a bien été publiée. Elle restera visible 30 jours.</p>" +
+      viewHtml +
+      withdrawHtml +
+      "<p>DevisExpress974</p>";
+    sendMailSafe_(email, "DevisExpress974 — Demande publiée", bodyHtml);
+  }
 
   // Mail admin (optionnel)
   var c = cfg_();
@@ -476,19 +583,33 @@ function splitList_(s){
 }
 
 function isDemandeActive_(row){
+  // Statut : seules les demandes PUBLIÉ/ACTIVE (ou vide) restent visibles
   var st = String(row.Status||row.Statut||"").trim().toUpperCase();
   if(st && st !== "PUBLIÉ" && st !== "PUBLIE" && st !== "ACTIVE") return false;
 
-  // expiration 30 jours depuis Date si pas de champ ExpireAt
+  // Expiration : priorité au champ ExpiresAt/ExpireAt si présent, sinon Date + 30 jours
+  try{
+    var expRaw = row.ExpiresAt || row.ExpireAt || row.Expire || row.Expiration;
+    if(expRaw){
+      var expD = new Date(expRaw);
+      if(expD && expD.getTime && !isNaN(expD.getTime())){
+        if(new Date().getTime() > expD.getTime()) return false;
+        return true;
+      }
+    }
+  }catch(e){}
+
   try{
     var d = new Date(row.Date);
-    if(d && d.getTime){
+    if(d && d.getTime && !isNaN(d.getTime())){
       var exp = new Date(d.getTime() + 1000*60*60*24*30);
       if(new Date().getTime() > exp.getTime()) return false;
     }
   }catch(e){}
   return true;
 }
+
+
 
 function matchService_(offreurService, demandeService){
   var o = norm_(offreurService);
@@ -574,28 +695,77 @@ function listDemandesForOffreur_(token){
 }
 
 
-function listDemandesPublic_(){
+function listDemandesPublic_(params){
+  params = params || {};
+
+  // Si l'appel ne fournit pas offset/limit (ancien comportement), on renvoie tout
+  var hasPaging = (params.offset !== undefined && params.offset !== null) || (params.limit !== undefined && params.limit !== null);
+
+  var offset = Number(params.offset || 0);
+  var limit = Number(params.limit || 0);
+
+  if(!isFinite(offset) || offset < 0) offset = 0;
+
+  if(!hasPaging){
+    offset = 0;
+    limit = 1000000000; // "illimité" (volume géré côté client)
+  }else{
+    if(!isFinite(limit) || limit <= 0) limit = 50;
+    if(limit > 200) limit = 200;
+  }
+
+  var q = String(params.q || "").trim();
+  var nq = q ? norm_(q) : "";
+
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
   var rows = sheetToObjects_(sh);
+
   var data = [];
-  for(var i=0;i<rows.length;i++){ 
-    if(String(rows[i].Status||"") === "SUPPRIMÉ") continue;
+  for(var i=0;i<rows.length;i++){
+    var r = rows[i];
+    var st = String(r.Status||"").trim().toUpperCase();
+    if(st === "SUPPRIMÉ" || st === "SUPPRIME") continue;
+    if(!isDemandeActive_(r)) continue;
+
+    // Filtre recherche (q) : service, commune, zone, description
+    if(nq){
+      var blob = [
+        r.Service, r.ServiceAutre, r.Zone, r.Commune, r.Description, r.Budget
+      ].map(function(x){ return norm_(x); }).join(" | ");
+      if(blob.indexOf(nq) === -1) continue;
+    }
+
+    var photos = [r.Photo1, r.Photo2, r.Photo3].filter(function(x){ return x && String(x).trim(); });
+
     data.push({
-      id: rows[i].DemandeID,
-      service: rows[i].Service,
-      serviceAutre: rows[i].ServiceAutre,
-      zone: rows[i].Zone,
-      commune: rows[i].Commune,
-      description: rows[i].Description,
-      budget: rows[i].Budget,
-      photos: [rows[i].Photo1, rows[i].Photo2, rows[i].Photo3].filter(function(x){ return x && String(x).trim(); }),
-      status: rows[i].Status,
-      createdAt: rows[i].Date
+      id: r.DemandeID,
+      service: r.Service,
+      serviceAutre: r.ServiceAutre,
+      zone: r.Zone,
+      commune: r.Commune,
+      description: r.Description,
+      budget: r.Budget,
+      photos: photos,
+      status: r.Status || "PUBLIÉ",
+      createdAt: r.Date,
+      expiresAt: r.ExpiresAt
     });
   }
-  data.sort(function(a,b){ return String(b.createdAt).localeCompare(String(a.createdAt)); });
-  return { ok:true, data:data };
+
+  // Tri : plus récentes d'abord
+  data.sort(function(a,b){
+    return String(b.createdAt||"").localeCompare(String(a.createdAt||""));
+  });
+
+  var total = data.length;
+  var page = data.slice(offset, offset + limit);
+
+  return { ok:true, data:page, total: total };
 }
+
+
+
+
 
 // ======================
 // OFFREURS
@@ -692,7 +862,33 @@ function loginOffreur_(email, password){
   return { ok:true, token:sess.token, offreurId:r.OffreurID };
 }
 
-function listOffreursPublic_(){
+function listOffreursPublic_(params){
+  params = params || {};
+
+  // Si l'appel ne fournit pas offset/limit (ancien comportement), on renvoie tout
+  var hasPaging = (params.offset !== undefined && params.offset !== null) || (params.limit !== undefined && params.limit !== null);
+
+  var offset = Number(params.offset || 0);
+  var limit = Number(params.limit || 0);
+
+  if(!isFinite(offset) || offset < 0) offset = 0;
+
+  if(!hasPaging){
+    offset = 0;
+    limit = 1000000000; // "illimité" (ex: noter-offreur.js cherche un ID)
+  }else{
+    if(!isFinite(limit) || limit <= 0) limit = 50;
+    if(limit > 200) limit = 200;
+  }
+
+  var service = String(params.service || "").trim();
+  var zone = String(params.zone || "").trim();
+  var commune = String(params.commune || "").trim();
+  var q = String(params.q || "").trim();
+  var sort = String(params.sort || "").trim() || "note_desc";
+
+  var nq = q ? norm_(q) : "";
+
   var sh = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
   ensureExtraOffreursCols_();
   var rows = sheetToObjects_(sh);
@@ -700,24 +896,38 @@ function listOffreursPublic_(){
   var data = [];
   for(var i=0;i<rows.length;i++){
     var r = rows[i];
-    if(String(r.Actif||"OUI") !== "OUI") continue;
+    if(String(r.Actif||"OUI").trim().toUpperCase() !== "OUI") continue;
+
+    // Filtre service (obligatoire côté UI, mais tolérant)
+    if(service){
+      if(!matchService_(r.Service, service)) continue;
+    }
+
+    // Filtre zone/commune (si fourni)
+    if(zone || commune){
+      if(!matchGeo_(r.Zone, r.Commune, zone, commune)) continue;
+    }
 
     var showNote = String(r.ShowNote||"OUI").toUpperCase();
     if(showNote !== "OUI" && showNote !== "NON") showNote = "OUI";
 
     var publicName = computePublicName_(r);
 
+    // q : nom public, description, service, zone/commune
+    if(nq){
+      var blob = [
+        publicName, r.Service, r.Zone, r.Commune, r.Description, r.Pseudo
+      ].map(function(x){ return norm_(x); }).join(" | ");
+      if(blob.indexOf(nq) === -1) continue;
+    }
+
     data.push({
       id: r.OffreurID,
       publicName: publicName,
-      nom: r.Nom,
       service: r.Service,
-      serviceAutre: r.ServiceAutre || "",
       zone: r.Zone,
       commune: r.Commune,
       description: r.Description,
-      typeOffreur: r.TypeOffreur || "PRO",
-      entreprise: r.Entreprise || "",
       pseudo: r.Pseudo || "",
       displayMode: r.DisplayMode || "NOM",
       showNote: showNote,
@@ -726,13 +936,33 @@ function listOffreursPublic_(){
     });
   }
 
-  // tri alpha par nom public
-  data.sort(function(a,b){
-    return String(a.publicName||"").localeCompare(String(b.publicName||""), "fr", { sensitivity:"base" });
-  });
+  // Tri : par note desc (par défaut) ou alpha A→Z
+  if(norm_(sort) === norm_("alpha_asc")){
+    data.sort(function(a,b){
+      return String(a.publicName||"").localeCompare(String(b.publicName||""), "fr", { sensitivity:"base" });
+    });
+  }else{
+    data.sort(function(a,b){
+      var sa = String(a.showNote||"OUI").toUpperCase() === "OUI";
+      var sb = String(b.showNote||"OUI").toUpperCase() === "OUI";
+      var na = sa ? Number(a.noteMoyenne||-1) : -1;
+      var nb = sb ? Number(b.noteMoyenne||-1) : -1;
+      if(!isFinite(na)) na = -1;
+      if(!isFinite(nb)) nb = -1;
+      if(nb !== na) return nb - na;
+      return String(a.publicName||"").localeCompare(String(b.publicName||""), "fr", { sensitivity:"base" });
+    });
+  }
 
-  return { ok:true, data:data };
+  var total = data.length;
+  var page = data.slice(offset, offset + limit);
+
+  return { ok:true, data:page, total: total };
 }
+
+
+
+
 
 function computePublicName_(row){
   row = row || {};
