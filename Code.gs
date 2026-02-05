@@ -31,7 +31,7 @@ var SHEETS = {
 
 var HEADERS = {
   Demandes: ["Date","DemandeID","Service","ServiceAutre","Zone","Commune","Description","Budget","Nom","Tel","Email","Photo1","Photo2","Photo3","Status"],
-  Offreurs: ["Date","OffreurID","Nom","Email","Tel","Service","Zone","Commune","Description","PasswordHash","Salt","NoteMoyenne","NombreAvis","Actif"],
+  Offreurs: ["Date","OffreurID","Nom","Email","Tel","Service","ServiceAutre","Zone","Commune","Description","TypeOffreur","Siren","Entreprise","Pseudo","DisplayMode","ShowNote","PasswordHash","Salt","NoteMoyenne","NombreAvis","Actif"],
   Access:   ["Date","EmailOffreur","OffreurID","DemandeID","Type","ExpireAt"],
   Avis:     ["Date","AvisID","OffreurID","Note","Commentaire","AuteurNom"],
   Sessions: ["Date","Token","EmailOffreur","OffreurID","ExpiresAt"],
@@ -350,6 +350,16 @@ case "addDemande":
       case "getOffreursPublic":
         return json_(listOffreursPublic_());
 
+      case "getOffreurProfile":
+      case "getOffreurProfilePublic":
+        return json_(getOffreurProfile_(tokenFrom_(e, body), body));
+
+      case "updateOffreurProfile":
+        return json_(updateOffreurProfile_(tokenFrom_(e, body), body.payload || body));
+
+      case "getMyPlan":
+        return json_(getMyPlan_(tokenFrom_(e, body)));
+
       case "addAvisOffreur":
       case "addAvis":
         return json_(addAvisOffreur_(body.payload || body));
@@ -544,29 +554,72 @@ function listDemandesPublic_(){
 // OFFREURS
 // ======================
 function registerOffreur_(p){
+  p = p || {};
   var nom = String(p.nom||"").trim();
   var email = String(p.email||"").trim().toLowerCase();
   var tel = String(p.tel||"").trim();
   var password = String(p.password||"");
+
   var service = String(p.service||"").trim();
+  var serviceAutre = String(p.serviceAutre||"").trim();
+
   var zone = String(p.zone||"").trim();
   var commune = String(p.commune||"").trim();
   var description = String(p.description||"").trim();
 
+  // extras profil (Patch21+)
+  var typeOffreur = String(p.typeOffreur||"PRO").trim().toUpperCase();
+  if(typeOffreur !== "PRO" && typeOffreur !== "PART") typeOffreur = "PRO";
+
+  var siren = String(p.siren||p.siret||"").trim();
+  // Siren/Siret optionnel — si rempli, on garde seulement chiffres
+  if(siren) siren = siren.replace(/\D/g,"").slice(0,14);
+
+  var entreprise = String(p.entreprise||"").trim();
+  var pseudo = String(p.pseudo||"").trim();
+  var displayMode = String(p.displayMode||"NOM").trim().toUpperCase();
+  if(["NOM","PSEUDO","ENTREPRISE"].indexOf(displayMode) < 0) displayMode = "NOM";
+
+  var showNote = String(p.showNote||"OUI").trim().toUpperCase();
+  if(showNote !== "OUI" && showNote !== "NON") showNote = "OUI";
+
+  // validations minimales
   if(!nom || !email || !tel || !password || !service || !zone || !commune || !description){
     return { ok:false, error:"Champs obligatoires manquants" };
   }
   if(password.length < 8) return { ok:false, error:"Mot de passe trop court" };
 
+  // si service = Autre, exiger précision
+  var sNorm = String(service||"").toLowerCase();
+  if(sNorm.indexOf("autre") === 0 && !serviceAutre){
+    return { ok:false, error:"Précise ton métier (Autre)" };
+  }
+
   var sh = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
+  ensureExtraOffreursCols_();
+
   var rows = sheetToObjects_(sh);
-  for(var i=0;i<rows.length;i++) if(String(rows[i].Email||"").toLowerCase() === email) return { ok:false, error:"Email déjà utilisé" };
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].Email||"").toLowerCase() === email) return { ok:false, error:"Email déjà utilisé" };
+  }
 
   var offreurId = uid_("off");
   var salt = randomSalt_();
   var hash = sha256_(salt + "|" + password);
 
-  sh.appendRow([nowIso_(), offreurId, nom, email, tel, service, zone, commune, description, hash, salt, "", "", "OUI"]);
+  // valeurs défaut
+  if(!entreprise && typeOffreur === "PRO") entreprise = "";
+  if(!pseudo) pseudo = "";
+
+  sh.appendRow([
+    nowIso_(), offreurId, nom, email, tel,
+    service, serviceAutre, zone, commune, description,
+    typeOffreur, siren, entreprise, pseudo, displayMode, showNote,
+    hash, salt,
+    "", "", // NoteMoyenne, NombreAvis
+    "OUI"   // Actif
+  ]);
+
   var sess = sessionCreate_(email, offreurId);
   return { ok:true, offreurId:offreurId, token:sess.token };
 }
@@ -594,23 +647,230 @@ function loginOffreur_(email, password){
 
 function listOffreursPublic_(){
   var sh = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
+  ensureExtraOffreursCols_();
   var rows = sheetToObjects_(sh);
+
   var data = [];
-  for(var i=0;i<rows.length;i++){ 
-    if(String(rows[i].Actif||"OUI") !== "OUI") continue;
+  for(var i=0;i<rows.length;i++){
+    var r = rows[i];
+    if(String(r.Actif||"OUI") !== "OUI") continue;
+
+    var showNote = String(r.ShowNote||"OUI").toUpperCase();
+    if(showNote !== "OUI" && showNote !== "NON") showNote = "OUI";
+
+    var publicName = computePublicName_(r);
+
     data.push({
-      id: rows[i].OffreurID,
-      nom: rows[i].Nom,
-      service: rows[i].Service,
-      zone: rows[i].Zone,
-      commune: rows[i].Commune,
-      description: rows[i].Description,
-      noteMoyenne: rows[i].NoteMoyenne,
-      nombreAvis: rows[i].NombreAvis
+      id: r.OffreurID,
+      publicName: publicName,
+      nom: r.Nom,
+      service: r.Service,
+      serviceAutre: r.ServiceAutre || "",
+      zone: r.Zone,
+      commune: r.Commune,
+      description: r.Description,
+      typeOffreur: r.TypeOffreur || "PRO",
+      entreprise: r.Entreprise || "",
+      pseudo: r.Pseudo || "",
+      displayMode: r.DisplayMode || "NOM",
+      showNote: showNote,
+      noteMoyenne: r.NoteMoyenne,
+      nombreAvis: r.NombreAvis
     });
   }
-  data.sort(function(a,b){ return String(a.nom).localeCompare(String(b.nom)); });
+
+  // tri alpha par nom public
+  data.sort(function(a,b){
+    return String(a.publicName||"").localeCompare(String(b.publicName||""), "fr", { sensitivity:"base" });
+  });
+
   return { ok:true, data:data };
+}
+
+function computePublicName_(row){
+  row = row || {};
+  var mode = String(row.DisplayMode||"NOM").toUpperCase();
+  var nom = String(row.Nom||"").trim();
+  var pseudo = String(row.Pseudo||"").trim();
+  var ent = String(row.Entreprise||"").trim();
+
+  if(mode === "PSEUDO" && pseudo) return pseudo;
+  if(mode === "ENTREPRISE" && ent) return ent;
+  // fallback
+  if(nom) return nom;
+  if(pseudo) return pseudo;
+  if(ent) return ent;
+  return "Offreur";
+}
+
+
+
+function getMyPlan_(token){
+  // compat front : renvoie plan/crédits + état abonnement
+  var me = whoami_(token);
+  if(!me || !me.ok) return me || { ok:false, error:"Non connecté" };
+  return { ok:true, data: me.data };
+}
+
+// getOffreurProfile :
+// - si body.id est fourni => profil public (sans coordonnées)
+// - sinon => profil privé (nécessite session)
+function getOffreurProfile_(token, body){
+  body = body || {};
+  var id = String(body.id||body.offreurId||"").trim();
+
+  if(id){
+    var r = getOffreurRowById_(id);
+    if(!r) return { ok:false, error:"Offreur introuvable" };
+    var o = r.obj || {};
+    var showNote = String(o.ShowNote||"OUI").toUpperCase();
+    if(showNote !== "OUI" && showNote !== "NON") showNote = "OUI";
+    return {
+      ok:true,
+      data:{
+        id: o.OffreurID,
+        publicName: computePublicName_(o),
+        service: o.Service,
+        serviceAutre: o.ServiceAutre || "",
+        zone: o.Zone,
+        commune: o.Commune,
+        description: o.Description,
+        typeOffreur: o.TypeOffreur || "PRO",
+        entreprise: o.Entreprise || "",
+        pseudo: o.Pseudo || "",
+        displayMode: o.DisplayMode || "NOM",
+        showNote: showNote,
+        noteMoyenne: o.NoteMoyenne,
+        nombreAvis: o.NombreAvis
+      }
+    };
+  }
+
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Non connecté" };
+
+  var row = getOffreurRowById_(sess.offreurId);
+  if(!row) return { ok:false, error:"Compte introuvable" };
+
+  var o2 = row.obj || {};
+  var extra = getOffreurExtra_(row);
+
+  var sN = String(o2.ShowNote||"OUI").toUpperCase();
+  if(sN !== "OUI" && sN !== "NON") sN = "OUI";
+
+  return {
+    ok:true,
+    user:{
+      offreurId: o2.OffreurID,
+      nom: o2.Nom,
+      email: o2.Email,
+      tel: o2.Tel,
+      service: o2.Service,
+      serviceAutre: o2.ServiceAutre || "",
+      zone: o2.Zone,
+      commune: o2.Commune,
+      description: o2.Description,
+      typeOffreur: (o2.TypeOffreur || "PRO"),
+      siren: (o2.Siren || ""),
+      entreprise: (o2.Entreprise || ""),
+      pseudo: (o2.Pseudo || ""),
+      displayMode: (o2.DisplayMode || "NOM"),
+      showNote: sN,
+
+      credits: extra.credits,
+      plan: extra.plan,
+      aboActive: extra.aboActive,
+      aboPaid: extra.aboPaid,
+      trialUsed: extra.trialUsed,
+      trialEnd: extra.trialEnd
+    }
+  };
+}
+
+function updateOffreurProfile_(token, p){
+  p = p || {};
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Non connecté" };
+
+  var row = getOffreurRowById_(sess.offreurId);
+  if(!row) return { ok:false, error:"Compte introuvable" };
+
+  var extra = getOffreurExtra_(row);
+  var isAbo = (String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI");
+
+  // champs modifiables
+  var patch = {};
+  if(p.nom !== undefined) patch.Nom = String(p.nom||"").trim();
+  if(p.tel !== undefined) patch.Tel = String(p.tel||"").trim();
+  if(p.zone !== undefined) patch.Zone = String(p.zone||"").trim();
+  if(p.commune !== undefined) patch.Commune = String(p.commune||"").trim();
+  if(p.description !== undefined) patch.Description = String(p.description||"").trim();
+
+  // extras profil
+  if(p.serviceAutre !== undefined) patch.ServiceAutre = String(p.serviceAutre||"").trim();
+
+  if(p.typeOffreur !== undefined){
+    var t = String(p.typeOffreur||"PRO").trim().toUpperCase();
+    patch.TypeOffreur = (t==="PART" ? "PART" : "PRO");
+  }
+  if(p.siren !== undefined){
+    var s = String(p.siren||"").trim();
+    if(s) s = s.replace(/\D/g,"").slice(0,14);
+    patch.Siren = s;
+  }
+  if(p.entreprise !== undefined) patch.Entreprise = String(p.entreprise||"").trim();
+  if(p.pseudo !== undefined) patch.Pseudo = String(p.pseudo||"").trim();
+
+  if(p.displayMode !== undefined){
+    var dm = String(p.displayMode||"NOM").trim().toUpperCase();
+    if(["NOM","PSEUDO","ENTREPRISE"].indexOf(dm) < 0) dm = "NOM";
+    patch.DisplayMode = dm;
+  }
+
+  if(p.showNote !== undefined){
+    var sn = String(p.showNote||"OUI").trim().toUpperCase();
+    patch.ShowNote = (sn==="NON" ? "NON" : "OUI");
+  }
+
+  // métier modifiable seulement si PAS abonné
+  if(!isAbo && p.service !== undefined){
+    patch.Service = String(p.service||"").trim();
+  }
+
+  // validations minimales : ne pas vider les champs critiques
+  if(patch.Nom !== undefined && !patch.Nom) return { ok:false, error:"Nom invalide" };
+  if(patch.Tel !== undefined && !patch.Tel) return { ok:false, error:"Téléphone invalide" };
+  if(patch.Description !== undefined && !patch.Description) return { ok:false, error:"Description invalide" };
+
+  // si service = Autre, exige serviceAutre
+  if(patch.Service){
+    var sNorm = String(patch.Service||"").toLowerCase();
+    if(sNorm.indexOf("autre") === 0){
+      var sa = (patch.ServiceAutre !== undefined) ? patch.ServiceAutre : String(row.obj.ServiceAutre||"");
+      if(!String(sa||"").trim()) return { ok:false, error:"Précise ton métier (Autre)" };
+    }
+  }
+
+  // apply patch sur la ligne
+  var sh = row.sh;
+  var headers = row.headers;
+  function setCell(header, value){
+    var idx = headers.indexOf(header);
+    if(idx < 0){
+      // on ajoute la colonne si elle n'existe pas
+      idx = ensureExtraHeader_(sh, header);
+      headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+      row.headers = headers;
+      idx = headers.indexOf(header);
+    }
+    sh.getRange(row.row, idx+1).setValue(value);
+  }
+
+  Object.keys(patch).forEach(function(k){
+    setCell(k, patch[k]);
+  });
+
+  return getOffreurProfile_(token, {}); // renvoie le profil à jour
 }
 
 
@@ -852,7 +1112,14 @@ function getOffreurRowById_(offreurId){
 
   for(var r=1;r<values.length;r++){
     if(String(values[r][iId]||"") === String(offreurId||"")){
-      return { sh: sh, headers: h, row: r+1, values: values[r] };
+      var rowVals = values[r];
+      var obj = {};
+      for(var c=0;c<h.length;c++){
+        var key = String(h[c]||"").trim();
+        if(!key) continue;
+        obj[key] = rowVals[c];
+      }
+      return { sh: sh, headers: h, row: r+1, values: rowVals, obj: obj };
     }
   }
   return null;
