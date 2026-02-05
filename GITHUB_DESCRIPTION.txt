@@ -1,4 +1,8 @@
-Ajoute une pagination serveur (offset/limit/total) pour:
-- Mur des demandes (connecté): bouton “Voir plus” + compteur
-- Offreurs (public): chargement uniquement après choix du service + “Voir plus” + compteur
-Met à jour Code.gs (listDemandesPublic / listOffreursPublic) pour supporter offset/limit + filtres offreurs.
+- Mur des demandes: la barre de recherche filtre réellement (backend GAS + front), bouton Rafraîchir recharge la liste.
+- Ajout filtres optionnels côté GAS pour listDemandesPublic: q/service/zone/commune + pagination conservée.
+- Cache-bust: mur-demandes.html passe dx-mur-demandes.js?v=48.
+
+Fichiers modifiés:
+- mur-demandes.html
+- assets/js/dx-mur-demandes.js
+- Code.gs (à coller dans Apps Script puis redéployer la Web App)

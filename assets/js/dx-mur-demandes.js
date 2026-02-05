@@ -1,4 +1,4 @@
-/* DX47 - mur des demandes
+/* DX48 - mur des demandes
    - Public: affiche un aperçu (limité par service) + CTA connexion "Voir plus"
    - Connecté: affiche le mur complet via pagination (Voir plus)
    Dépend de api.js (window.DX_API). */
@@ -88,6 +88,10 @@ function pillHtml(info){
   var pageSizePublicFetch = 200;
   var loading = false;
 
+  // ---- filtres ----
+  var currentQ = '';
+  var debounceT = null;
+
   // ---- aperçu public ----
   var PUBLIC_PER_SERVICE = 3;   // aperçu par domaine
   var PUBLIC_MAX_TOTAL   = 24;  // limite totale pour l'aperçu
@@ -96,6 +100,11 @@ function pillHtml(info){
     try{ return localStorage.getItem('dx_token') || ''; }catch(e){ return ''; }
   }
   function isLoggedIn(){ return !!getToken(); }
+
+  function readQ(){
+    var el = $('murSearch');
+    return el ? String(el.value || '').trim() : '';
+  }
 
   function serviceLabel(it){
     var s = (it.service || it.Service || '').toString();
@@ -302,7 +311,9 @@ function pillHtml(info){
 
     try{
       var offset = all.length;
-      var res = await DX_API.get('listDemandesPublic', { offset: offset, limit: limit });
+      var params = { offset: offset, limit: limit };
+      if(currentQ) params.q = currentQ;
+      var res = await DX_API.get('listDemandesPublic', params);
       if(res && res.ok){
         var items = res.data || [];
         var t = (res.total !== undefined && res.total !== null) ? Number(res.total) : null;
@@ -356,5 +367,56 @@ function pillHtml(info){
     updatePager();
   }
 
-  document.addEventListener('DOMContentLoaded', load);
+  function initFilters(){
+    var input = $('murSearch');
+    var refresh = $('murRefresh');
+
+    // Pré-remplir via ?q=... (optionnel)
+    try{
+      var sp = new URLSearchParams(location.search);
+      var qp = sp.get('q');
+      if(qp && input && !input.value) input.value = qp;
+    }catch(e){}
+
+    if(input){
+      input.addEventListener('input', function(){
+        clearTimeout(debounceT);
+        debounceT = setTimeout(function(){
+          var q = readQ();
+          if(q === currentQ) return;
+          currentQ = q;
+          load();
+        }, 350);
+      });
+
+      input.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          clearTimeout(debounceT);
+          currentQ = readQ();
+          load();
+        }
+      });
+    }
+
+    if(refresh){
+      refresh.addEventListener('click', function(){
+        clearTimeout(debounceT);
+        currentQ = readQ();
+        load();
+      });
+    }
+  }
+
+  // patch: load() lit currentQ avant d'appeler l'API
+  var _origLoad = load;
+  load = async function(){
+    currentQ = readQ();
+    await _origLoad();
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    initFilters();
+    load();
+  });
 })();

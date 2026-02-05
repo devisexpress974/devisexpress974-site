@@ -1,1 +1,1 @@
-patch23: pagination mur-demandes + offreurs (volume)
+PATCH 25 — Mur: recherche (q) + rafraîchir + cache-bust v48
