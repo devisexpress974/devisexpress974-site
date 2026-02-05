@@ -2,6 +2,15 @@
 (() => {
   const $ = (id) => document.getElementById(id);
 
+  // PATCH22: activer la recherche sur les selects (si présents)
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!window.DXSearchSelect) return;
+    const s = $("service");
+    const c = $("commune");
+    if (s) window.DXSearchSelect.enhance(s, { placeholder: "Rechercher un métier…" });
+    if (c) window.DXSearchSelect.enhance(c, { placeholder: "Rechercher une commune…" });
+  });
+
   const COMMUNES = {
     Nord: ["Saint-Denis","Sainte-Marie","Sainte-Suzanne"],
     Est: ["Saint-André","Bras-Panon","Saint-Benoît","Sainte-Rose","Saint-Philippe","Salazie","La Plaine-des-Palmistes"],
@@ -101,6 +110,9 @@
     });
 
     if(selected) sel.value = selected;
+
+    // PATCH22: recherche dans les communes
+    if (window.DXSearchSelect) window.DXSearchSelect.refresh(sel);
   }
 
   function toggleServiceAutre(){

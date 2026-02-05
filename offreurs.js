@@ -166,6 +166,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const empty = $("empty");
   const countBox = $("countBox");
 
+  // PATCH22: recherche dans les filtres (métier/commune)
+  if (window.DXSearchSelect) {
+    if (serviceFilter) window.DXSearchSelect.enhance(serviceFilter, { placeholder: "Rechercher un métier…" });
+    if (communeFilter) window.DXSearchSelect.enhance(communeFilter, { placeholder: "Rechercher une commune…" });
+  }
+
   // état initial: filtres secondaires désactivés tant que le métier n’est pas choisi
   try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; }catch(e){}
   if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs."; }

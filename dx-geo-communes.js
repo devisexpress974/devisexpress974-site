@@ -62,6 +62,9 @@
     if (keepValue && communes.indexOf(keepValue) !== -1) {
       selectEl.value = keepValue;
     }
+
+    // PATCH22: refresh du mode "recherche" après re-remplissage
+    if (window.DXSearchSelect) window.DXSearchSelect.refresh(selectEl);
   }
 
   function getListForZone(zoneValue) {
@@ -80,6 +83,12 @@
 
     // 1) remplissage initial
     buildOptions(communeEl, getListForZone(zoneEl.value), communeEl.value);
+
+    // PATCH22: recherche dans les communes (optionnel)
+    if (window.DXSearchSelect) {
+      window.DXSearchSelect.enhance(communeEl, { placeholder: "Rechercher une commune…" });
+      window.DXSearchSelect.refresh(communeEl);
+    }
 
     // 2) mise à jour quand la zone change
     zoneEl.addEventListener("change", function () {
