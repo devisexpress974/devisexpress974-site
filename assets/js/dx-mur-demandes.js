@@ -1,4 +1,4 @@
-/* DX46 - mur des demandes
+/* DX47 - mur des demandes
    - Public: affiche un aperçu (limité par service) + CTA connexion "Voir plus"
    - Connecté: affiche le mur complet via pagination (Voir plus)
    Dépend de api.js (window.DX_API). */
@@ -11,6 +11,67 @@
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
             .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
   }
+
+function parseDate(v){
+  if(!v) return null;
+  try{
+    var d = new Date(v);
+    if(isNaN(d.getTime())) return null;
+    return d;
+  }catch(e){ return null; }
+}
+
+function fmtDateTime(d){
+  if(!d) return '—';
+  try{
+    return d.toLocaleString('fr-FR', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+  }catch(e){
+    return d.toLocaleString('fr-FR');
+  }
+}
+
+function timeAgo(d){
+  if(!d) return '';
+  var ms = Date.now() - d.getTime();
+  if(!isFinite(ms)) return '';
+  var s = Math.floor(ms/1000);
+  if(s < 10) return "à l’instant";
+  if(s < 60) return "il y a " + s + " s";
+  var m = Math.floor(s/60);
+  if(m < 60) return "il y a " + m + " min";
+  var h = Math.floor(m/60);
+  if(h < 48) return "il y a " + h + " h";
+  var j = Math.floor(h/24);
+  if(j < 14) return "il y a " + j + " j";
+  var sem = Math.floor(j/7);
+  if(sem < 8) return "il y a " + sem + " sem";
+  var mo = Math.floor(j/30);
+  if(mo < 24) return "il y a " + mo + " mois";
+  var a = Math.floor(j/365);
+  return "il y a " + a + " an" + (a>1 ? "s" : "");
+}
+
+function addOneMonth(d){
+  if(!d) return null;
+  var x = new Date(d.getTime());
+  x.setMonth(x.getMonth() + 1);
+  return x;
+}
+
+function statusLabel(raw){
+  raw = String(raw||'').trim().toUpperCase();
+  if(!raw) raw = 'PUBLIÉ';
+  if(raw === 'PUBLIE' || raw === 'PUBLIÉ') return {t:'Publié', bg:'#e8fff1', fg:'#0b6b33'};
+  if(raw === 'EN_COURS' || raw === 'EN COURS') return {t:'En cours', bg:'#eef6ff', fg:'#0b4ea2'};
+  if(raw === 'CLOTURE' || raw === 'CLOTURÉ' || raw === 'CLOTUREE' || raw === 'CLOTURÉE') return {t:'Clôturée', bg:'#f1f5f9', fg:'#334155'};
+  if(raw === 'EXPIRE' || raw === 'EXPIRÉ' || raw === 'EXPIREE' || raw === 'EXPIRÉE') return {t:'Expirée', bg:'#fff1f2', fg:'#9f1239'};
+  if(raw === 'SUPPRIME' || raw === 'SUPPRIMÉ') return {t:'Supprimée', bg:'#f3f4f6', fg:'#6b7280'};
+  return {t: raw.charAt(0) + raw.slice(1).toLowerCase(), bg:'#f3f4f6', fg:'#111827'};
+}
+
+function pillHtml(info){
+  return '<span style="display:inline-block;padding:4px 10px;border-radius:999px;font-weight:900;font-size:12px;background:'+info.bg+';color:'+info.fg+';">'+esc(info.t)+'</span>';
+}
 
   function showStatus(msg){
     var box = $('murStatus');
@@ -52,8 +113,15 @@
       var zone = esc(it.zone || it.Zone || '');
       var commune = esc(it.commune || it.Commune || '');
       var desc = esc(it.description || it.Description || '');
-      var createdAt = esc((it.createdAt || it.Date || it.date || '').toString());
-      var status = esc(it.status || it.Status || 'PUBLIÉ');
+      var createdRaw = (it.createdAt || it.CreatedAt || it.Date || it.date || it.Timestamp || '').toString();
+      var createdD = parseDate(createdRaw);
+      var createdAt = esc(createdRaw);
+      var createdPretty = createdD ? (fmtDateTime(createdD) + (timeAgo(createdD) ? ' • ' + timeAgo(createdD) : '')) : createdAt;
+      var statusRaw = (it.status || it.Status || 'PUBLIÉ');
+      var sInfo = statusLabel(statusRaw);
+      var status = pillHtml(sInfo);
+      var expiresD = (it.expiresAt || it.ExpiresAt) ? parseDate(it.expiresAt || it.ExpiresAt) : addOneMonth(createdD);
+      var expiresPretty = expiresD ? fmtDateTime(expiresD) : '—';
 
       var card = document.createElement('article');
       card.className = 'murCard';
@@ -64,7 +132,8 @@
         + '</div>'
         + '<div class="murDesc">'+ desc +'</div>'
         + '<div class="murCardBottom">'
-        + '  <div class="murSmall">Publié : '+ createdAt +'</div>'
+        + '  <div class="murSmall">Publié : '+ createdPretty +'</div>'
+        + '  <div class="murSmall">Expire : '+ esc(expiresPretty) +'</div>'
         + '  <div class="murSmall">Statut : '+ status +'</div>'
         + '</div>';
 

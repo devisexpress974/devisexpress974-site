@@ -1,4 +1,4 @@
-/* DevisExpress974 — demande-detail.js (Patch10)
+/* DevisExpress974 — demande-detail.js (Patch24)
    Objectif :
    - Afficher une demande (public) et masquer les coordonnées
    - Si prestataire connecté : appeler getDemande et afficher coordonnées si CanSeeContact == true
@@ -58,19 +58,60 @@
     return await res.json();
   }
 
-  function fmtDate(v) {
-    if (!v) return "—";
-    // Si c'est déjà une string, on laisse.
-    try {
-      var d = new Date(v);
-      if (isNaN(d.getTime())) return String(v);
-      return d.toLocaleString("fr-FR");
-    } catch (e) {
-      return String(v);
+  
+function fmtDate(v) {
+  if (!v) return "—";
+  try {
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    var abs = d.toLocaleString("fr-FR", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+    var ms = Date.now() - d.getTime();
+    var rel = "";
+    if (isFinite(ms)) {
+      var s = Math.floor(ms/1000);
+      if (s < 10) rel = "à l’instant";
+      else if (s < 60) rel = "il y a " + s + " s";
+      else {
+        var mn = Math.floor(s/60);
+        if (mn < 60) rel = "il y a " + mn + " min";
+        else {
+          var h = Math.floor(mn/60);
+          if (h < 48) rel = "il y a " + h + " h";
+          else {
+            var j = Math.floor(h/24);
+            if (j < 14) rel = "il y a " + j + " j";
+            else rel = "";
+          }
+        }
+      }
     }
+    return rel ? (abs + " • " + rel) : abs;
+  } catch (e) {
+    return String(v);
   }
+}
 
-  function setText(id, v) {
+function addOneMonthStr(v){
+  try{
+    var d = new Date(v);
+    if(isNaN(d.getTime())) return "—";
+    d.setMonth(d.getMonth()+1);
+    return d.toLocaleString("fr-FR", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+  }catch(e){ return "—"; }
+}
+
+function statusLabel(v){
+  var s = String(v||"").trim().toUpperCase();
+  if(!s) s = "PUBLIÉ";
+  if(s==="PUBLIE" || s==="PUBLIÉ") return "Publié";
+  if(s==="EN_COURS" || s==="EN COURS") return "En cours";
+  if(s==="CLOTURE" || s==="CLOTUREE" || s==="CLOTURÉ" || s==="CLOTURÉE") return "Clôturée";
+  if(s==="EXPIRE" || s==="EXPIREE" || s==="EXPIRÉ" || s==="EXPIRÉE") return "Expirée";
+  if(s==="SUPPRIME" || s==="SUPPRIMÉ") return "Supprimée";
+  return s.charAt(0)+s.slice(1).toLowerCase();
+}
+
+function setTextfunction setText(id, v) {
     var node = el(id);
     if (node) node.textContent = (v === undefined || v === null || v === "") ? "—" : String(v);
   }
@@ -187,7 +228,11 @@
     setText("vZone", base.Zone || "—");
     setText("vCommune", base.Commune || "—");
     setText("vBudget", base.Budget ? (String(base.Budget) + " €") : "—");
-    setText("vDate", fmtDate(base.CreatedAt || base.Date || base.Timestamp));
+    var created = base.CreatedAt || base.createdAt || base.Date || base.date || base.Timestamp || base.timestamp;
+    setText("vDate", fmtDate(created));
+    // statut + expiration (1 mois par défaut)
+    setText("vStatus", statusLabel(base.Status || base.status));
+    setText("vExpire", base.ExpiresAt || base.expiresAt ? fmtDate(base.ExpiresAt || base.expiresAt) : addOneMonthStr(created));
     setText("vDesc", base.Description || base.Besoin || base.Texte || "—");
 
     // 2) Si connecté : on tente la version privée (qui met CanSeeContact)
