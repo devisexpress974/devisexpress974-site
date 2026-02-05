@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./styles.css?v=32" />
   <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
   <link rel="stylesheet" href="./assets/css/dx-searchable-select.css?v=45" />
+  <link rel="stylesheet" href="./assets/css/offreurs.css?v=49" />
 
   <script defer src="./assets/js/dx-include-header.js?v=39"></script>
 </head>
@@ -55,6 +56,16 @@
         </div>
       </div>
 
+        <div class="field">
+          <label for="sort">Trier</label>
+          <div class="selectWrap">
+            <select id="sort">
+              <option value="note_desc" selected>Note (meilleurs en premier)</option>
+              <option value="alpha_asc">Nom (A → Z)</option>
+            </select>
+          </div>
+        </div>
+
       <div class="formActions">
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btnPrimary" id="btnReload" type="button">Recharger</button>
@@ -85,7 +96,7 @@
 <script src="auth.js?v=27"></script>
 <script src="main.js?v=27"></script>
   <script src="./assets/js/dx-searchable-select.js?v=45"></script>
-<script src="offreurs.js?v=43"></script>
+<script src="offreurs.js?v=49"></script>
 
 </body>
 </html>

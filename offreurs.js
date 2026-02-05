@@ -1,4 +1,4 @@
-// offreurs.js (v46)
+// offreurs.js (v49)
 document.addEventListener("DOMContentLoaded", () => {
   const SERVICES_BY_CAT = {
   "BTP / Rénovation": [
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
     select.innerHTML = "";
     const first = document.createElement("option");
     first.value = "";
-    first.textContent = includeAll ? "Tous" : "Choisir un service…";
+    first.textContent = includeAll ? "Tous" : "Choisir un domaine…";
     select.appendChild(first);
 
     for (const [cat, items] of Object.entries(SERVICES_BY_CAT)) {
@@ -161,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const serviceFilter = $("serviceFilter");
   const zoneFilter = $("zoneFilter");
   const communeFilter = $("communeFilter");
+  const sort = $("sort");
   const btnReload = $("btnReload");
   const list = $("list");
   const empty = $("empty");
@@ -173,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // état initial: filtres secondaires désactivés tant que le métier n’est pas choisi
-  try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; }catch(e){}
+  try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; if(sort) sort.disabled = true; }catch(e){}
   if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs."; }
   if(countBox){ countBox.textContent = "0"; }
 
@@ -239,14 +240,50 @@ function fillSelect(select, items){
     return full + empty;
   }
 
+  function sortItems(items){
+    const mode = (sort && sort.value) ? sort.value : "note_desc";
+    const arr = (items || []).slice();
+
+    const nameOf = (o) => String(o.publicName || o.nom || o.Nom || o.Pseudo || "Offreur");
+    const showOf = (o) => String(o.showNote || "OUI").toUpperCase() === "OUI";
+    const noteOf = (o) => {
+      if(!showOf(o)) return -1;
+      const n = Number(o.noteMoyenne !== undefined ? o.noteMoyenne : (o.NoteMoyenne !== undefined ? o.NoteMoyenne : -1));
+      return (isFinite(n) ? n : -1);
+    };
+    const avisOf = (o) => {
+      if(!showOf(o)) return 0;
+      const n = Number(o.nombreAvis !== undefined ? o.nombreAvis : (o.NombreAvis !== undefined ? o.NombreAvis : 0));
+      return (isFinite(n) ? n : 0);
+    };
+
+    if(mode === "alpha_asc"){
+      arr.sort((a,b) => nameOf(a).localeCompare(nameOf(b), "fr", { sensitivity:"base" }));
+      return arr;
+    }
+
+    // défaut: note desc, puis nombre d'avis, puis nom
+    arr.sort((a,b) => {
+      const dn = noteOf(b) - noteOf(a);
+      if(dn) return dn;
+      const da = avisOf(b) - avisOf(a);
+      if(da) return da;
+      return nameOf(a).localeCompare(nameOf(b), "fr", { sensitivity:"base" });
+    });
+    return arr;
+  }
+
   function render(items){
     list.innerHTML = "";
 
     if(!items.length){
       empty.style.display = "block";
+      empty.textContent = (serviceFilter && serviceFilter.value) ? "Aucun offreur trouvé pour ces critères." : "Sélectionne un domaine d’activité pour afficher les offreurs.";
       return;
     }
     empty.style.display = "none";
+
+    items = sortItems(items);
 
     items.forEach(o=>{
       const id = o.id || o.OffreurID || o.offreurId || "";
@@ -258,13 +295,15 @@ function fillSelect(select, items){
 
       // Note uniquement si showNote=OUI (Patch21) et champs présents
       const showNote = String(o.showNote || "OUI").toUpperCase() === "OUI";
-      const hasNote = showNote && (o.noteMoyenne !== undefined || o.nombreAvis !== undefined);
-      const note = Number(o.noteMoyenne || 0);
-      const nb = Number(o.nombreAvis || 0);
+      const note = Number(o.noteMoyenne || o.NoteMoyenne || 0);
+      const nb = Number(o.nombreAvis || o.NombreAvis || 0);
 
-      const badge = hasNote
-        ? `<span class="badge">${stars(note)} <span style="opacity:.75;font-weight:800;">(${nb})</span></span>`
-        : `<span class="badge">—</span>`;
+      let badge = `<span class="badge">—</span>`;
+      if(!showNote){
+        badge = `<span class="badge badgeMuted">Note masquée</span>`;
+      }else if(isFinite(note) && isFinite(nb) && nb > 0){
+        badge = `<span class="badge">${stars(note)} <span style="opacity:.75;font-weight:800;">(${nb})</span></span>`;
+      }
 
       const card = document.createElement("div");
       card.className = "itemCard";
@@ -310,15 +349,15 @@ function fillSelect(select, items){
   }
 
   function setControlsDisabled(disabled){
-    try{ zoneFilter.disabled = disabled; communeFilter.disabled = disabled; q.disabled = disabled; }catch(e){}
+    try{ zoneFilter.disabled = disabled; communeFilter.disabled = disabled; q.disabled = disabled; if(sort) sort.disabled = disabled; }catch(e){}
   }
 
   function updateCount(){
     const shown = STATE.items.length;
     const total = STATE.total || shown;
-    if(countBox) countBox.textContent = `${shown} / ${total}`;
+    if(countBox) countBox.textContent = `Affichés : ${shown} / ${total}`;
     const c = document.getElementById("offreursPagerCount");
-    if(c) c.textContent = `${shown} / ${total}`;
+    if(c) c.textContent = `Affichés : ${shown} / ${total}`;
   }
 
   function updatePager(){
@@ -357,7 +396,8 @@ function fillSelect(select, items){
       service: serviceFilter.value,
       zone: zoneFilter.value,
       commune: communeFilter.value,
-      q: q.value.trim()
+      q: q.value.trim(),
+      sort: (sort && sort.value) ? sort.value : "note_desc"
     };
   }
 
@@ -428,13 +468,14 @@ function fillSelect(select, items){
     tmr = setTimeout(fetchFirst, 250);
   }
 
-  fillServiceSelect(serviceFilter, { includeAll: true });
+  fillServiceSelect(serviceFilter, { includeAll: false });
   fillSelect(zoneFilter, ZONES);
   fillSelect(communeFilter, COMMUNES);
   btnReload.addEventListener("click", fetchFirst);
   serviceFilter.addEventListener("change", fetchFirst);
   zoneFilter.addEventListener("change", fetchFirst);
   communeFilter.addEventListener("change", fetchFirst);
+  if(sort) sort.addEventListener("change", fetchFirst);
   q.addEventListener("input", scheduleFetch);
   q.addEventListener("change", fetchFirst);
 
