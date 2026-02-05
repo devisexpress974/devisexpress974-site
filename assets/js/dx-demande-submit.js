@@ -177,6 +177,7 @@
     var telRaw = String(($('telephone') && $('telephone').value) || '').trim();
     var emailRaw = String(($('email') && $('email').value) || '').trim();
     var acceptCgv = !!($('acceptCgv') && $('acceptCgv').checked);
+    var optInContact = !!($('optInContact') && $('optInContact').checked);
 
     // règles mini
     if(!service) service = '';
@@ -197,6 +198,10 @@
     }
     if(!acceptCgv){
       showStatus("Tu dois accepter les CGV / confidentialité pour publier.", "error");
+      return;
+    }
+    if(!optInContact){
+      showStatus("Tu dois accepter d’être contacté(e) par des professionnels pour recevoir des devis.", "error");
       return;
     }
     if(!telRaw && !emailRaw){
@@ -259,6 +264,7 @@
         tel: telRaw,
         email: email,
         acceptCGV: acceptCgv,
+        optInContact: optInContact ? "OUI" : "NON",
         attachments: attachments
       };
 
