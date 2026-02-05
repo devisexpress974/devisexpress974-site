@@ -1,1 +1,1 @@
-PATCH19 — Profil offreur: statut + SIREN + métier verrouillé abo
+PATCH20 — Mur: aperçu public + 'Voir plus' (login) ; Offreurs: affichage après choix métier

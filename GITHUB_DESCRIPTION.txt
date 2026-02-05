@@ -1,4 +1,3 @@
-- Ajoute les champs "Statut (PRO/PARTICULIER)" et "SIREN/SIRET (optionnel)" sur offreur-register + offreur-compte
-- Ajoute validation SIREN/SIRET (9 ou 14 chiffres) + prise en charge serviceAutre à l’inscription
-- Verrouille la modification du métier sur le profil quand l’abonnement est actif (UI)
-- Corrige la redirection login->offreur-compte (next)
+- Mur des demandes : aperçu limité par domaine + CTA connexion pour tout voir.
+- Offreurs : aucun offreur affiché tant qu’un métier n’est pas choisi (zone/recherche restent optionnelles).
+- Pas de changement sur paiements/matching/mails.

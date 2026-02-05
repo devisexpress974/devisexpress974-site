@@ -1,4 +1,4 @@
-// offreurs.js (v14)
+// offreurs.js (v15)
 document.addEventListener("DOMContentLoaded", () => {
   const SERVICES_BY_CAT = {
   "BTP / Rénovation": [
@@ -166,12 +166,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const empty = $("empty");
   const countBox = $("countBox");
 
+  // état initial: filtres secondaires désactivés tant que le métier n’est pas choisi
+  try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; }catch(e){}
+  if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs."; }
+  if(countBox){ countBox.textContent = "0"; }
+
+
   
 function fillServiceSelectGrouped(sel){
   sel.innerHTML = "";
   const optAll = document.createElement("option");
   optAll.value = "";
-  optAll.textContent = "Tous";
+  optAll.textContent = "Choisir un métier…";
   sel.appendChild(optAll);
 
   const cats = SERVICES_BY_CAT || {};
@@ -267,6 +273,17 @@ function fillSelect(select, items){
     const s = serviceFilter.value;
     const z = zoneFilter.value;
     const c = communeFilter.value;
+
+    // Métier obligatoire : on n’affiche rien tant qu’il n’est pas choisi
+    if(!s){
+      try{ list.innerHTML = ""; }catch(e){}
+      if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs."; }
+      if(countBox){ countBox.textContent = "0"; }
+      try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; }catch(e){}
+      return;
+    }
+    try{ zoneFilter.disabled = false; communeFilter.disabled = false; q.disabled = false; }catch(e){}
+
 
     let out = ALL.slice();
     if(s) out = out.filter(o => (o.service||o.Service) === s);
