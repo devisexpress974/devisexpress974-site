@@ -204,6 +204,46 @@ function ensureAll_(){
   ensureSheetStrict_(SHEETS.RESETS,  HEADERS.Resets);
   ensureSheetStrict_(SHEETS.NOTIFS,  HEADERS.Notifs);
   ensureExtraOffreursCols_();
+  try{ ensureCronTriggers_(); }catch(e){}
+
+}
+
+
+function ensureCronTriggers_(){
+  // Installe un trigger quotidien pour gérer :
+  // - mail d'alerte J-5 avant fin de mois offert
+  // - désactivation automatique après TrialEnd si non payé
+  //
+  // Désactivation possible : ScriptProperties => DX_DISABLE_CRON=OUI
+  try{
+    var props = PropertiesService.getScriptProperties();
+    var disable = String(props.getProperty("DX_DISABLE_CRON")||"").toUpperCase();
+    if(disable === "OUI" || disable === "YES" || disable === "TRUE") return;
+
+    // Anti-spam : ne check pas à chaque requête
+    try{
+      var cache = CacheService.getScriptCache();
+      if(cache && cache.get("dx_cron_trials_checked")) return;
+    }catch(e){}
+
+    var triggers = ScriptApp.getProjectTriggers();
+    var has = false;
+    for(var i=0;i<triggers.length;i++){
+      var t = triggers[i];
+      try{
+        if(t.getHandlerFunction && t.getHandlerFunction() === "cronTrials_"){ has = true; break; }
+      }catch(e){}
+    }
+    if(!has){
+      // Horaire basé sur le timezone du script Apps Script
+      ScriptApp.newTrigger("cronTrials_").timeBased().everyDays(1).atHour(6).create();
+    }
+
+    try{
+      var cache2 = CacheService.getScriptCache();
+      if(cache2) cache2.put("dx_cron_trials_checked", "1", 6*60*60); // 6h
+    }catch(e){}
+  }catch(e){}
 }
 
 
