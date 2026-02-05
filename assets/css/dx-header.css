@@ -1,4 +1,4 @@
-/* DX HEADER v38 */
+/* DX HEADER v39 */
 
 :root{
   --dx-orange1:#ff8a2a;
@@ -188,17 +188,13 @@
   display:none;
   width: 44px;
   height: 44px;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.08);
   cursor:pointer;
   padding: 10px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
 }
-
 .dxBurger span{
   display:block;
   height: 2px;
@@ -208,25 +204,29 @@
   width: 100%;
 }
 
-
 .dxMobilePanel{
   position: fixed;
-  top: var(--dxTopbarH, 72px); /* sous la topbar */
-  left: 0;
-  right: 0;
-  width: 100%;
-  max-height: calc(100vh - var(--dxTopbarH, 72px));
+  left: 14px;
+  right: 14px;
+  top: calc(var(--dxTopbarH, 64px) + 10px);
+  max-height: calc(100vh - (var(--dxTopbarH, 64px) + 24px));
   overflow: auto;
+  z-index: 10000;
+  width: auto;
+  margin: 0;
   background: rgba(255,255,255,0.98);
-  border-top: 1px solid rgba(0,0,0,0.08);
-  border-bottom: 1px solid rgba(0,0,0,0.08);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.14);
-  padding: 12px 16px 16px;
-  z-index: 9998;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+  padding: 12px;
+  display: none;
+}
+
+.dxTopbar.dx-open .dxMobilePanel{
+  display: block;
 }
 
 .dxMobilePanel[hidden]{ display:none !important; }
-
 
 .dxMobileLink,
 .dxMobileSubLink{
@@ -299,5 +299,3 @@
 
 /* Mobile buttons spacing */
 .dxBtnMobile{ width: 100%; }
-
-.dxBurger:focus-visible{ outline: 2px solid rgba(255,59,10,0.55); outline-offset: 4px; }

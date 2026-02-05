@@ -1,1 +1,1 @@
-Patch 18.1E — Menu mobile (burger) fonctionnel partout
+Patch 18.1F — Header unifié v39 + menu mobile fonctionnel (fallback)
