@@ -1,1 +1,11 @@
-PATCH20 — Mur: aperçu public + 'Voir plus' (login) ; Offreurs: affichage après choix métier
+PATCH 21 — Profil/annuaire offreurs (nom affiché + note masquable)
+
+- GAS (Code.gs) :
+  - Ajoute actions : getOffreurProfile / updateOffreurProfile (profil privé + profil public sans coordonnées)
+  - Ajoute colonnes extra Offreurs : ServiceAutre, TypeOffreur, Siren, Entreprise, Pseudo, DisplayMode, ShowNote
+  - Masque la note publiquement si ShowNote = NON
+  - Fix critique : getOffreurRowById_() renvoie maintenant .obj (pour éviter des erreurs sur plusieurs actions)
+
+- Front :
+  - offreurs.js : affiche "Note masquée" si showNote = NON
+  - offreur-profil.js : respecte showNote (masquée / pas d’avis / note)

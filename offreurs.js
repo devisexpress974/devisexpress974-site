@@ -244,9 +244,16 @@ function fillSelect(select, items){
       const note = o.noteMoyenne || o.NoteMoyenne || o.note || "";
       const nb = o.nombreAvis || o.NombreAvis || o.nbAvis || "";
 
-      const badge = (note && Number(nb||0)>0)
-        ? `<span class="badge">${stars(note)} • ${esc(String(note))}/5 (${esc(String(nb))})</span>`
-        : `<span class="badge">Pas d’avis</span>`;
+      const showNoteRaw = (o.showNote !== undefined) ? o.showNote : (o.ShowNote !== undefined ? o.ShowNote : undefined);
+      const showNote = (showNoteRaw === undefined || showNoteRaw === null)
+        ? true
+        : (String(showNoteRaw).trim().toUpperCase() !== "NON" && String(showNoteRaw).trim() !== "0" && String(showNoteRaw).trim().toLowerCase() !== "false");
+
+      const badge = (!showNote)
+        ? `<span class="badge">Note masquée</span>`
+        : ((note && Number(nb||0)>0)
+            ? `<span class="badge">${stars(note)} • ${esc(String(note))}/5 (${esc(String(nb))})</span>`
+            : `<span class="badge">Pas d’avis</span>`);
 
       const card = document.createElement("div");
       card.className = "itemCard";

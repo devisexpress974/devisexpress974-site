@@ -120,16 +120,20 @@
     const desc = pick(p, ["description", "Description", "bio", "Bio"]);
 
     const showNoteRaw = pick(p, ["showNote", "ShowNote", "show_note", "Show_Note"]);
-    const showNote = String(showNoteRaw).toLowerCase() === "true" || showNoteRaw === 1 || showNoteRaw === "1" || showNoteRaw === true;
+    const showNote = (showNoteRaw === undefined || showNoteRaw === null)
+      ? true
+      : (String(showNoteRaw).trim().toUpperCase() !== "NON" && String(showNoteRaw).trim() !== "0" && String(showNoteRaw).trim().toLowerCase() !== "false");
 
     const note = pick(p, ["note", "Note", "rating", "Rating"]);
     const nbAvis = pick(p, ["nbAvis", "NbAvis", "reviewsCount", "ReviewsCount"]);
 
     const chips = [service, commune, zone].filter(Boolean).map((x) => `<span class="chip">${esc(x)}</span>`).join(" ");
 
-    const noteLine = (showNote && note)
-      ? `<div style="margin-top:10px;"><strong>Note :</strong> ${esc(note)}${nbAvis ? ` <span class="muted">(${esc(nbAvis)} avis)</span>` : ""}</div>`
-      : `<div style="margin-top:10px;" class="muted"><strong>Note :</strong> non affichée</div>`;
+    const noteLine = (!showNote)
+      ? `<div style="margin-top:10px;" class="muted"><strong>Note :</strong> masquée</div>`
+      : (note
+          ? `<div style="margin-top:10px;"><strong>Note :</strong> ${esc(note)}${nbAvis ? ` <span class="muted">(${esc(nbAvis)} avis)</span>` : ""}</div>`
+          : `<div style="margin-top:10px;" class="muted"><strong>Note :</strong> pas d’avis</div>`);
 
     return `
       <div style="display:flex; flex-direction:column; gap:10px;">
