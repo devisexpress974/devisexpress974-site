@@ -1,8 +1,4 @@
-À coller dans GitHub Desktop (Description optionnelle)
-
-Ce patch rend l’annuaire offreurs plus crédible :
-- chaque offreur peut choisir le nom affiché (nom / entreprise / pseudo) via DisplayMode
-- chaque offreur peut décider d’afficher ou non sa note (ShowNote)
-- les coordonnées restent masquées côté public (annuaire + profil public)
-
-IMPORTANT : pour que ça fonctionne partout, il faut aussi copier-coller Code.gs dans Apps Script puis redéployer la Web App.
+Ajoute une pagination serveur (offset/limit/total) pour:
+- Mur des demandes (connecté): bouton “Voir plus” + compteur
+- Offreurs (public): chargement uniquement après choix du service + “Voir plus” + compteur
+Met à jour Code.gs (listDemandesPublic / listOffreursPublic) pour supporter offset/limit + filtres offreurs.

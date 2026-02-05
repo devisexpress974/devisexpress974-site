@@ -1,6 +1,6 @@
-/* DX43 - mur des demandes
+/* DX46 - mur des demandes
    - Public: affiche un aperçu (limité par service) + CTA connexion "Voir plus"
-   - Connecté: affiche tout le mur
+   - Connecté: affiche le mur complet via pagination (Voir plus)
    Dépend de api.js (window.DX_API). */
 
 (function(){
@@ -16,16 +16,18 @@
     var box = $('murStatus');
     if(!box) return;
     if(!msg){ box.style.display='none'; box.textContent=''; return; }
-    box.style.display = 'block';
+    box.style.display='block';
     box.textContent = msg;
   }
 
+  // ---- état ----
   var all = [];
+  var total = 0;
+  var pageSizeLogged = 24;
+  var pageSizePublicFetch = 200;
+  var loading = false;
 
-  // ---- état offreur connecté (token) ----
-  var me = null;
-  var pendingUnlockId = '';
-
+  // ---- aperçu public ----
   var PUBLIC_PER_SERVICE = 3;   // aperçu par domaine
   var PUBLIC_MAX_TOTAL   = 24;  // limite totale pour l'aperçu
 
@@ -35,24 +37,12 @@
   function isLoggedIn(){ return !!getToken(); }
 
   function serviceLabel(it){
-    var s = (it && (it.service || it.Service)) ? String(it.service || it.Service) : '';
-    var sa = (it && (it.serviceAutre || it.ServiceAutre)) ? String(it.serviceAutre || it.ServiceAutre) : '';
-    s = (s || '').trim();
-    sa = (sa || '').trim();
-    if(!s) s = 'Autre';
-    if(s.toLowerCase() === 'autre' && sa) return 'Autre : ' + sa;
+    var s = (it.service || it.Service || '').toString();
+    if(/^autre/i.test(s)){
+      var a = (it.serviceAutre || it.ServiceAutre || '').toString().trim();
+      if(a) return 'Autre — ' + a;
+    }
     return s;
-  }
-
-  async function loadMe(){
-    me = null;
-    if(!isLoggedIn()) return null;
-    if(!window.DX_API || !DX_API.getAny) return null;
-    try{
-      var res = await DX_API.getAny(['me','whoami'], {});
-      if(res && res.ok){ me = res.data || res.me || res.user || null; }
-    }catch(e){ me = null; }
-    return me;
   }
 
   function renderCards(list, host){
@@ -102,57 +92,53 @@
     host.appendChild(box);
   }
 
+  function groupByService(list){
+    var groups = {};
+    (list||[]).forEach(function(it){
+      var k = serviceLabel(it) || 'Autre';
+      if(!groups[k]) groups[k] = [];
+      groups[k].push(it);
+    });
+    return groups;
+  }
+
   function renderPublicPreview(){
     var host = $('murList');
     if(!host) return;
     host.innerHTML = '';
 
-    // regroupe par service
-    var groups = {};
-    for(var i=0;i<all.length;i++){
-      var it = all[i];
-      var key = serviceLabel(it);
-      if(!groups[key]) groups[key] = [];
-      groups[key].push(it);
-    }
+    var groups = groupByService(all);
 
-    // ordre des groupes: plus récent d'abord
-    var keys = Object.keys(groups);
-    keys.sort(function(a,b){
-      var da = String((groups[a][0] && (groups[a][0].createdAt || groups[a][0].Date)) || '');
-      var db = String((groups[b][0] && (groups[b][0].createdAt || groups[b][0].Date)) || '');
-      return db.localeCompare(da);
+    // ordre: services avec le plus de demandes récentes d’abord
+    var keys = Object.keys(groups).sort(function(a,b){
+      return groups[b].length - groups[a].length;
     });
 
     var shownTotal = 0;
-    for(var k=0;k<keys.length;k++){
+    for(var i=0;i<keys.length;i++){
+      var k = keys[i];
+      var arr = groups[k];
       if(shownTotal >= PUBLIC_MAX_TOTAL) break;
-      var svc = keys[k];
-      var arr = groups[svc] || [];
-      if(!arr.length) continue;
 
       var sec = document.createElement('section');
       sec.className = 'murSection';
 
       var title = document.createElement('div');
       title.className = 'murSectionTitle';
-      title.innerHTML = ''
-        + '<span>'+ esc(svc) +'</span>'
+      title.innerHTML = '<span>'+ esc(k) +'</span>'
         + '<span class="murSectionCount">'+ Math.min(arr.length, PUBLIC_PER_SERVICE) +'/'+ arr.length +'</span>';
       sec.appendChild(title);
 
       var listWrap = document.createElement('div');
-      listWrap.className = 'murSectionList';
+      listWrap.className = 'murGrid';
 
       var slice = arr.slice(0, PUBLIC_PER_SERVICE);
-      // limite globale
       if(shownTotal + slice.length > PUBLIC_MAX_TOTAL){
         slice = slice.slice(0, Math.max(0, PUBLIC_MAX_TOTAL - shownTotal));
       }
-
-      renderCards(slice, listWrap);
       shownTotal += slice.length;
 
+      renderCards(slice, listWrap);
       sec.appendChild(listWrap);
 
       if(arr.length > PUBLIC_PER_SERVICE){
@@ -167,13 +153,58 @@
     }
 
     renderLoginCta(host);
+  }
 
-    // petite info
-    var info = $('murInfo');
-    if(info){
-      info.textContent = 'Aperçu public : certaines demandes seulement. Connecte-toi pour tout voir.';
-      info.style.display = 'block';
+  function ensurePager(){
+    var host = $('murList');
+    if(!host) return null;
+    var pager = document.getElementById('murPager');
+    if(pager) return pager;
+
+    pager = document.createElement('div');
+    pager.id = 'murPager';
+    pager.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0 4px 0;flex-wrap:wrap;';
+    pager.innerHTML = ''
+      + '<div id="murPagerCount" style="font-weight:900;color:#1f2329;"></div>'
+      + '<button id="murPagerBtn" class="dxBtn dxBtnPrimary" type="button" style="cursor:pointer;">Voir plus</button>';
+
+    host.insertAdjacentElement('afterend', pager);
+
+    var btn = document.getElementById('murPagerBtn');
+    if(btn){
+      btn.addEventListener('click', function(){
+        if(loading) return;
+        loadMore();
+      });
     }
+    return pager;
+  }
+
+  function updatePager(){
+    var pager = ensurePager();
+    if(!pager) return;
+
+    var count = document.getElementById('murPagerCount');
+    var btn = document.getElementById('murPagerBtn');
+
+    if(!isLoggedIn()){
+      pager.style.display = 'none';
+      return;
+    }
+
+    var shown = all.length || 0;
+    var t = total || shown;
+
+    if(count) count.textContent = shown + ' / ' + t;
+
+    if(btn){
+      var canMore = (shown < t);
+      btn.style.display = canMore ? 'inline-flex' : 'none';
+      btn.disabled = loading;
+      btn.textContent = loading ? 'Chargement…' : 'Voir plus';
+    }
+
+    pager.style.display = 'flex';
   }
 
   function renderFull(){
@@ -181,44 +212,41 @@
     if(!host) return;
     host.innerHTML = '';
     renderCards(all, host);
-
-    var info = $('murInfo');
-    if(info){
-      info.textContent = '';
-      info.style.display = 'none';
-    }
+    updatePager();
   }
 
   function render(){
-    if(!all || !all.length){
-      showStatus("Aucune demande pour l'instant.");
-      return;
-    }
     showStatus("");
     if(isLoggedIn()) renderFull();
     else renderPublicPreview();
   }
 
-  async function load(){
-    pendingUnlockId = '';
-    try{
-      var u = new URL(window.location.href);
-      pendingUnlockId = u.searchParams.get('unlock') || '';
-    }catch(e){}
+  async function fetchPage(opts){
+    opts = opts || {};
+    var reset = !!opts.reset;
+    var limit = opts.limit;
 
-    if(!window.DX_API || !DX_API.get){
-      showStatus("API non chargée (api.js). Recharge la page.");
-      return;
+    if(reset){
+      all = [];
+      total = 0;
     }
 
-    showStatus("Chargement des demandes…");
     try{
-      // statut auth (silencieux)
-      await loadMe();
-
-      var res = await DX_API.get('listDemandesPublic');
+      var offset = all.length;
+      var res = await DX_API.get('listDemandesPublic', { offset: offset, limit: limit });
       if(res && res.ok){
-        all = res.data || [];
+        var items = res.data || [];
+        var t = (res.total !== undefined && res.total !== null) ? Number(res.total) : null;
+
+        if(reset){
+          all = items;
+        }else{
+          all = all.concat(items);
+        }
+
+        if(isFinite(t) && t >= 0) total = t;
+        else total = all.length;
+
         render();
       }else{
         showStatus((res && res.error) ? res.error : "Erreur de chargement.");
@@ -226,6 +254,37 @@
     }catch(e){
       showStatus("Erreur réseau. Recharge la page.");
     }
+  }
+
+  async function loadMore(){
+    if(!window.DX_API || !DX_API.get) return;
+
+    loading = true;
+    updatePager();
+
+    var limit = pageSizeLogged;
+    await fetchPage({ reset:false, limit: limit });
+
+    loading = false;
+    updatePager();
+  }
+
+  async function load(){
+    if(!window.DX_API || !DX_API.get){
+      showStatus("API indisponible (api.js manquant).");
+      return;
+    }
+
+    loading = true;
+    showStatus("Chargement…");
+
+    // Public: on ne récupère qu’un lot “raisonnable” (les demandes les plus récentes)
+    // Connecté: pagination (Voir plus)
+    var limit = isLoggedIn() ? pageSizeLogged : pageSizePublicFetch;
+    await fetchPage({ reset:true, limit: limit });
+
+    loading = false;
+    updatePager();
   }
 
   document.addEventListener('DOMContentLoaded', load);

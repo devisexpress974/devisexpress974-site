@@ -1,4 +1,4 @@
-// offreurs.js (v15)
+// offreurs.js (v46)
 document.addEventListener("DOMContentLoaded", () => {
   const SERVICES_BY_CAT = {
   "BTP / Rénovation": [
@@ -221,7 +221,16 @@ function fillSelect(select, items){
       .replaceAll('"',"&quot;").replaceAll("'","&#039;");
   }
 
-  let ALL = [];
+  // =========================
+  // Pagination / filtres (DX46)
+  // =========================
+  const STATE = {
+    items: [],
+    total: 0,
+    offset: 0,
+    limit: 24,
+    loading: false
+  };
 
   function stars(n){
     const v = Math.max(0, Math.min(5, Number(n||0)));
@@ -232,7 +241,6 @@ function fillSelect(select, items){
 
   function render(items){
     list.innerHTML = "";
-    countBox.textContent = `${items.length} offreur(s)`;
 
     if(!items.length){
       empty.style.display = "block";
@@ -242,24 +250,21 @@ function fillSelect(select, items){
 
     items.forEach(o=>{
       const id = o.id || o.OffreurID || o.offreurId || "";
-      const nom = o.nom || o.Nom || o.name || "Offreur";
-      const service = o.service || o.Service || "Service";
+      const nom = o.publicName || o.nom || o.Nom || o.Pseudo || "Offreur";
+      const service = o.service || o.Service || "";
       const zone = o.zone || o.Zone || "";
       const commune = o.commune || o.Commune || "";
       const desc = o.description || o.Description || "";
-      const note = o.noteMoyenne || o.NoteMoyenne || o.note || "";
-      const nb = o.nombreAvis || o.NombreAvis || o.nbAvis || "";
 
-      const showNoteRaw = (o.showNote !== undefined) ? o.showNote : (o.ShowNote !== undefined ? o.ShowNote : undefined);
-      const showNote = (showNoteRaw === undefined || showNoteRaw === null)
-        ? true
-        : (String(showNoteRaw).trim().toUpperCase() !== "NON" && String(showNoteRaw).trim() !== "0" && String(showNoteRaw).trim().toLowerCase() !== "false");
+      // Note uniquement si showNote=OUI (Patch21) et champs présents
+      const showNote = String(o.showNote || "OUI").toUpperCase() === "OUI";
+      const hasNote = showNote && (o.noteMoyenne !== undefined || o.nombreAvis !== undefined);
+      const note = Number(o.noteMoyenne || 0);
+      const nb = Number(o.nombreAvis || 0);
 
-      const badge = (!showNote)
-        ? `<span class="badge">Note masquée</span>`
-        : ((note && Number(nb||0)>0)
-            ? `<span class="badge">${stars(note)} • ${esc(String(note))}/5 (${esc(String(nb))})</span>`
-            : `<span class="badge">Pas d’avis</span>`);
+      const badge = hasNote
+        ? `<span class="badge">${stars(note)} <span style="opacity:.75;font-weight:800;">(${nb})</span></span>`
+        : `<span class="badge">—</span>`;
 
       const card = document.createElement("div");
       card.className = "itemCard";
@@ -281,60 +286,158 @@ function fillSelect(select, items){
     });
   }
 
-  function apply(){
-    const nq = normalize(q.value.trim());
-    const s = serviceFilter.value;
-    const z = zoneFilter.value;
-    const c = communeFilter.value;
+  function ensurePager(){
+    let pager = document.getElementById("offreursPager");
+    if(pager) return pager;
 
-    // Métier obligatoire : on n’affiche rien tant qu’il n’est pas choisi
-    if(!s){
-      try{ list.innerHTML = ""; }catch(e){}
-      if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs."; }
-      if(countBox){ countBox.textContent = "0"; }
-      try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; }catch(e){}
-      return;
-    }
-    try{ zoneFilter.disabled = false; communeFilter.disabled = false; q.disabled = false; }catch(e){}
+    pager = document.createElement("div");
+    pager.id = "offreursPager";
+    pager.style.cssText = "display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0 6px 0;flex-wrap:wrap;";
+    pager.innerHTML = `
+      <div id="offreursPagerCount" style="font-weight:900;color:#1f2329;"></div>
+      <button id="offreursMoreBtn" class="btn btnPrimary" type="button">Voir plus</button>
+    `;
+    list.insertAdjacentElement("afterend", pager);
 
-
-    let out = ALL.slice();
-    if(s) out = out.filter(o => (o.service||o.Service) === s);
-    if(z) out = out.filter(o => (o.zone||o.Zone) === z);
-    if(c) out = out.filter(o => (o.commune||o.Commune) === c);
-
-    if(nq){
-      out = out.filter(o => {
-        const blob = normalize([
-          o.nom||o.Nom||o.name, o.service||o.Service, o.commune||o.Commune, o.zone||o.Zone,
-          o.description||o.Description
-        ].join(" "));
-        return blob.includes(nq);
+    const btn = document.getElementById("offreursMoreBtn");
+    if(btn){
+      btn.addEventListener("click", () => {
+        if(STATE.loading) return;
+        fetchMore();
       });
     }
-    render(out);
+    return pager;
   }
 
-  async function load(){
-    countBox.textContent = "Chargement…";
+  function setControlsDisabled(disabled){
+    try{ zoneFilter.disabled = disabled; communeFilter.disabled = disabled; q.disabled = disabled; }catch(e){}
+  }
+
+  function updateCount(){
+    const shown = STATE.items.length;
+    const total = STATE.total || shown;
+    if(countBox) countBox.textContent = `${shown} / ${total}`;
+    const c = document.getElementById("offreursPagerCount");
+    if(c) c.textContent = `${shown} / ${total}`;
+  }
+
+  function updatePager(){
+    const pager = ensurePager();
+    const btn = document.getElementById("offreursMoreBtn");
+
+    const hasService = !!serviceFilter.value;
+    if(!hasService){
+      pager.style.display = "none";
+      setControlsDisabled(true);
+      if(empty){
+        empty.style.display = "block";
+        empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs.";
+      }
+      STATE.items = [];
+      STATE.total = 0;
+      STATE.offset = 0;
+      updateCount();
+      return;
+    }
+
+    setControlsDisabled(false);
+
+    const canMore = (STATE.items.length < (STATE.total || STATE.items.length));
+    if(btn){
+      btn.style.display = canMore ? "inline-block" : "none";
+      btn.disabled = STATE.loading;
+      btn.textContent = STATE.loading ? "Chargement…" : "Voir plus";
+    }
+    pager.style.display = "flex";
+    updateCount();
+  }
+
+  function currentParams(){
+    return {
+      service: serviceFilter.value,
+      zone: zoneFilter.value,
+      commune: communeFilter.value,
+      q: q.value.trim()
+    };
+  }
+
+  async function fetchFirst(){
+    const p = currentParams();
+    if(!p.service){
+      updatePager();
+      return;
+    }
+
+    STATE.loading = true;
+    STATE.items = [];
+    STATE.offset = 0;
+    STATE.total = 0;
+    empty.style.display = "none";
+    list.innerHTML = "";
+    updatePager();
+
     const res = await window.DX_API.getAny(
-      ["listOffreursPublic","listOffreurs","getOffreursPublic"],
-      {}
+      ["listOffreursPublic","getOffreursPublic","listOffreurs"],
+      { ...p, offset: 0, limit: STATE.limit }
     );
+
     const data = res && res.ok ? (res.data || res.items || res.offreurs || []) : [];
-    ALL = Array.isArray(data) ? data : [];
-    apply();
+    const items = Array.isArray(data) ? data : [];
+
+    const t = (res && res.total !== undefined && res.total !== null) ? Number(res.total) : null;
+    STATE.total = (isFinite(t) && t >= 0) ? t : items.length;
+
+    STATE.items = items;
+    STATE.offset = items.length;
+    STATE.loading = false;
+
+    render(STATE.items);
+    updatePager();
+  }
+
+  async function fetchMore(){
+    const p = currentParams();
+    if(!p.service) return;
+
+    STATE.loading = true;
+    updatePager();
+
+    const res = await window.DX_API.getAny(
+      ["listOffreursPublic","getOffreursPublic","listOffreurs"],
+      { ...p, offset: STATE.offset, limit: STATE.limit }
+    );
+
+    const data = res && res.ok ? (res.data || res.items || res.offreurs || []) : [];
+    const items = Array.isArray(data) ? data : [];
+
+    const t = (res && res.total !== undefined && res.total !== null) ? Number(res.total) : null;
+    if(isFinite(t) && t >= 0) STATE.total = t;
+
+    STATE.items = STATE.items.concat(items);
+    STATE.offset += items.length;
+
+    STATE.loading = false;
+    render(STATE.items);
+    updatePager();
+  }
+
+  // Debounce recherche texte
+  let tmr = null;
+  function scheduleFetch(){
+    if(tmr) clearTimeout(tmr);
+    tmr = setTimeout(fetchFirst, 250);
   }
 
   fillServiceSelect(serviceFilter, { includeAll: true });
   fillSelect(zoneFilter, ZONES);
   fillSelect(communeFilter, COMMUNES);
+  btnReload.addEventListener("click", fetchFirst);
+  serviceFilter.addEventListener("change", fetchFirst);
+  zoneFilter.addEventListener("change", fetchFirst);
+  communeFilter.addEventListener("change", fetchFirst);
+  q.addEventListener("input", scheduleFetch);
+  q.addEventListener("change", fetchFirst);
 
-  btnReload.addEventListener("click", load);
-  [q, serviceFilter, zoneFilter, communeFilter].forEach(el=>{
-    el.addEventListener("input", apply);
-    el.addEventListener("change", apply);
-  });
-
-  load();
+  // Init
+  updatePager();
 });
