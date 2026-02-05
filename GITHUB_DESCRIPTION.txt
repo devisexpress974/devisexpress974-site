@@ -1,4 +1,3 @@
-- Burger mobile redesign : icône 3 barres + libellé MENU (sans bouton rond)
-- Actions alignées à droite sur mobile, header plus proche du bord
-- Cache-bust interne (b=40) pour forcer prise en compte CSS/partials
-- Aucun changement de logique menu : ouverture/fermeture mobile inchangée
+- Mur des demandes : sans compte, affiche un échantillon (par service) + CTA connexion.
+- Page Offreurs : n’affiche rien tant qu’un service n’est pas sélectionné (page plus rapide).
+- Aucun impact sur paiements, matching, mails.

@@ -19,6 +19,10 @@
   }
 
   var all = [];
+  var visible = [];
+  var PUBLIC_MAX = 12; // total max visible sans compte
+  var PUBLIC_PER_SERVICE = 3; // max par service sans compte
+
 
   // ---- état offreur connecté (token) ----
   var me = null;
@@ -28,6 +32,63 @@
     try{ return localStorage.getItem('dx_token') || ''; }catch(e){ return ''; }
   }
   function isLoggedIn(){ return !!getToken(); }
+function slicePublic(list){
+  var per = {};
+  var out = [];
+  for(var i=0;i<list.length;i++){
+    var d = list[i] || {};
+    var k = String(d.service_id || d.serviceId || d.service || 'autre');
+    per[k] = per[k] || 0;
+    if(per[k] >= PUBLIC_PER_SERVICE) continue;
+    out.push(d);
+    per[k]++;
+    if(out.length >= PUBLIC_MAX) break;
+  }
+  return out;
+}
+
+function ensureGateEl(){
+  var gate = $('murGate');
+  if(gate) return gate;
+  var host = $('murList');
+  if(!host) return null;
+  gate = document.createElement('div');
+  gate.id = 'murGate';
+  gate.style.cssText = 'margin-top:14px;';
+  host.insertAdjacentElement('afterend', gate);
+  return gate;
+}
+
+function showGate(total, shown){
+  if(!(total > shown)) { hideGate(); return; }
+  var gate = ensureGateEl();
+  if(!gate) return;
+  var next = (location.pathname ? location.pathname.replace(/^\//,'') : 'mur-demandes.html') + (location.search||'');
+  var loginUrl = './offreur-login.html?next=' + encodeURIComponent(next);
+  var regUrl = './offreur-register.html';
+  var btnCss = 'display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:999px;text-decoration:none;font-weight:900;white-space:nowrap;';
+  var btnPrimary = btnCss + 'color:#000;background:linear-gradient(180deg,#ffd98a,#ff8a2a);border:1px solid rgba(0,0,0,0.12);box-shadow:0 10px 22px rgba(255,138,42,0.20);';
+  var btnGhost = btnCss + 'background:#fff;border:1px solid rgba(0,0,0,0.12);color:#1f2329;';
+
+  gate.innerHTML =
+    '<div style="background:rgba(255,255,255,0.92);border:1px solid rgba(0,0,0,0.08);border-radius:16px;padding:14px;box-shadow:0 10px 26px rgba(0,0,0,0.08);">'
+    + '<div style="font-weight:900;font-size:15px;">Voir plus de demandes</div>'
+    + '<div style="color:#666;font-weight:700;font-size:13px;margin-top:6px;">Tu vois <b>' + shown + '</b> demande(s) récentes sur <b>' + total + '</b>. Connecte-toi (gratuit) pour afficher tout le mur et utiliser la recherche complète.</div>'
+    + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">'
+    + '<a href="' + loginUrl + '" style="' + btnPrimary + '">Se connecter</a>'
+    + '<a href="' + regUrl + '" style="' + btnGhost + '">Créer un compte</a>'
+    + '</div>'
+    + '</div>';
+  gate.style.display = 'block';
+}
+
+function hideGate(){
+  var gate = $('murGate');
+  if(gate){
+    gate.style.display = 'none';
+    gate.innerHTML = '';
+  }
+}
 
   async function loadMe(){
     me = null;
@@ -184,8 +245,16 @@
       if(res && res.ok){
         all = res.data || [];
         showStatus("");
-        render(all);
-        if(pendingUnlockId){
+        if(!isLoggedIn()){
+          visible = slicePublic(all);
+          render(visible);
+          showGate(all.length, visible.length);
+        }else{
+          visible = all;
+          render(all);
+          hideGate();
+        }
+if(pendingUnlockId){
           var pid = String(pendingUnlockId);
           var found = null;
           for(var i=0;i<all.length;i++){
@@ -204,10 +273,10 @@
 
   function applySearch(){
     var q = String(($('murSearch') && $('murSearch').value) || '').trim().toLowerCase();
-    if(!q){ render(all); return; }
+    if(!q){ render(visible); return; }
     var filtered = [];
-    for(var i=0;i<all.length;i++){
-      var d = all[i] || {};
+    for(var i=0;i<visible.length;i++){
+      var d = visible[i] || {};
       var blob = (String(d.service||'') + ' ' + String(d.zone||'') + ' ' + String(d.commune||'') + ' ' + String(d.description||'')).toLowerCase();
       if(blob.indexOf(q) !== -1) filtered.push(d);
     }

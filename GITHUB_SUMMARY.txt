@@ -1,1 +1,1 @@
-Patch 18.1G — Burger mobile style “MENU” (sans rond) + align droite
+PATCH 18.2 — Mur: teaser + “Voir plus” (login) ; Offreurs: liste sur filtres
