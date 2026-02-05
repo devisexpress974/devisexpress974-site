@@ -45,7 +45,7 @@ var HEADERS = {
 // ======================
 var ATTACHMENTS_ROOT_FOLDER = "DX_Attachments";
 var ATTACHMENTS_MAX_FILES = 3;
-var ATTACHMENTS_MAX_BYTES = 1500 * 1024; // 1,5 Mo conseillé
+var ATTACHMENTS_MAX_BYTES = 5 * 1024 * 1024; // 5 Mo max / fichier (aligné front)
 
 function getOrCreateFolder_(parent, name){
   parent = parent || DriveApp.getRootFolder();
@@ -499,6 +499,8 @@ function listDemandesForOffreur_(token){
   var service = String(r.obj.Service||"").trim();
   var zone = String(r.obj.Zone||"").trim();
   var communes = String(r.obj.Commune||"").trim();
+  var extra = getOffreurExtra_(r);
+  var aboOk = isAboOk_(extra);
 
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
   var rows = sheetToObjects_(sh);
@@ -509,7 +511,11 @@ function listDemandesForOffreur_(token){
     if(!isDemandeActive_(row)) continue;
 
     if(!matchService_(service, row.Service)) continue;
-    if(!matchGeo_(zone, communes, row.Zone, row.Commune)) continue;
+
+    // Mur : abonnement = pas de contrainte géographique ; FREE/PACK/PONCTUEL = zones/communes strictes
+    if(!aboOk){
+      if(!matchGeo_(zone, communes, row.Zone, row.Commune)) continue;
+    }
 
     out.push({
       id: row.DemandeID || row.id,
@@ -524,8 +530,9 @@ function listDemandesForOffreur_(token){
     if(out.length >= 80) break;
   }
 
-  return { ok:true, items: out };
+  return { ok:true, items: out, aboOk: aboOk };
 }
+
 
 function listDemandesPublic_(){
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
@@ -1143,6 +1150,26 @@ function getOffreurExtra_(rowObj){
   };
 }
 
+function isAboOk_(extra){
+  if(!extra) return false;
+  var plan = String(extra.plan||"").toUpperCase();
+  var aboActive = String(extra.aboActive||"").toUpperCase();
+  if(plan !== "ABO" && aboActive !== "OUI") return false;
+
+  // Trial expiré + non payé => pas d'accès coordonnées via abo
+  try{
+    var teStr = String(extra.trialEnd||"").trim();
+    if(teStr){
+      var te = new Date(teStr);
+      if(te && te.getTime && new Date().getTime() > te.getTime()){
+        if(String(extra.aboPaid||"").toUpperCase() !== "OUI") return false;
+      }
+    }
+  }catch(e){}
+  return true;
+}
+
+
 function setOffreurExtra_(rowObj, patch){
   var sh = rowObj.sh;
   var h = rowObj.headers;
@@ -1259,24 +1286,39 @@ function hasAccess_(e, body){
   var demandeId = String((body && (body.demandeId || body.id)) || (e && e.parameter && e.parameter.id) || "").trim();
   if(!demandeId) return { ok:true, has:false };
 
-  // si abonné actif => accès
   var r = getOffreurRowById_(sess.offreurId);
-  if(r){
-    var extra = getOffreurExtra_(r);
-    if(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI"){
-      return { ok:true, has:true, via:"abonnement" };
-    }
+  if(!r) return { ok:true, has:false };
+
+  // Demande + métier (sécurité : empêche accès hors domaine)
+  var shD = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
+  var dRows = sheetToObjects_(shD);
+  var dRow = null;
+  for(var i=0;i<dRows.length;i++){
+    var rid = dRows[i].DemandeID || dRows[i].id || "";
+    if(String(rid) === demandeId){ dRow = dRows[i]; break; }
+  }
+  if(!dRow) return { ok:true, has:false };
+
+  var osvc = String(r.obj.Service||"").trim();
+  if(!matchService_(osvc, dRow.Service)) return { ok:true, has:false };
+
+  // Abonné actif => accès (respect trialEnd / aboPaid)
+  var extra = getOffreurExtra_(r);
+  if(isAboOk_(extra)){
+    return { ok:true, has:true, via:"abonnement" };
   }
 
+  // Accès ponctuel / pack
   var sh = ensureSheetStrict_(SHEETS.ACCESS, HEADERS.Access);
   var rows = sheetToObjects_(sh);
-  for(var i=0;i<rows.length;i++){
-    if(String(rows[i].OffreurID||"") === sess.offreurId && String(rows[i].DemandeID||"") === demandeId){
-      return { ok:true, has:true, via: String(rows[i].Type||"") };
+  for(var j=0;j<rows.length;j++){
+    if(String(rows[j].OffreurID||"") === sess.offreurId && String(rows[j].DemandeID||"") === demandeId){
+      return { ok:true, has:true, via: String(rows[j].Type||"") };
     }
   }
   return { ok:true, has:false };
 }
+
 
 function grantAccess_(e, body){
   var token = tokenFrom_(e, body);
@@ -1289,15 +1331,30 @@ function grantAccess_(e, body){
 
   // déjà accès ?
   var has = hasAccess_(e, { token: token, demandeId: demandeId });
-  if(has && has.ok && has.has) return { ok:true, already:true };
+  if(has && has.ok && has.has) return { ok:true, already:true, via: has.via || "" };
 
   var r = getOffreurRowById_(sess.offreurId);
   if(!r) return { ok:false, error:"Compte introuvable" };
+
+  // Sécurité : demande existante + active + métier ok
+  var shD = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
+  var dRows = sheetToObjects_(shD);
+  var dRow = null;
+  for(var i=0;i<dRows.length;i++){
+    var rid = dRows[i].DemandeID || dRows[i].id || "";
+    if(String(rid) === demandeId){ dRow = dRows[i]; break; }
+  }
+  if(!dRow) return { ok:false, error:"Demande introuvable" };
+  if(!isDemandeActive_(dRow)) return { ok:false, error:"Demande expirée ou clôturée" };
+
+  var osvc = String(r.obj.Service||"").trim();
+  if(!matchService_(osvc, dRow.Service)) return { ok:false, error:"Cette demande ne correspond pas à votre métier" };
+
   var extra = getOffreurExtra_(r);
 
   // déterminer type auto
   if(type === "auto"){
-    if(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI") type = "abonnement";
+    if(isAboOk_(extra)) type = "abonnement";
     else if(Number(extra.credits||0) > 0) type = "credit";
     else type = "ponctuel";
   }
@@ -1312,7 +1369,7 @@ function grantAccess_(e, body){
   }
 
   if(type === "abonnement"){
-    if(!(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI")){
+    if(!isAboOk_(extra)){
       return { ok:false, error:"Abonnement requis" };
     }
   }
@@ -1322,8 +1379,9 @@ function grantAccess_(e, body){
   var exp = "";
   sh.appendRow([nowIso_(), sess.email, sess.offreurId, demandeId, type, exp]);
 
-  return { ok:true, demandeId: demandeId, type: type, credits: extra.credits || 0 };
+  return { ok:true, demandeId: demandeId, type: type, credits: Number(extra.credits||0) || 0 };
 }
+
 
 function getDemande_(e, body){
   var id = String((e && e.parameter && e.parameter.id) || (body && (body.id || body.demandeId)) || "").trim();
@@ -1361,7 +1419,8 @@ function getDemande_(e, body){
     var r = getOffreurRowById_(sess.offreurId);
     if(r){
       var extra = getOffreurExtra_(r);
-      if(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI"){
+      var osvc = String(r.obj.Service||"").trim();
+      if(isAboOk_(extra) && matchService_(osvc, row.Service)){
         canSee = true;
       }
     }
