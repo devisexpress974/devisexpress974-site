@@ -1,0 +1,4 @@
+- Uniformise dx-include-header.js et dx-header.css en v38
+- Corrige l’injection du header (slot dx-header-slot / pages paiement)
+- Rend le burger cliquable + panneau mobile ouvrable/fermeture (fallback)
+- Ajoute le slot header sur toutes les pages et retire l’ancien partials/header.js sur pages paiement

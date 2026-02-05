@@ -1,4 +1,4 @@
-// DX HEADER v33
+// DX HEADER v38
 (function () {
   function setActiveLinks(root) {
     const path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
@@ -18,6 +18,15 @@
   function init(rootDoc) {
     const header = rootDoc.querySelector(".dxTopbar[data-dx-header]");
     if (!header) return;
+
+    // évite les doubles init (dx-include-header + auto init)
+    if (header.dataset.dxInit === "1") return;
+    header.dataset.dxInit = "1";
+
+    // expose la hauteur du header pour positionner le menu mobile
+    try {
+      document.documentElement.style.setProperty("--dxTopbarH", header.getBoundingClientRect().height + "px");
+    } catch(e) {}
 
     const burger = header.querySelector(".dxBurger");
     const panel = header.querySelector(".dxMobilePanel");
@@ -66,6 +75,7 @@
 
     // If resizing to desktop, close panel
     window.addEventListener("resize", () => {
+      try { document.documentElement.style.setProperty("--dxTopbarH", header.getBoundingClientRect().height + "px"); } catch(e) {}
       if (window.innerWidth > 980) closeMenu();
     });
 

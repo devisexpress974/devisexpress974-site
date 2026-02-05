@@ -1,0 +1,25 @@
+PATCH 18.1E — MENU MOBILE (BURGER) FONCTIONNEL + VERSION v38
+But : sur téléphone, le menu 3 traits doit s’ouvrir (liste déroulante), sur TOUTES les pages.
+
+✅ À FAIRE (3 minutes)
+1) Dézippe ce ZIP.
+2) Ouvre le dossier du ZIP.
+3) Sélectionne TOUT (assets + partials + fichiers .html + .txt)
+4) Copie/colle dans TON PROJET :
+   D:\DX28_RECLONE\devisexpress974-site\
+5) Windows demande :
+   → “Remplacer les fichiers dans la destination” = OUI
+
+⚠️ Important : copier/coller MERGE les dossiers (ça n’efface pas les autres fichiers).
+Tu ne supprimes rien : tu remplaces seulement les fichiers présents dans le patch.
+
+6) GitHub Desktop :
+   - vérifie que tu vois des changements
+   - Summary : colle le contenu de GITHUB_SUMMARY.txt
+   - Description : colle le contenu de GITHUB_DESCRIPTION.txt
+   - Commit to main
+   - Push origin
+
+7) Test :
+   - Sur mobile (ou mode responsive) : clique le burger → le panneau menu doit s’ouvrir.
+   - Vérifie sur au moins : accueil, déposer une demande, mur des demandes.
