@@ -1,8 +1,8 @@
 
 /* DX35 - demande submit wiring (Patch9)
-   - Validation pro : tel OU email, tel 974, email format, description >=100
+   - Validation pro : tel OU email, tel 974, email format, description >=50
    - Consentements : démarchage (oui/non) + accept CGV obligatoire
-   - Pièces jointes : jpg/png/pdf, max 3, 5 Mo max par fichier
+   - Pièces jointes : jpg/png/pdf, max 3, 10 Mo max par fichier (photos optimisées)
    - Flags soft : incohérence service/description + langage inadapté (avertissement)
    Dépend de api.js (window.DX_API). */
 
@@ -56,46 +56,133 @@
   }
 
   // lecture fichiers -> dataURL
-  function readAsDataURL(file){
-    return new Promise(function(resolve, reject){
-      var r = new FileReader();
-      r.onload = function(){ resolve(String(r.result||"")); };
-      r.onerror = function(){ reject(new Error('Lecture fichier impossible')); };
-      r.readAsDataURL(file);
+function readAsDataURL(blob){
+  return new Promise(function(resolve, reject){
+    var r = new FileReader();
+    r.onload = function(){ resolve(String(r.result||"")); };
+    r.onerror = function(){ reject(new Error('Lecture fichier impossible')); };
+    r.readAsDataURL(blob);
+  });
+}
+
+function isImageFile(file){
+  var type = String((file && file.type) || "").toLowerCase();
+  var name = String((file && file.name) || "").toLowerCase();
+  if(type.indexOf('image/') === 0) return true;
+  return (/\.(jpg|jpeg|png)$/i).test(name);
+}
+
+function isPdfFile(file){
+  var type = String((file && file.type) || "").toLowerCase();
+  var name = String((file && file.name) || "").toLowerCase();
+  if(type === 'application/pdf') return true;
+  return (/\.pdf$/i).test(name);
+}
+
+function loadImageFromFile(file){
+  return new Promise(function(resolve, reject){
+    try{
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        try{ URL.revokeObjectURL(url); }catch(e){}
+        resolve(img);
+      };
+      img.onerror = function(){
+        try{ URL.revokeObjectURL(url); }catch(e){}
+        reject(new Error('Image invalide'));
+      };
+      img.src = url;
+    }catch(err){
+      reject(err);
+    }
+  });
+}
+
+function canvasToBlob(canvas, mime, quality){
+  return new Promise(function(resolve){
+    try{
+      canvas.toBlob(function(b){ resolve(b); }, mime, quality);
+    }catch(e){
+      resolve(null);
+    }
+  });
+}
+
+async function compressImageToJpeg(file){
+  try{
+    var img = await loadImageFromFile(file);
+    var w = img.naturalWidth || img.width || 0;
+    var h = img.naturalHeight || img.height || 0;
+    if(!w || !h) return null;
+
+    var MAX_DIM = 1600;
+    var scale = Math.min(1, MAX_DIM / Math.max(w, h));
+    var cw = Math.max(1, Math.round(w * scale));
+    var ch = Math.max(1, Math.round(h * scale));
+
+    var canvas = document.createElement('canvas');
+    canvas.width = cw;
+    canvas.height = ch;
+
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, cw, ch);
+
+    var blob = await canvasToBlob(canvas, 'image/jpeg', 0.82);
+    if(!blob) return null;
+
+    var base = String(file.name || 'photo').replace(/\.(png|jpe?g)$/i, '');
+    return { blob: blob, name: base + '.jpg', type: 'image/jpeg' };
+  }catch(e){
+    return null;
+  }
+}
+
+async function buildAttachments(fileList){
+  var files = Array.prototype.slice.call(fileList || []);
+  if(files.length > 3) files = files.slice(0,3);
+
+  var MAX_BYTES = 10 * 1024 * 1024; // 10 Mo
+  var AUTO_COMPRESS_THRESHOLD = 900 * 1024; // compresse au-delà de ~0,9 Mo
+
+  var out = [];
+  for(var i=0;i<files.length;i++){
+    var f = files[i];
+    var name = String(f.name || "");
+    var okExt = (/\.(jpg|jpeg|png|pdf)$/i).test(name.toLowerCase());
+    if(!okExt || !(isImageFile(f) || isPdfFile(f))){
+      throw new Error("Fichier non autorisé : " + (f.name || ""));
+    }
+
+    var blob = f;
+    var outName = name || ('pj_' + (i+1));
+    var outType = f.type || 'application/octet-stream';
+
+    // Compression automatique des photos trop lourdes
+    if(isImageFile(f) && (f.size > AUTO_COMPRESS_THRESHOLD)){
+      var comp = await compressImageToJpeg(f);
+      if(comp && comp.blob && comp.blob.size && comp.blob.size < f.size){
+        blob = comp.blob;
+        outName = comp.name;
+        outType = comp.type;
+      }
+    }
+
+    if(blob.size && blob.size > MAX_BYTES){
+      throw new Error("Fichier trop lourd (max 10 Mo) : " + (f.name || ""));
+    }
+
+    var dataUrl = await readAsDataURL(blob);
+    var parts = String(dataUrl || "").split(',');
+    var b64 = parts.length > 1 ? parts[1] : '';
+    out.push({
+      name: outName || ('pj_' + (i+1)),
+      type: outType || 'application/octet-stream',
+      dataBase64: b64
     });
   }
-
-  async function buildAttachments(fileList){
-    var files = Array.prototype.slice.call(fileList || []);
-    if(files.length > 3) files = files.slice(0,3);
-
-    var out = [];
-    for(var i=0;i<files.length;i++){
-      var f = files[i];
-      var name = String(f.name||"").toLowerCase();
-      var type = String(f.type||"").toLowerCase();
-
-      var okType = (type.indexOf('image/') === 0) || (type === 'application/pdf');
-      var okExt = (/\.(jpg|jpeg|png|pdf)$/i).test(name);
-
-      if(!okType || !okExt){
-        throw new Error("Fichier non autorisé : " + (f.name||""));
-      }
-      if(f.size && f.size > (5*1024*1024)){
-        throw new Error("Fichier trop lourd (max 5 Mo) : " + (f.name||""));
-      }
-
-      var dataUrl = await readAsDataURL(f);
-      var parts = dataUrl.split(',');
-      var b64 = parts.length > 1 ? parts[1] : '';
-      out.push({
-        name: f.name || ('pj_'+(i+1)),
-        type: f.type || 'application/octet-stream',
-        dataBase64: b64
-      });
-    }
-    return out;
-  }
+  return out;
+}
 
   function detectSoftBadWords(text){
     var t = normText(text);
