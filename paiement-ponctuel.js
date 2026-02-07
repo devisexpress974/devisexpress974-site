@@ -1,12 +1,14 @@
-// paiement-ponctuel.js (PATCH2 - compatible btnPaid + btnUnlock)
+// paiement-ponctuel.js (PATCH55 - retour PayPal + auto-confirm si tx présent)
+// - Enregistre le contexte avant départ PayPal (localStorage dx_last_payment)
+// - Si PayPal renvoie ?tx=..., on confirme automatiquement (sans prompt) tout en gardant le bouton "J’ai payé"
+
 document.addEventListener("DOMContentLoaded", () => {
   const msg = document.getElementById("msg");
-
-  // ✅ Remplacement demandé (btnPaid + id/demandeId)
   const params = new URLSearchParams(location.search);
-  const btn = document.getElementById("btnPaid") || document.getElementById("btnUnlock");
-  const id = params.get("id") || params.get("demandeId") || "";
-  const txFromUrl = params.get("tx") || params.get("txn_id") || "";
+
+  const btnUnlock = document.getElementById("btnPaid") || document.getElementById("btnUnlock");
+  const id = (params.get("id") || params.get("demandeId") || "").trim();
+  const txFromUrl = (params.get("tx") || params.get("txn_id") || "").trim();
 
   const btnPay = document.getElementById("btnPay");
   const paypalLink = document.getElementById("paypalLink");
@@ -19,38 +21,28 @@ document.addEventListener("DOMContentLoaded", () => {
     msg.textContent = text || "";
   }
 
-  if (!btn) {
-    show("err", "Bouton de déblocage introuvable sur la page.");
-    return;
-  }
-
-  const originalBtnText = btn.textContent || "J’ai payé, débloquer ma demande";
-
-  if (!id) {
-    btn.disabled = true;
-    show("err", "ID de demande manquant.");
-    return;
-  }
-
-  // Exiger connexion (compte offreur)
-  const token = (() => {
+  function rememberPaymentContext() {
     try {
-      return localStorage.getItem("dx_token") || "";
-    } catch {
-      return "";
-    }
-  })();
+      localStorage.setItem("dx_last_payment", JSON.stringify({
+        type: "ponctuel",
+        id: id || "",
+        ts: Date.now()
+      }));
+    } catch (e) {}
+  }
 
+  // Connexion requise (offreur)
+  const token = localStorage.getItem("dx_token") || "";
   if (!token) {
     const next = "paiement-ponctuel.html?id=" + encodeURIComponent(id);
     location.href = "offreur-login.html?next=" + encodeURIComponent(next);
     return;
   }
 
-  // Lien PayPal
+  // Lien PayPal (0,99)
   const link =
     window.DX_PAYPAL && typeof window.DX_PAYPAL.getLink === "function"
-      ? window.DX_PAYPAL.getLink("ponctuel")
+      ? (window.DX_PAYPAL.getLink("ponctuel") || "")
       : "";
 
   if (!link) {
@@ -62,49 +54,80 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnPay) {
       btnPay.style.display = "";
       btnPay.href = link;
+      btnPay.addEventListener("click", rememberPaymentContext);
     }
     if (paypalLink) {
       paypalLink.style.display = "";
       paypalLink.href = link;
+      paypalLink.addEventListener("click", rememberPaymentContext);
     }
   }
 
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    btn.textContent = "Déblocage…";
-    show("muted", "Enregistrement de l’accès…");
+  if (!btnUnlock) {
+    show("err", "Bouton de déblocage introuvable sur la page.");
+    return;
+  }
+
+  const originalBtnText = btnUnlock.textContent || "J’ai payé, débloque";
+
+  let inProgress = false;
+
+  async function confirmWithTx(tx) {
+    if (inProgress) return;
+    inProgress = true;
+
+    btnUnlock.disabled = true;
+    btnUnlock.textContent = "Déblocage…";
+    show("muted", "Vérification du paiement…");
 
     try {
-      const tx = (txFromUrl || window.prompt("Colle l\'ID de transaction PayPal (tx) puis OK :") || "").trim();
-
-      if(!tx){
-        btn.disabled = false;
-        btn.textContent = originalBtnText;
-        return show("err","Transaction PayPal manquante.");
+      const cleanTx = String(tx || "").trim();
+      if (!cleanTx) {
+        btnUnlock.disabled = false;
+        btnUnlock.textContent = originalBtnText;
+        inProgress = false;
+        return show("err", "Transaction PayPal manquante.");
+      }
+      if (!id) {
+        btnUnlock.disabled = false;
+        btnUnlock.textContent = originalBtnText;
+        inProgress = false;
+        return show("err", "Identifiant de demande manquant.");
       }
 
-      const res = await window.DX_API.post("confirmPayPalPayment", { tx: tx, product: "ponctuel", demandeId: id });
+      const res = await window.DX_API.post("confirmPayPalPayment", {
+        tx: cleanTx,
+        product: "ponctuel",
+        demandeId: id
+      });
 
       if (res && res.ok) {
-        show("ok", "Paiement confirmé ✅");
-        setTimeout(() => {
-          location.href = "demande-detail.html?id=" + encodeURIComponent(id);
-        }, 450);
+        show("ok", "Paiement confirmé ✅ Accès débloqué.");
+        try { localStorage.removeItem("dx_last_payment"); } catch (e) {}
+        setTimeout(() => (location.href = "demande-detail.html?id=" + encodeURIComponent(id)), 450);
         return;
       }
 
-      btn.disabled = false;
-      btn.textContent = originalBtnText;
-      show(
-        "err",
-        res && (res.error || res.message)
-          ? (res.error || res.message)
-          : "Impossible."
-      );
+      btnUnlock.disabled = false;
+      btnUnlock.textContent = originalBtnText;
+      inProgress = false;
+      show("err", (res && (res.error || res.message)) ? (res.error || res.message) : "Impossible.");
     } catch (e) {
-      btn.disabled = false;
-      btn.textContent = originalBtnText;
+      btnUnlock.disabled = false;
+      btnUnlock.textContent = originalBtnText;
+      inProgress = false;
       show("err", e && e.message ? e.message : String(e));
     }
+  }
+
+  btnUnlock.addEventListener("click", async () => {
+    const tx = (txFromUrl || window.prompt("Colle l’ID de transaction PayPal (tx) puis OK :") || "").trim();
+    await confirmWithTx(tx);
   });
+
+  // Auto-confirm si PayPal a renvoyé tx dans l'URL
+  if (txFromUrl) {
+    // Petit délai pour laisser la page afficher son état
+    setTimeout(() => { confirmWithTx(txFromUrl); }, 250);
+  }
 });
