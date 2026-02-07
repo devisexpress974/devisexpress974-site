@@ -4,56 +4,38 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Notifications email | DevisExpress974</title>
-
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="theme-color" content="#ff3b0a" />
-
-  <link rel="stylesheet" href="./styles.css?v=46" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=46" />
-  <script defer src="./assets/js/dx-include-header.js?v=46"></script>
-
-  <style>
-    .pageWrap{ padding:22px 0 28px; }
-    .card{ background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:16px; }
-    .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    .btn{ padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color:#fff; cursor:pointer; }
-    .btnPrimary{ background:#ff3b0a; border-color:#ff3b0a; }
-    .muted{ opacity:.85; font-size:14px; line-height:1.35; }
-    .ok{ color:#7CFFB2; }
-    .bad{ color:#ff9aa2; }
-    code.k{ padding:2px 6px; border-radius:8px; background: rgba(255,255,255,.08); }
-  </style>
+  <link rel="stylesheet" href="./styles.css?v=33" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
+  <script defer src="./assets/js/dx-include-header.js?v=39"></script>
 </head>
-
 <body>
   <div id="dx-header-slot"></div>
 
-  <main class="pageWrap">
+  <main>
     <div class="container">
-      <h1 style="margin:0 0 10px;">Notifications email</h1>
+      <section class="card pad">
+        <h1 class="heroTitle" style="font-size:42px;">Notifications email</h1>
+        <p class="heroSub">Gère la réception des emails de nouvelles demandes.</p>
 
-      <div class="card">
-        <p id="status" class="muted">Traitement en cours…</p>
+        <div class="legalBlock">
+          <h2>Préférences</h2>
 
-        <div id="actions" class="row" style="display:none;">
-          <button id="btnUnsub" class="btn btnPrimary" type="button">Se désinscrire</button>
-          <button id="btnResub" class="btn" type="button">Se réabonner</button>
+          <div id="msg" class="notice" style="display:none; margin-top:12px;"></div>
+
+          <div class="formActions" style="margin-top:14px; gap:10px; flex-wrap:wrap;">
+            <button class="btn btnPrimary" id="btnResub" type="button" style="display:none;">Se réabonner</button>
+            <button class="btn" id="btnUnsub" type="button" style="display:none;">Se désinscrire</button>
+            <a class="btn" href="mur-demandes.html">Aller au mur</a>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            Ce lien fonctionne sans connexion. Si tu es connecté, tu peux aussi gérer ce réglage dans <strong>Mon compte</strong>.
+          </div>
         </div>
-
-        <p class="muted" style="margin-top:12px;">
-          Ce réglage concerne <strong>uniquement les emails</strong>. Le mur reste consultable quand tu veux.
-        </p>
-
-        <p class="muted" style="margin-top:10px;">
-          Si tu as un souci : <a href="./contact.html">Contact</a>.
-        </p>
-      </div>
-
-      <p class="muted" style="margin-top:12px;">
-        Astuce : tu peux aussi gérer ça depuis <a href="./offreur-compte.html">Mon compte</a> → Notifications.
-      </p>
+      </section>
     </div>
   </main>
 
@@ -70,8 +52,11 @@
     </div>
   </footer>
 
-  <script src="./api.js?v=46"></script>
-  <script src="./main.js?v=46"></script>
-  <script src="./offreur-unsubscribe.js?v=46"></script>
+  <script src="api.js?v=27"></script>
+  <script src="main.js?v=27"></script>
+  <script src="offreur-unsubscribe.js?v=27"></script>
+  <script>
+    (function(){ try{ document.getElementById('y').textContent = new Date().getFullYear(); }catch(e){} })();
+  </script>
 </body>
 </html>
