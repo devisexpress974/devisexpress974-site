@@ -1,4 +1,4 @@
-// auth.js (v15) - Auth offreur complet (Apps Script)
+// auth.js (v16) - Auth offreur complet (Apps Script)
 (() => {
   function setToken(token){
     try { localStorage.setItem("dx_token", token || ""); } catch {}
@@ -51,8 +51,18 @@
     const accountLink = document.getElementById("accountLink");
     const accountLinkMobile = document.getElementById("accountLinkMobile");
     const logoutMobileBtn = document.getElementById("logoutMobileBtn");
+
     // desktop elements may exist on all pages, mobile ones are optional
     if(!loginCta || !logoutBtn || !headerRight) return;
+
+    function hideAccountLinks(){
+      if(accountLink) accountLink.style.display = "none";
+      if(accountLinkMobile) accountLinkMobile.style.display = "none";
+    }
+    function showAccountLinks(){
+      if(accountLink) accountLink.style.display = "";
+      if(accountLinkMobile) accountLinkMobile.style.display = "";
+    }
 
     const token = getToken();
     if(!token){
@@ -60,6 +70,9 @@
       logoutBtn.style.display = "none";
       if(loginCtaMobile) loginCtaMobile.style.display = "";
       if(logoutMobileBtn) logoutMobileBtn.style.display = "none";
+      hideAccountLinks();
+      const pill = document.getElementById("userPill");
+      if(pill) pill.remove();
       return;
     }
 
@@ -70,6 +83,8 @@
       logoutBtn.style.display = "";
       if(loginCtaMobile) loginCtaMobile.style.display = "none";
       if(logoutMobileBtn) logoutMobileBtn.style.display = "";
+      showAccountLinks();
+
       // add small pill (once)
       if(!document.getElementById("userPill")){
         const pill = document.createElement("div");
@@ -79,7 +94,8 @@
         headerRight.prepend(pill);
       } else {
         const pill = document.getElementById("userPill");
-        pill.querySelector("span:last-child").textContent = (me.user.nom||"Offreur");
+        const span = pill.querySelector("span:last-child");
+        if(span) span.textContent = (me.user.nom||"Offreur");
       }
     } else {
       // token invalide
@@ -88,6 +104,7 @@
       logoutBtn.style.display = "none";
       if(loginCtaMobile) loginCtaMobile.style.display = "";
       if(logoutMobileBtn) logoutMobileBtn.style.display = "none";
+      hideAccountLinks();
       const pill = document.getElementById("userPill");
       if(pill) pill.remove();
     }
