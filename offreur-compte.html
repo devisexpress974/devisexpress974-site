@@ -201,6 +201,30 @@
         <div id="msg" class="notice"></div>
       </form>
     </section>
+
+    <section class="card pad" style="margin-top:12px;">
+      <h2 class="sectionTitle">Notifications</h2>
+      <p class="heroSub" style="margin-top:6px;">Choisis si tu veux recevoir les emails de nouvelles demandes correspondant à ton métier et à tes zones/communes.</p>
+
+      <div class="formGrid" style="margin-top:10px; max-width:520px;">
+        <div class="field" style="grid-column:1/-1;">
+          <label for="notifEmail">Recevoir les emails de nouvelles demandes</label>
+          <div class="selectWrap">
+            <select id="notifEmail" class="input">
+              <option value="OUI">Oui</option>
+              <option value="NON">Non</option>
+            </select>
+          </div>
+          <div class="hint">Astuce : sur le mur, tu peux toujours voir les demandes. Ce choix ne concerne que les emails.</div>
+        </div>
+      </div>
+
+      <div class="formActions" style="margin-top:12px;">
+        <button class="btn btnPrimary" id="btnSaveNotif" type="button">Enregistrer les notifications</button>
+      </div>
+
+      <div id="msgNotif" class="notice"></div>
+    </section>
   </main>
 
   <footer class="siteFooter">
@@ -217,7 +241,7 @@
   </footer>
 
     <script src="./assets/js/dx-searchable-select.js?v=45"></script>
-<script src="./offreur-compte.js?v=42"></script>
+<script src="./offreur-compte.js?v=45"></script>
   <script src="./assets/js/dx-compte-abonnement-card.js?v=1"></script>
 </body>
 </html>

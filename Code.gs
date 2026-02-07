@@ -2,7 +2,7 @@
 // ✅ Fix: si tes onglets ont de "mauvais" en-têtes, on les répare automatiquement.
 //    (Sinon les champs deviennent undefined => le mur ne peut pas filtrer/service/mail offreur impossible.)
 
-var VERSION = "v25-es5";
+var VERSION = "v26-es5";
 
 // ======================
 // CONFIG (Script Properties)
@@ -400,7 +400,7 @@ function route_(action, e, body){
 
       case "listDemandesForOffreur":
       case "listDemandesOffreur":
-        return json_(listDemandesForOffreur_(tokenFrom_(e, body)));
+        return json_(listDemandesForOffreur_(tokenFrom_(e, body), body));
 
             case "requestResetOffreur":
       case "resetOffreur":
@@ -472,6 +472,19 @@ case "addDemande":
 
       case "getMyPlan":
         return json_(getMyPlan_(tokenFrom_(e, body)));
+
+
+      case "getOffreurPrefs":
+        return json_(getOffreurPrefs_(tokenFrom_(e, body)));
+
+      case "setOffreurPrefs":
+        return json_(setOffreurPrefs_(tokenFrom_(e, body), body.payload || body));
+
+      case "unsubscribeEmail":
+        return json_(unsubscribeEmail_(body || {}));
+
+      case "resubscribeEmail":
+        return json_(resubscribeEmail_(body || {}));
 
       case "addAvisOffreur":
       case "addAvis":
@@ -626,6 +639,45 @@ function matchService_(offreurService, demandeService){
   return false;
 }
 
+function matchAutreKeywords_(offreurServiceAutre, demandeServiceAutre, demandeDescription){
+  // Matching "Autre" par mots clés : offreur(ServiceAutre) doit apparaître dans (demande ServiceAutre + description)
+  var o = norm_(offreurServiceAutre||"");
+  var blob = [
+    demandeServiceAutre||"", demandeDescription||""
+  ].map(function(x){ return norm_(x); }).join(" | ");
+
+  if(!o) return true; // si l'offreur n'a rien précisé, on ne bloque pas
+  // tokens >=3, retire petits mots fréquents
+  var toks = o.split(/[^a-z0-9]+/).filter(function(t){ return t && t.length >= 3; });
+  if(toks.length === 0) return true;
+
+  var stop = { "les":1,"des":1,"une":1,"un":1,"aux":1,"pour":1,"avec":1,"sans":1,"sur":1,"dans":1,"chez":1,"par":1,"de":1,"du":1,"la":1,"le":1,"et":1,"ou":1,"a":1,"au":1,"d":1 };
+  var hit = 0;
+  for(var i=0;i<toks.length;i++){
+    var t = toks[i];
+    if(stop[t]) continue;
+    if(blob.indexOf(t) !== -1) hit++;
+  }
+  // 1 hit suffit (strict mais pas bloquant)
+  return hit > 0;
+}
+
+function matchOffreurDemandeService_(offreurObj, demandeObj){
+  var os = String((offreurObj && offreurObj.Service) || "").trim();
+  var ds = String((demandeObj && demandeObj.Service) || "").trim();
+  if(!matchService_(os, ds)) return false;
+
+  // Cas "Autre" : matching mots clés
+  if(norm_(os) === norm_("autre") && norm_(ds) === norm_("autre")){
+    var oAutre = String((offreurObj && offreurObj.ServiceAutre) || "").trim();
+    var dAutre = String((demandeObj && demandeObj.ServiceAutre) || "").trim();
+    var dDesc  = String((demandeObj && demandeObj.Description) || "").trim();
+    return matchAutreKeywords_(oAutre, dAutre, dDesc);
+  }
+  return true;
+}
+
+
 function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
   var oz = norm_(offreurZone);
   var dz = norm_(demandeZone);
@@ -650,49 +702,90 @@ function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
   return false;
 }
 
-function listDemandesForOffreur_(token){
+function listDemandesForOffreur_(token, params){
+  params = params || {};
+
   var sess = sessionGet_(token);
   if(!sess) return { ok:false, error:"Connexion requise" };
 
   var r = getOffreurRowById_(sess.offreurId);
   if(!r) return { ok:false, error:"Compte introuvable" };
 
-  var service = String(r.obj.Service||"").trim();
-  var zone = String(r.obj.Zone||"").trim();
-  var communes = String(r.obj.Commune||"").trim();
+  var oService = String(r.obj.Service||"").trim();
+  var oZone = String(r.obj.Zone||"").trim();
+  var oCommunes = String(r.obj.Commune||"").trim();
   var extra = getOffreurExtra_(r);
   var aboOk = isAboOk_(extra);
+
+  // Pagination (compat rétro : si aucun offset/limit fournis => renvoyer tout)
+  var hasPaging = (params.offset !== undefined && params.offset !== null) || (params.limit !== undefined && params.limit !== null);
+
+  var offset = Number(params.offset || 0);
+  var limit = Number(params.limit || 0);
+  if(!isFinite(offset) || offset < 0) offset = 0;
+
+  if(!hasPaging){
+    offset = 0;
+    limit = 1000000000;
+  }else{
+    if(!isFinite(limit) || limit <= 0) limit = 50;
+    if(limit > 200) limit = 200;
+  }
+
+  var q = String(params.q || "").trim();
+  var nq = q ? norm_(q) : "";
 
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
   var rows = sheetToObjects_(sh);
 
-  var out = [];
+  var data = [];
   for(var i=0;i<rows.length;i++){
-    var row = rows[i];
-    if(!isDemandeActive_(row)) continue;
+    var d = rows[i];
+    if(!isDemandeActive_(d)) continue;
 
-    if(!matchService_(service, row.Service)) continue;
+    // Matching strict service (+ "Autre" par mots clés)
+    if(!matchOffreurDemandeService_(r.obj, d)) continue;
 
-    // Mur : abonnement = pas de contrainte géographique ; FREE/PACK/PONCTUEL = zones/communes strictes
+    // FREE/PACK/PONCTUEL => géo strict ; ABO => pas de contrainte géographique sur le mur
     if(!aboOk){
-      if(!matchGeo_(zone, communes, row.Zone, row.Commune)) continue;
+      if(!matchGeo_(oZone, oCommunes, d.Zone, d.Commune)) continue;
     }
 
-    out.push({
-      id: row.DemandeID || row.id,
-      date: row.Date,
-      service: row.Service,
-      zone: row.Zone,
-      commune: row.Commune,
-      description: row.Description,
-      budget: row.Budget,
-      status: row.Status || "PUBLIÉ"
+    if(nq){
+      var blob = [
+        d.Service, d.ServiceAutre, d.Zone, d.Commune, d.Description, d.Budget
+      ].map(function(x){ return norm_(x); }).join(" | ");
+      if(blob.indexOf(nq) === -1) continue;
+    }
+
+    var photos = [d.Photo1, d.Photo2, d.Photo3].filter(function(x){ return x && String(x).trim(); });
+
+    data.push({
+      id: d.DemandeID || d.id,
+      service: d.Service,
+      serviceAutre: d.ServiceAutre,
+      zone: d.Zone,
+      commune: d.Commune,
+      description: d.Description,
+      budget: d.Budget,
+      photos: photos,
+      status: d.Status || "PUBLIÉ",
+      createdAt: d.Date,
+      expiresAt: d.ExpiresAt
     });
-    if(out.length >= 80) break;
   }
 
-  return { ok:true, items: out, aboOk: aboOk };
+  // Tri : plus récentes d'abord
+  data.sort(function(a,b){
+    return String(b.createdAt||"").localeCompare(String(a.createdAt||""));
+  });
+
+  var total = data.length;
+  var page = data.slice(offset, offset + limit);
+
+  return { ok:true, data:page, total: total, aboOk: aboOk };
 }
+
 
 
 function listDemandesPublic_(params){
@@ -1284,8 +1377,12 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
       var to = String(o.Email||"").trim();
       if(!to) continue;
 
-      // Matching strict service + geo
-      if(!matchService_(String(o.Service||""), service)) continue;
+      var pref = String(o.NotifEmail||"").trim().toUpperCase();
+      if(pref === "NON") continue;
+
+      // Matching strict service (+ "Autre" par mots clés) + geo
+      var dObj = demandeRow || { Service: service, ServiceAutre: "", Description: description };
+      if(!matchOffreurDemandeService_(o, dObj)) continue;
       if(!matchGeo_(String(o.Zone||""), String(o.Commune||""), zone, commune)) continue;
 
       // Mode : coords seulement si abonnement actif
@@ -1336,6 +1433,11 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
       }
       html += "<p><strong>ID demande :</strong> " + demandeId + "</p>";
 
+      if(site){
+        var unsubUrl = site + "/offreur-unsubscribe.html?email=" + encodeURIComponent(to) + "&sig=" + encodeURIComponent(unsubSig_(to));
+        html += '<p style="margin-top:14px;font-size:12px;color:#666;">Notifications : <a href="' + unsubUrl + '">se désinscrire</a></p>';
+      }
+
       sendMailSafe_(to, subj, html);
 
       // Audit Notifications
@@ -1347,6 +1449,104 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
       if(sent >= 80) break;
     }
   }catch(e){}
+}
+
+
+// ======================
+// PREFS NOTIFICATIONS (Patch44)
+// ======================
+function unsubSig_(email){
+  email = String(email||"").trim().toLowerCase();
+  var secret = getOrCreateSecret_("DX_UNSUB_SECRET");
+  var bytes = Utilities.computeHmacSha256Signature(email, secret);
+  return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/,"");
+}
+
+function verifyUnsubSig_(email, sig){
+  email = String(email||"").trim().toLowerCase();
+  sig = String(sig||"").trim();
+  if(!email || !sig) return false;
+  return String(unsubSig_(email)) === sig;
+}
+
+function setOffreurNotifByEmail_(email, value){
+  email = String(email||"").trim().toLowerCase();
+  value = String(value||"").trim().toUpperCase();
+  if(value !== "OUI" && value !== "NON") value = "OUI";
+
+  var sh = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
+  ensureExtraOffreursCols_();
+
+  var values = sh.getDataRange().getValues();
+  if(!values || values.length < 2) return { ok:true, notifEmail:value };
+
+  var h = values[0];
+  var iEmail = h.indexOf("Email");
+  var iNotif = h.indexOf("NotifEmail");
+  if(iEmail < 0) return { ok:true, notifEmail:value };
+
+  if(iNotif < 0){
+    iNotif = ensureExtraHeader_(sh, "NotifEmail");
+    h = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+    iNotif = h.indexOf("NotifEmail");
+  }
+
+  // Ne pas révéler si l'email existe : on applique si trouvé, sinon OK quand même
+  for(var r=1;r<values.length;r++){
+    if(String(values[r][iEmail]||"").trim().toLowerCase() === email){
+      sh.getRange(r+1, iNotif+1).setValue(value);
+      break;
+    }
+  }
+
+  return { ok:true, notifEmail:value };
+}
+
+function unsubscribeEmail_(p){
+  p = p || {};
+  var email = String(p.email||"").trim().toLowerCase();
+  var sig = String(p.sig||"").trim();
+  if(!email || !sig) return { ok:false, error:"Paramètres manquants" };
+  if(!verifyUnsubSig_(email, sig)) return { ok:false, error:"Signature invalide" };
+  return setOffreurNotifByEmail_(email, "NON");
+}
+
+function resubscribeEmail_(p){
+  p = p || {};
+  var email = String(p.email||"").trim().toLowerCase();
+  var sig = String(p.sig||"").trim();
+  if(!email || !sig) return { ok:false, error:"Paramètres manquants" };
+  if(!verifyUnsubSig_(email, sig)) return { ok:false, error:"Signature invalide" };
+  return setOffreurNotifByEmail_(email, "OUI");
+}
+
+function getOffreurPrefs_(token){
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Connexion requise" };
+
+  var r = getOffreurRowById_(sess.offreurId);
+  if(!r) return { ok:false, error:"Compte introuvable" };
+
+  ensureExtraOffreursCols_();
+  var v = String(r.obj.NotifEmail||"").trim().toUpperCase();
+  if(v !== "NON") v = "OUI";
+
+  return { ok:true, prefs:{ notifEmail: (v === "OUI") }, notifEmail: v };
+}
+
+function setOffreurPrefs_(token, p){
+  p = p || {};
+  var sess = sessionGet_(token);
+  if(!sess) return { ok:false, error:"Connexion requise" };
+
+  var r = getOffreurRowById_(sess.offreurId);
+  if(!r) return { ok:false, error:"Compte introuvable" };
+
+  var v = String(p.notifEmail||"").trim().toUpperCase();
+  if(v !== "OUI" && v !== "NON") return { ok:false, error:"Valeur invalide" };
+
+  setOffreurExtra_(r, { NotifEmail: v });
+  return { ok:true, notifEmail: v };
 }
 
 // ======================
@@ -1422,6 +1622,7 @@ function ensureExtraOffreursCols_(){
   ensureExtraHeader_(sh, "TrialUsed");
   ensureExtraHeader_(sh, "TrialEnd");
   ensureExtraHeader_(sh, "TrialWarned");
+  ensureExtraHeader_(sh, "NotifEmail");
 }
 
 function ensureExtraHeader_(sh, headerName){
@@ -1473,7 +1674,8 @@ function getOffreurExtra_(rowObj){
     aboPaid: String(g("AboPaid")||"NON"),
     trialUsed: String(g("TrialUsed")||"NON"),
     trialEnd: String(g("TrialEnd")||""),
-    trialWarned: String(g("TrialWarned")||"")
+    trialWarned: String(g("TrialWarned")||""),
+    notifEmail: String(g("NotifEmail")||"OUI")
   };
 }
 
@@ -1518,6 +1720,7 @@ function setOffreurExtra_(rowObj, patch){
   if(patch.hasOwnProperty("TrialEnd")) set("TrialEnd", patch.TrialEnd);
   if(patch.hasOwnProperty("AboPaid")) set("AboPaid", patch.AboPaid);
   if(patch.hasOwnProperty("TrialWarned")) set("TrialWarned", patch.TrialWarned);
+  if(patch.hasOwnProperty("NotifEmail")) set("NotifEmail", patch.NotifEmail);
 }
 
 function whoami_(token){
@@ -1632,7 +1835,7 @@ function hasAccess_(e, body){
   if(!dRow) return { ok:true, has:false };
 
   var osvc = String(r.obj.Service||"").trim();
-  if(!matchService_(osvc, dRow.Service)) return { ok:true, has:false };
+  if(!matchOffreurDemandeService_(r.obj, dRow)) return { ok:true, has:false };
 
   // Abonné actif => accès (respect trialEnd / aboPaid)
   var extra = getOffreurExtra_(r);
@@ -1680,7 +1883,7 @@ function grantAccess_(e, body){
   if(!isDemandeActive_(dRow)) return { ok:false, error:"Demande expirée ou clôturée" };
 
   var osvc = String(r.obj.Service||"").trim();
-  if(!matchService_(osvc, dRow.Service)) return { ok:false, error:"Cette demande ne correspond pas à votre métier" };
+  if(!matchOffreurDemandeService_(r.obj, dRow)) return { ok:false, error:"Cette demande ne correspond pas à votre métier" };
 
   var extra = getOffreurExtra_(r);
 
@@ -1783,7 +1986,7 @@ function getDemande_(e, body){
     } else {
       var extra = getOffreurExtra_(r);
       var osvc = String(r.obj.Service||"").trim();
-      var match = matchService_(osvc, row.Service);
+      var match = matchOffreurDemandeService_(r.obj, row);
 
       if(!match){
         canSee = false;

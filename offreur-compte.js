@@ -79,6 +79,14 @@
     el.style.display = text ? "block" : "none";
   }
 
+  function setNoticeNotif(text, kind){
+    const el = $("msgNotif");
+    if(!el) return;
+    el.className = "notice " + (kind === "ok" ? "ok" : kind === "bad" ? "bad" : "");
+    el.textContent = text || "";
+    el.style.display = text ? "block" : "none";
+  }
+
   function pill(label, value, state){
     const dot = state === "ok" ? "ok" : state === "warn" ? "warn" : state === "off" ? "off" : "";
     return `<span class="pill"><span class="dot ${dot}"></span><span>${label}</span><span style="opacity:.75">•</span><span>${value}</span></span>`;
@@ -257,6 +265,33 @@
     return null;
   }
 
+  async function loadPrefs(){
+    try{
+      const res = await window.DX_API.get("getOffreurPrefs", {});
+      if(res && res.ok){
+        const v = String(res.notifEmail || "").toUpperCase();
+        return { notifEmail: (v === "NON" ? "NON" : "OUI") };
+      }
+    }catch(e){}
+    return { notifEmail: "OUI" };
+  }
+
+  async function savePrefs_(){
+    const sel = $("notifEmail");
+    if(!sel) return;
+    const v = String(sel.value || "OUI").toUpperCase();
+    try{
+      const res = await window.DX_API.post("setOffreurPrefs", { notifEmail: (v === "NON" ? "NON" : "OUI") });
+      if(res && res.ok){
+        setNoticeNotif("✅ Notifications enregistrées.", "ok");
+      }else{
+        setNoticeNotif("❌ " + (res && res.error ? res.error : "Erreur lors de l’enregistrement."), "bad");
+      }
+    }catch(e){
+      setNoticeNotif("❌ Erreur réseau.", "bad");
+    }
+  }
+
   function fillForm(u){
     if(!u) return;
 
@@ -323,6 +358,13 @@
 
     await loadServices();
     lockServiceUI(locked);
+
+    // PATCH45: préférences notifications
+    try{
+      const prefs = await loadPrefs();
+      const selNotif = $("notifEmail");
+      if(selNotif) selNotif.value = prefs.notifEmail || "OUI";
+    }catch(e){}
 
     // load profile from backend
     const u = await loadProfile();
@@ -433,6 +475,14 @@
         }catch(e){}
         try{ localStorage.removeItem("dx_token"); }catch(e){}
         location.href = "offreur-login.html";
+      });
+    }
+
+    const btnSaveNotif = $("btnSaveNotif");
+    if(btnSaveNotif){
+      btnSaveNotif.addEventListener("click", async () => {
+        setNoticeNotif("", "");
+        await savePrefs_();
       });
     }
 
