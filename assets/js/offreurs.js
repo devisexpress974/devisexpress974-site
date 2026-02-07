@@ -250,13 +250,20 @@ function fillSelect(select, items){
         badge = `<span class="badge">Pas d’avis</span>`;
       }
 
+      const serviceAutre = String(o.serviceAutre || o.ServiceAutre || "").trim();
+      const isAutre = String(service || "").trim().toLowerCase() === "autre";
+      const serviceLabel = (isAutre && serviceAutre) ? ("Autre — " + serviceAutre) : service;
+      const devisHref = (isAutre && serviceAutre)
+        ? ("demande.html?service=" + encodeURIComponent(service) + "&serviceAutre=" + encodeURIComponent(serviceAutre))
+        : ("demande.html?service=" + encodeURIComponent(service));
+
       const card = document.createElement("div");
       card.className = "itemCard";
       card.innerHTML = `
         <div class="itemTop">
           <div>
             <h3 class="itemTitle">${esc(nom)}</h3>
-            <p class="itemMeta">${esc(service)}${commune ? " • " + esc(commune) : ""}${zone ? " • " + esc(zone) : ""}</p>
+            <p class="itemMeta">${esc(serviceLabel)}${commune ? " • " + esc(commune) : ""}${zone ? " • " + esc(zone) : ""}</p>
           </div>
           ${badge}
         </div>
@@ -264,7 +271,7 @@ function fillSelect(select, items){
         <div class="btnRow" style="margin-top:12px;">
           <a class="btn" href="offreur-profil.html?id=${encodeURIComponent(id)}">Voir profil</a>
           <a class="btn" href="noter-offreur.html?id=${encodeURIComponent(id)}">Noter</a>
-          <a class="btn btnPrimary" href="demande.html?service=${encodeURIComponent(service)}">Demander un devis</a>
+          <a class="btn btnPrimary" href="${devisHref}">Demander un devis</a>
         </div>
       `;
       list.appendChild(card);
