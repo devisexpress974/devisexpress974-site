@@ -7,12 +7,15 @@
   <meta name="theme-color" content="#ff3b0a" />
 
   <!-- CSS du site -->
-  <link rel="stylesheet" href="/styles.css?v=32" />
+  <link rel="stylesheet" href="./styles.css?v=32" />
   <!-- CSS menu (garantit le design du header même si l’auto-injection rate) -->
-  <link rel="stylesheet" href="/assets/css/dx-header.css?v=39" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
 
   <!-- Header DX (même menu/design que le reste du site) -->
-  <script src="/assets/js/dx-include-header.js?v=39" defer></script>
+  <script src="./assets/js/dx-include-header.js?v=39" defer></script>
+
+  <!-- PayPal config (source de vérité des liens) -->
+  <script src="./paypal-config.js?v=1" defer></script>
 
   <!-- Styles UNIQUEMENT pour cette page (aucune autre page n'est impactée) -->
   <style>
@@ -59,8 +62,8 @@
             <li>Accès valable pour cette demande</li>
           </ul>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <a class="btn btnPrimary" href="/mur-demandes.html">Aller au mur</a>
-            <a class="btn btnGhost" href="https://www.paypal.com/ncp/payment/4LRS689BCXY5G" target="_blank" rel="noopener">Payer 0,99 €</a>
+            <a class="btn btnPrimary" href="./mur-demandes.html">Aller au mur</a>
+            <a id="dxPayPonctuel" class="btn btnGhost" href="#" target="_blank" rel="noopener">Payer 0,99 €</a>
           </div>
           <div class="tarifSmallNote">
             Le paiement 0,99€ se fait <strong>depuis une demande</strong> (bouton « Débloquer » sur le mur). Cela évite l’erreur « ID de demande manquant ».
@@ -78,8 +81,8 @@
             <li>Tu gardes l’accès sur les demandes débloquées</li>
           </ul>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <a class="btn btnPrimary" href="https://www.paypal.com/ncp/payment/H9VZ7RL35LE6G" target="_blank" rel="noopener">Payer 2,99 €</a>
-            <a class="btn" href="/mur-demandes.html">Retour au mur</a>
+            <a id="dxPayPack10" class="btn btnPrimary" href="#" target="_blank" rel="noopener">Payer 2,99 €</a>
+            <a class="btn" href="./mur-demandes.html">Retour au mur</a>
           </div>
           <div class="tarifSmallNote">
             Paiement via PayPal (carte bancaire possible selon l’écran PayPal). Si tu as un bloqueur, ouvre dans un nouvel onglet.
@@ -97,8 +100,8 @@
             <li>Annulation possible à tout moment</li>
           </ul>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <a class="btn btnPrimary" href="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-059089791K4448340NEBEK7I" target="_blank" rel="noopener">S’abonner</a>
-            <a class="btn" href="/mur-demandes.html">Retour au mur</a>
+            <a id="dxPayAbo" class="btn btnPrimary" href="#" target="_blank" rel="noopener">S’abonner</a>
+            <a class="btn" href="./mur-demandes.html">Retour au mur</a>
           </div>
           <div class="tarifSmallNote">
             ⚠️ Les abonnements PayPal peuvent parfois demander une connexion PayPal. Si tu veux un abonnement <strong>100% carte</strong> sans compte PayPal, il faudra passer sur Stripe (ou un autre prestataire).
@@ -114,16 +117,46 @@
   </main>
 
   <footer class="siteFooter">
-    <div class="container">
-      <div class="footerRow">
-        <div>© DevisExpress974 — Tous droits réservés.</div>
-        <div class="footerLinks">
-          <a href="/cvg.html">CGV</a>
-          <a href="/confidentialite.html">Politique de confidentialité</a>
-          <a href="/contact.html">Contact</a>
-        </div>
+    <div class="container footerInner">
+      <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks" aria-label="Liens légaux">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="cgv.html">CGV</a>
+        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="contact.html">Contact</a>
       </div>
     </div>
   </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var y = document.getElementById("y");
+      if (y) y.textContent = String(new Date().getFullYear());
+
+      function setPayLink(id, kind) {
+        var a = document.getElementById(id);
+        if (!a) return;
+        var url = "";
+        try {
+          if (window.DX_PAYPAL && typeof window.DX_PAYPAL.getLink === "function") {
+            url = window.DX_PAYPAL.getLink(kind) || "";
+          }
+        } catch (e) {}
+        if (url) {
+          a.setAttribute("href", url);
+          a.removeAttribute("aria-disabled");
+        } else {
+          a.setAttribute("href", "#");
+          a.setAttribute("aria-disabled", "true");
+          a.addEventListener("click", function (ev) { ev.preventDefault(); });
+        }
+      }
+
+      setPayLink("dxPayPonctuel", "ponctuel");
+      setPayLink("dxPayPack10", "pack10");
+      setPayLink("dxPayAbo", "abonnement");
+    });
+  </script>
 </body>
 </html>
