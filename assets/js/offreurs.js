@@ -264,7 +264,7 @@ function fillSelect(select, items){
         <div class="btnRow" style="margin-top:12px;">
           <a class="btn" href="offreur-profil.html?id=${encodeURIComponent(id)}">Voir profil</a>
           <a class="btn" href="noter-offreur.html?id=${encodeURIComponent(id)}">Noter</a>
-          <a class="btn btnPrimary" href="offreur-login.html">Contacter</a>
+          <a class="btn btnPrimary" href="demande.html?service=${encodeURIComponent(service)}">Demander un devis</a>
         </div>
       `;
       list.appendChild(card);

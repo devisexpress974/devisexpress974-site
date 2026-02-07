@@ -110,7 +110,7 @@
       <div class="actions">
         <a class="btn" href="./offreurs.html">Retour</a>
         <a class="btn" href="./noter-offreur.html?id=${encodeURIComponent(id)}">Noter ce prestataire</a>
-        <a class="btn btnPrimary" href="./offreur-login.html">Contacter</a>
+        <a class="btn btnPrimary" href="./demande.html?service=${encodeURIComponent(service)}${(String(service).toLowerCase()==="autre"&&serviceAutre)?("&serviceAutre="+encodeURIComponent(serviceAutre)):""}">Demander un devis</a>
       </div>
     `;
   }

@@ -377,6 +377,45 @@ async function buildAttachments(fileList){
     }
   }
 
+
+  function prefillFromQuery_(){
+    try{
+      var sp = new URLSearchParams(window.location.search || "");
+      var wantSvc = String(sp.get("service") || sp.get("svc") || sp.get("typeService") || "").trim();
+      var wantAutre = String(sp.get("serviceAutre") || sp.get("autre") || sp.get("autreService") || "").trim();
+      if(!wantSvc) return;
+
+      var tries = 0;
+      var t = setInterval(function(){
+        tries++;
+        var serviceSel = $('typeService');
+        if(serviceSel && serviceSel.options && serviceSel.options.length > 1){
+          var target = wantSvc.toLowerCase();
+          var found = "";
+          for(var i=0;i<serviceSel.options.length;i++){
+            var opt = serviceSel.options[i];
+            var v = String(opt.value||"").trim();
+            var tx = String(opt.textContent||"").trim();
+            if(v && v.toLowerCase() === target){ found = v; break; }
+            if(tx && tx.toLowerCase() === target){ found = v || tx; break; }
+          }
+          if(found){
+            serviceSel.value = found;
+            toggleAutreService(String(found||"").trim());
+            if(String(found||"").trim() === "Autre" && wantAutre){
+              var other = $('autreService');
+              if(other) other.value = wantAutre;
+            }
+            clearInterval(t);
+          }
+        }
+        if(tries >= 25){
+          clearInterval(t);
+        }
+      }, 120);
+    }catch(e){}
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
     var form = $('demandeForm');
     if(form){
@@ -387,6 +426,7 @@ async function buildAttachments(fileList){
     if(serviceSel){
       serviceSel.addEventListener('change', function(){ toggleAutreService(String(serviceSel.value||"").trim()); });
       toggleAutreService(String(serviceSel.value||"").trim());
+      prefillFromQuery_();
     }
 
     var desc = $('besoin');
