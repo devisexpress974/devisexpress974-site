@@ -846,17 +846,74 @@ function loginOffreur_(email, password){
   password = String(password||"");
   if(!email || !password) return { ok:false, error:"Email et mot de passe obligatoires" };
 
+  // Anti-bruteforce : 5 tentatives / 20 min, puis blocage 15 min (par email)
+  var nowMs = new Date().getTime();
+  var cache = null;
+  var cacheKey = "dx_login_fail_" + email;
+
+  try{ cache = CacheService.getScriptCache(); }catch(e){ cache = null; }
+
+  function isBlocked_(){
+    if(!cache) return false;
+    try{
+      var raw = cache.get(cacheKey);
+      if(!raw) return false;
+      var p = String(raw).split("|");
+      var blockedUntil = Number(p[2]||"0") || 0;
+      return blockedUntil && blockedUntil > nowMs;
+    }catch(e2){ return false; }
+  }
+
+  function recordFail_(){
+    if(!cache) return;
+    try{
+      var raw = cache.get(cacheKey);
+      var n = 0, firstMs = nowMs, blockedUntil = 0;
+      if(raw){
+        var p = String(raw).split("|");
+        n = Number(p[0]||"0") || 0;
+        firstMs = Number(p[1]||String(nowMs)) || nowMs;
+        blockedUntil = Number(p[2]||"0") || 0;
+      }
+      // fenêtre 20 minutes
+      if(!firstMs || (nowMs - firstMs) > 20*60*1000){
+        n = 0;
+        firstMs = nowMs;
+        blockedUntil = 0;
+      }
+      n = n + 1;
+      if(n >= 5){
+        blockedUntil = nowMs + 15*60*1000; // 15 min
+      }
+      cache.put(cacheKey, String(n) + "|" + String(firstMs) + "|" + String(blockedUntil), 60*60); // 1h
+    }catch(e3){}
+  }
+
+  function clearFail_(){
+    if(!cache) return;
+    try{ cache.remove(cacheKey); }catch(e4){}
+  }
+
+  if(isBlocked_()){
+    return { ok:false, error:"Trop de tentatives. Réessaie dans 15 minutes." };
+  }
+
   var sh = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
   var rows = sheetToObjects_(sh);
   var r = null;
-  for(var i=0;i<rows.length;i++) if(String(rows[i].Email||"").toLowerCase() === email){ r = rows[i]; break; }
-  if(!r) return { ok:false, error:"Identifiants invalides" };
-  if(String(r.Actif||"OUI") !== "OUI") return { ok:false, error:"Compte désactivé" };
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].Email||"").toLowerCase() === email){ r = rows[i]; break; }
+  }
+
+  if(!r){ recordFail_(); return { ok:false, error:"Identifiants invalides" }; }
+  if(String(r.Actif||"OUI") !== "OUI"){ recordFail_(); return { ok:false, error:"Compte désactivé" }; }
 
   var salt = String(r.Salt||"");
   var hash = String(r.PasswordHash||"");
   var check = sha256_(salt + "|" + password);
-  if(check !== hash) return { ok:false, error:"Identifiants invalides" };
+  if(check !== hash){ recordFail_(); return { ok:false, error:"Identifiants invalides" }; }
+
+  clearFail_();
 
   var sess = sessionCreate_(email, r.OffreurID);
   return { ok:true, token:sess.token, offreurId:r.OffreurID };
@@ -1523,13 +1580,18 @@ function activateAbonnement_(token){
   var email = String(sess.email||"").trim().toLowerCase();
   var tel = String(r.obj.Tel||"").trim();
 
+  var siren = String(r.obj.Siren||"").trim();
+  if(siren) siren = siren.replace(/\D/g,"").slice(0,14);
   for(var i=0;i<rows.length;i++){
     var e = String(rows[i].Email||"").trim().toLowerCase();
     var t = String(rows[i].Tel||"").trim();
+    var s = String(rows[i].Siren||"").trim();
+    if(s) s = s.replace(/\D/g,"").slice(0,14);
     var trialUsed = String(rows[i].TrialUsed||"NON").toUpperCase();
     if(trialUsed === "OUI"){
       if(e && email && e === email) return { ok:false, error:"Mois offert déjà utilisé pour cet email" };
       if(t && tel && t === tel) return { ok:false, error:"Mois offert déjà utilisé pour ce téléphone" };
+      if(s && siren && s === siren) return { ok:false, error:"Mois offert déjà utilisé pour ce SIREN/SIRET" };
     }
   }
 
@@ -1784,6 +1846,29 @@ function requestResetOffreur_(e, body){
   var email = String((body && body.email) || (body && body.payload && body.payload.email) || (e && e.parameter && e.parameter.email) || "").trim().toLowerCase();
   if(!email) return { ok:false, error:"Email manquant" };
 
+  // Rate limit (par email) : 3 demandes / heure (même réponse neutre)
+  try{
+    var cache = CacheService.getScriptCache();
+    var key = "dx_reset_req_" + email;
+    var n = Number(cache.get(key) || "0") + 1;
+    cache.put(key, String(n), 60*60);
+    if(n > 3){
+      return { ok:false, error:"Trop de demandes de réinitialisation. Réessaie plus tard." };
+    }
+  }catch(e0){}
+
+  // Ne pas révéler si l’email existe : on renvoie OK de façon neutre
+  // et on envoie le mail uniquement si un compte existe.
+  var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
+  var rows = sheetToObjects_(shOff);
+  var exists = false;
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].Email||"").trim().toLowerCase() === email){ exists = true; break; }
+  }
+  if(!exists){
+    return { ok:true };
+  }
+
   var token = randomToken_(32);
   var now = new Date();
   var exp = new Date(now.getTime() + 1000*60*30); // 30 minutes
@@ -1793,13 +1878,37 @@ function requestResetOffreur_(e, body){
 
   // Email (best effort)
   try{
+    var link = "";
+    if(SITE_URL){
+      var base = String(SITE_URL).replace(/\/$/,"");
+      link = base + "/offreur-reset.html?token=" + encodeURIComponent(token);
+    }
+
+    var bodyTxt =
+      "Voici ton code de réinitialisation (valable 30 min):
+
+" +
+      token + "
+
+";
+
+    if(link){
+      bodyTxt += "Lien direct :
+" + link + "
+
+";
+    }else{
+      bodyTxt += "Va sur DevisExpress974, page 'Réinitialiser le mot de passe', puis saisis ce code.
+
+";
+    }
+
+    bodyTxt += "Si tu n'es pas à l'origine de cette demande, ignore cet email.";
+
     MailApp.sendEmail({
       to: email,
       subject: "DevisExpress974 — Réinitialisation du mot de passe",
-      body:
-        "Voici ton code de réinitialisation (valable 30 min):\n\n" +
-        token + "\n\n" +
-        "Si tu n'es pas à l'origine de cette demande, ignore cet email."
+      body: bodyTxt
     });
   }catch(err){}
 
@@ -1857,7 +1966,7 @@ function confirmResetOffreur_(p){
   if(foundRow < 0) return { ok:false, error:"Compte introuvable" };
 
   var salt = randomSalt_();
-  var hash = sha256_(password + "|" + salt);
+  var hash = sha256_(salt + "|" + password);
 
   shOff.getRange(foundRow, iHash+1).setValue(hash);
   shOff.getRange(foundRow, iSalt+1).setValue(salt);
