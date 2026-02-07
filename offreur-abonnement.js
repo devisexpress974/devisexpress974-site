@@ -1,96 +1,158 @@
-// offreur-abonnement.js (Patch13)
-(async () => {
-  const $ = (id) => document.getElementById(id);
+// offreur-abonnement.js — Patch 57
+// Page "Mon abonnement" : affiche statut + mois offert + renouvellement + arrêt
 
-  const msg = $("msg");
-  const danger = $("danger");
-  const btnCancel = $("btnCancel");
-  const btnRefresh = $("btnRefresh");
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function setText(id, v){ var el=$(id); if(el) el.textContent = (v==null ? "" : String(v)); }
+  function setMsg(v){ var el=$("msg"); if(el) el.textContent = v || ""; }
 
-  function show(el, text){
-    if(!el) return;
-    el.style.display = "block";
-    el.textContent = String(text || "");
-  }
-  function hide(el){
-    if(!el) return;
-    el.style.display = "none";
-    el.textContent = "";
-  }
-  function fmtDate(iso){
-    if(!iso) return "—";
-    const d = new Date(iso);
-    if(String(d) === "Invalid Date") return String(iso);
-    return d.toLocaleString("fr-FR");
-  }
-  function normPlan(p){
-    p = String(p || "").toUpperCase();
-    if(p === "ABO") return "ABONNEMENT";
-    if(p === "PACK") return "PACK";
-    if(p === "FREE" || !p) return "GRATUIT";
-    return p;
+  function upper(v){ return String(v||"").trim().toUpperCase(); }
+  function normPlan(v){ v = upper(v); return v || "FREE"; }
+
+  async function post(action, payload){
+    if(!window.DX_API || typeof window.DX_API.post !== "function"){
+      throw new Error("DX_API indisponible");
+    }
+    return await window.DX_API.post(action, payload || {});
   }
 
-  // Require login
-  const me = await (window.DX_AUTH?.whoami?.() || Promise.resolve({ ok:false }));
-  if(!me || !me.ok){
-    const next = encodeURIComponent("offreur-abonnement.html");
-    location.href = "offreur-login.html?next=" + next;
-    return;
+  function isLogged(){
+    return !!(localStorage.getItem("dx_token") || localStorage.getItem("DX_TOKEN"));
+  }
+  function redirectToLogin(){
+    window.location.href = "offreur-login.html?next=" + encodeURIComponent("offreur-abonnement.html");
   }
 
-  async function load(){
-    hide(msg); hide(danger);
-    $("kPlan").textContent = "…";
-    $("kCredits").textContent = "…";
-    $("kAbo").textContent = "…";
-    $("kTrialEnd").textContent = "…";
+  function isoToLocal(iso){
+    if(!iso) return "";
+    try{
+      var d = new Date(iso);
+      if(!d || !d.getTime) return iso;
+      return d.toLocaleString();
+    }catch(e){ return iso; }
+  }
 
-    const r = await window.DX_API.postAny?.(["getMyPlan","myPlan","getPlan"], {}) 
-      || await window.DX_API.post("getMyPlan", {});
+  function setPayLink(){
+    var a = $("btnBuyAbo");
+    if(!a) return;
+    a.href = "paiement-abonnement.html?next=" + encodeURIComponent("offreur-abonnement.html");
+  }
 
+  async function refresh(){
+    setMsg("Chargement…");
+    var r = await post("getMyPlan", {});
     if(!r || !r.ok){
-      show(danger, (r && r.error) ? r.error : "Erreur inconnue");
+      setMsg((r && (r.error || r.message)) ? (r.error || r.message) : "Erreur.");
+      return;
+    }
+    var d = r.data || r;
+
+    var plan = normPlan(d.plan);
+    var credits = Number(d.credits||0) || 0;
+
+    var aboActive = upper(d.aboActive) === "OUI";
+    var aboPaid = upper(d.aboPaid) === "OUI";
+    var trialUsed = upper(d.trialUsed) === "OUI";
+    var trialEnd = String(d.trialEnd||"");
+    var paidUntil = String(d.aboPaidUntil||"");
+
+    setText("kPlan", plan);
+    setText("kCredits", credits);
+    setText("kAbo", aboActive ? "OUI" : "NON");
+    setText("kAboPaid", aboPaid ? "OUI" : "NON");
+    setText("kTrialEnd", trialEnd ? isoToLocal(trialEnd) : (trialUsed ? "—" : "Non utilisé"));
+    setText("kPaidUntil", paidUntil ? isoToLocal(paidUntil) : "—");
+
+    // Visibilité boutons
+    var btnTrial = $("btnStartTrial");
+    var btnCancel = $("btnCancel");
+    var boxDanger = $("danger");
+
+    if(btnTrial){
+      // Mois offert uniquement si jamais utilisé
+      btnTrial.style.display = trialUsed ? "none" : "inline-flex";
+    }
+    if(btnCancel){
+      btnCancel.style.display = aboActive ? "inline-flex" : "none";
+    }
+    if(boxDanger){
+      boxDanger.style.display = "none";
+    }
+
+    // Alerte si abo actif mais plus payé/plus valide
+    try{
+      var now = new Date().getTime();
+      if(aboActive){
+        if(paidUntil){
+          var pu = new Date(paidUntil).getTime();
+          if(pu && pu <= now){
+            if(boxDanger){
+              boxDanger.style.display = "block";
+              boxDanger.textContent = "Ton abonnement a expiré. Renouvelle-le pour retrouver l'accès complet.";
+            }
+          }
+        }else if(trialEnd){
+          var te = new Date(trialEnd).getTime();
+          if(te && te <= now && !aboPaid){
+            if(boxDanger){
+              boxDanger.style.display = "block";
+              boxDanger.textContent = "Ton mois offert est terminé. Renouvelle (4,99€) pour garder l’accès.";
+            }
+          }
+        }
+      }
+    }catch(e){}
+
+    setPayLink();
+    setMsg("");
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    if(!isLogged()){
+      redirectToLogin();
       return;
     }
 
-    const plan = normPlan(r.plan);
-    const credits = Number(r.credits || 0) || 0;
-    const aboActive = String(r.aboActive || "NON").toUpperCase() === "OUI" ? "OUI" : "NON";
+    var btnTrial = $("btnStartTrial");
+    var btnCancel = $("btnCancel");
 
-    $("kPlan").textContent = plan;
-    $("kCredits").textContent = String(credits);
-    $("kAbo").textContent = aboActive;
-    $("kTrialEnd").textContent = r.trialEnd ? fmtDate(r.trialEnd) : "—";
-
-    // cancel button only if abo is active
-    btnCancel.style.display = (aboActive === "OUI") ? "inline-flex" : "none";
-
-    // Make payment links return here
-    const returnTo = encodeURIComponent("offreur-abonnement.html");
-    $("btnBuy099").href = "./paiement-ponctuel.html?next=" + returnTo;
-    $("btnBuyPack").href = "./paiement-pack.html?next=" + returnTo;
-    $("btnBuyAbo").href = "./paiement-abonnement.html?next=" + returnTo;
-  }
-
-  btnRefresh?.addEventListener("click", load);
-
-  btnCancel?.addEventListener("click", async () => {
-    hide(msg); hide(danger);
-    const reason = prompt("Pourquoi tu arrêtes l’abonnement ? (optionnel)", "") || "";
-    const ok = confirm("Confirmer : arrêter l’abonnement sur la plateforme maintenant ?");
-    if(!ok) return;
-
-    const r = await window.DX_API.postAny?.(["cancelAbonnement","cancelSubscription","unsubscribePlan"], { reason })
-      || await window.DX_API.post("cancelAbonnement", { reason });
-
-    if(!r || !r.ok){
-      show(danger, (r && r.error) ? r.error : "Erreur lors de l’annulation");
-      return;
+    if(btnTrial){
+      btnTrial.addEventListener("click", async function(){
+        try{
+          setMsg("Activation du mois offert…");
+          var r = await post("activateAbonnement", {});
+          if(!r || !r.ok){
+            setMsg((r && (r.error || r.message)) ? (r.error || r.message) : "Erreur.");
+            return;
+          }
+          setMsg("Mois offert activé.");
+          await refresh();
+        }catch(err){
+          setMsg(err && err.message ? err.message : "Erreur.");
+        }
+      });
     }
-    show(msg, "Abonnement arrêté. (Accès premium coupé)");
-    await load();
+
+    if(btnCancel){
+      btnCancel.addEventListener("click", async function(){
+        if(!confirm("Arrêter l’abonnement ? (tu repasseras en FREE)")) return;
+        try{
+          setMsg("Arrêt…");
+          var r = await post("cancelAbonnement", {});
+          if(!r || !r.ok){
+            setMsg((r && (r.error || r.message)) ? (r.error || r.message) : "Erreur.");
+            return;
+          }
+          setMsg("Abonnement arrêté.");
+          await refresh();
+        }catch(err){
+          setMsg(err && err.message ? err.message : "Erreur.");
+        }
+      });
+    }
+
+    refresh().catch(function(e){
+      setMsg(e && e.message ? e.message : "Erreur.");
+    });
   });
-
-  await load();
 })();

@@ -1,86 +1,78 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Abonnement — DevisExpress974</title>
-<meta content="#ff3b0a" name="theme-color"/>
-<link href="./styles.css?v=32" rel="stylesheet"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevisExpress974 — Abonnement</title>
+  <meta name="theme-color" content="#ff3b0a" />
+  <link rel="stylesheet" href="./styles.css?v=57" />
 </head>
 <body>
-<div id="dx-header-slot"></div>
-<main class="container" style="padding:24px 0;">
-<div class="heroCard" style="padding:28px;">
-<h1 style="margin:0 0 8px;">Abonnement</h1>
-<p class="muted" style="margin:0 0 14px;"><strong>1er mois offert</strong>, puis <strong>4,99 €/mois</strong> — sans engagement.</p>
-<div class="card" style="padding:18px; margin:16px 0;">
-<h2 style="margin:0 0 8px;">Ce que tu obtiens</h2>
-<ul style="margin:0 0 0 18px;">
-<li><strong>Déblocage illimité</strong> de toutes les demandes</li>
-<li>Réception d’e-mails automatiques des demandes de ton secteur (si activé)</li>
-<li>Annulation possible à tout moment</li>
-</ul>
-</div>
-<div class="card" style="padding:18px; margin:16px 0;">
-<h2 style="margin:0 0 8px;">Paiement PayPal</h2>
-<p class="muted" style="margin:0 0 12px;">Clique sur <strong>Payer</strong>. Si tu as un bloqueur, utilise <strong>Ouvrir PayPal</strong>.</p>
-<div style="display:flex; gap:12px; flex-wrap:wrap;">
-<a class="btn btnPrimary" href="#" id="btnPay" rel="noopener" target="_blank">Payer / S’abonner</a>
-<a class="btn" href="#" id="paypalLink" rel="noopener" target="_blank">Ouvrir PayPal</a>
-</div>
-<p class="muted" id="ppMissing" style="margin:12px 0 0; display:none;">Lien PayPal abonnement non configuré pour le moment.</p>
-</div>
-<div class="card" style="padding:18px; margin:16px 0;">
-<h2 style="margin:0 0 8px;">Après paiement</h2>
-<p class="muted" style="margin:0 0 12px;">Clique ci-dessous pour activer ton abonnement sur le site (accès à toutes les demandes).</p>
-<div style="display:flex; gap:12px; flex-wrap:wrap;">
-<button class="btn btnPrimary" id="btnPaid">J’ai payé, activer mon abonnement</button>
-<a class="btn" href="mur-demandes.html">Aller au mur des demandes</a>
-<a class="btn" href="contact.html">Contact</a>
-</div>
-<p class="muted" id="msg" style="margin:12px 0 0;"></p>
-</div>
-<p class="muted" style="margin:8px 0 0;">Important : les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.</p>
-</div>
+
+<header class="siteHeader">
+  <div class="container headerRow">
+    <a class="brand" href="index.html" aria-label="Accueil">
+      <span class="logoBolt" aria-hidden="true"></span>
+      <span class="brandText">DevisExpress974</span>
+    </a>
+    <nav class="nav">
+      <a href="mur-demandes.html">Mur</a>
+      <a href="offreur-compte.html">Mon compte</a>
+      <a href="offreur-abonnement.html" class="active">Abonnement</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container" style="max-width: 860px;">
+  <h1>Abonnement (4,99€ / mois)</h1>
+  <p class="muted">
+    Avec l’abonnement, tu reçois toutes les demandes de ton métier et tu peux voir les coordonnées (selon les règles de matching métier).
+  </p>
+
+  <div class="card" style="padding: 16px; margin-top: 12px;">
+    <h2 style="margin-top:0;">Paiement</h2>
+    <p>
+      <a id="btnPay" class="btn primary" href="#" rel="nofollow">Payer avec PayPal</a>
+      <a id="paypalLink" href="#" rel="nofollow" style="margin-left:10px;">Ou ouvrir PayPal dans un nouvel onglet</a>
+    </p>
+
+    <p id="ppMissing" class="warn" style="display:none;">
+      Lien PayPal manquant (vérifie <code>paypal-config.js</code>).
+    </p>
+
+    <hr style="margin: 14px 0; opacity: .2;" />
+
+    <p>
+      <button id="btnPaid" class="btn">J’ai payé → confirmer</button>
+    </p>
+
+    <p id="msg" class="muted" style="margin-top:10px;"></p>
+
+    <p class="muted" style="margin-top:16px;">
+      Astuce : si la redirection PayPal est activée, la confirmation se fait automatiquement (paramètre <code>tx</code>).
+    </p>
+  </div>
+
+  <p class="muted" style="margin-top: 16px;">
+    Important : ton métier est verrouillé pour l’abonnement (1 seul métier). Sur le mur, les demandes hors zone peuvent être visibles, mais les notifications email respectent tes zones.
+  </p>
 </main>
-<footer class="siteFooter">
-<div class="container">
-<div class="footerRow">
-<div>© DevisExpress974 — Tous droits réservés.</div>
-<div class="footerLinks">
-<a href="cvg.html">CGV</a>
-<a href="confidentialite.html">Politique de confidentialité</a>
-<a href="contact.html">Contact</a>
-</div>
-</div>
-</div>
+
+<footer class="footer">
+  <div class="container footerRow">
+    <span class="muted">© DevisExpress974</span>
+    <span class="footerLinks">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </span>
+  </div>
 </footer>
 
-<script src="./paypal-config.js?v=32"></script>
-<script>
-  (function(){
-    var link = (window.DX_PAYPAL && window.DX_PAYPAL.getLink) ? window.DX_PAYPAL.getLink('abonnement') : '';
-    var a1 = document.getElementById('btnPay');
-    var a2 = document.getElementById('paypalLink');
-    var missing = document.getElementById('ppMissing');
-    if(link){
-      a1.href = link;
-      a2.href = link;
-    } else {
-      a1.style.display = 'none';
-      a2.style.display = 'none';
-      missing.style.display = 'block';
-    }
-  })();
-</script>
-
-<!-- AJOUT demandé : AVANT header.js -->
-<script src="./api.js?v=32"></script>
-<script src="./auth.js?v=32"></script>
-<script src="./main.js?v=32"></script>
-
-<script src="./paiement-abonnement.js?v=32"></script>
-
+<script src="./paypal-config.js?v=57"></script>
+<script src="./api.js?v=57"></script>
+<script src="./paiement-abonnement.js?v=57"></script>
 </body>
 </html>
