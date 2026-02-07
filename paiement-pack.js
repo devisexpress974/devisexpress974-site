@@ -106,7 +106,27 @@ document.addEventListener("DOMContentLoaded", () => {
       btnPaid.disabled = false;
       btnPaid.textContent = originalBtnText;
       inProgress = false;
-      show("err", (res && (res.error || res.message)) ? (res.error || res.message) : "Impossible.");
+      var errMsg = (res && (res.error || res.message)) ? (res.error || res.message) : "Impossible.";
+      // Si le PDT token n'est pas configuré, on peut (optionnel) confirmer en mode manuel.
+      if(/Paiement non configuré|PDT_TOKEN|RECEIVER/i.test(String(errMsg))){
+        show("warn", errMsg);
+        var go = window.confirm("Validation PayPal automatique non configurée.\n\nSi tu as BIEN payé, tu peux tenter une confirmation MANUELLE (moins sécurisée).\n\nContinuer ?");
+        if(go){
+          try{
+            var res2 = await window.DX_API.post("confirmPayPalPayment", { tx: cleanTx, product: "pack", demandeId: id, force: true });
+            if(res2 && res2.ok){
+              show("ok", "Paiement confirmé (manuel).");
+              setTimeout(function(){ location.href = id ? ("demande-detail.html?id=" + encodeURIComponent(id) + "&paid=1") : ("mur-demandes.html?paid=1"); }, 800);
+              return;
+            }
+            show("err", (res2 && (res2.error || res2.message)) ? (res2.error || res2.message) : "Confirmation manuelle impossible.");
+          }catch(e2){
+            show("err", "Erreur réseau (confirmation manuelle).");
+          }
+        }
+        return;
+      }
+      show("err", errMsg);
     } catch (e) {
       btnPaid.disabled = false;
       btnPaid.textContent = originalBtnText;
