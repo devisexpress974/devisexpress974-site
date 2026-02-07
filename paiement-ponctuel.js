@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(location.search);
   const btn = document.getElementById("btnPaid") || document.getElementById("btnUnlock");
   const id = params.get("id") || params.get("demandeId") || "";
+  const txFromUrl = params.get("tx") || params.get("txn_id") || "";
 
   const btnPay = document.getElementById("btnPay");
   const paypalLink = document.getElementById("paypalLink");
@@ -74,13 +75,18 @@ document.addEventListener("DOMContentLoaded", () => {
     show("muted", "Enregistrement de l’accès…");
 
     try {
-      const res = await window.DX_API.postAny(
-        ["grantAccess", "unlockDemande"],
-        { demandeId: id, type: "ponctuel" }
-      );
+      const tx = (txFromUrl || window.prompt("Colle l\'ID de transaction PayPal (tx) puis OK :") || "").trim();
+
+      if(!tx){
+        btn.disabled = false;
+        btn.textContent = originalBtnText;
+        return show("err","Transaction PayPal manquante.");
+      }
+
+      const res = await window.DX_API.post("confirmPayPalPayment", { tx: tx, product: "ponctuel", demandeId: id });
 
       if (res && res.ok) {
-        show("ok", "Accès enregistré. Ouverture de la demande…");
+        show("ok", "Paiement confirmé ✅");
         setTimeout(() => {
           location.href = "demande-detail.html?id=" + encodeURIComponent(id);
         }, 450);
