@@ -12,6 +12,22 @@
 <link href="./assets/css/dx-header.css?v=40" rel="stylesheet"/>
   <link rel="stylesheet" href="./assets/css/dx-searchable-select.css?v=45" />
 <script defer="" src="./assets/js/dx-include-header.js?v=40"></script>
+  <style>
+    .pillRow{ display:flex; gap:8px; align-items:center; }
+    .pillRow .selectWrap{ flex:1; }
+    .pills{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-weight:900; font-size:12px;
+    }
+    .pillX{
+      border:none; background:transparent; cursor:pointer;
+      font-weight:900; font-size:14px; line-height:1;
+    }
+  </style>
 </head>
 <body>
 <div id="dx-header-slot"></div>
@@ -203,11 +219,16 @@
 </div>
 </div>
 <div class="field">
-<label for="commune">Commune <span class="req">*</span></label>
-<div class="selectWrap">
-<select id="commune" required=""><option value="">Choisir…</option>
+<label for="commune">Communes <span class="req">*</span></label>
+<div class="pillRow">
+  <div class="selectWrap">
+    <select id="commune"><option value="">Choisir…</option>
 </select>
+  </div>
+  <button class="btn" type="button" id="btnAddCommune">Ajouter</button>
 </div>
+<div class="pills" id="communeChips"></div>
+<div class="help">Choisis au moins 1 commune. Tu peux en ajouter plusieurs.</div>
 </div>
 <div class="field" style="grid-column:1/-1;">
 <label for="description">Description (visible) <span class="req">*</span></label>

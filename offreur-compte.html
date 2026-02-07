@@ -18,6 +18,9 @@
   <style>
     .pageWrap{ padding:18px 0 26px; }
     .pills{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 0; }
+    .pillRow{ display:flex; gap:8px; align-items:center; }
+    .pillRow .selectWrap{ flex:1; }
+    .pillX{ border:none; background:transparent; cursor:pointer; font-weight:900; font-size:14px; line-height:1; }
     .pill{
       display:inline-flex; align-items:center; gap:8px;
       padding:8px 10px; border-radius:999px;
@@ -170,13 +173,17 @@
           </div>
 
           <div class="field">
-            <label for="commune">Commune <span class="req">*</span></label>
-            <div class="selectWrap">
-              <select id="commune" class="input" required>
-                <option value="">Choisir…</option>
-              </select>
+            <label for="commune">Communes <span class="req">*</span></label>
+            <div class="pillRow">
+              <div class="selectWrap">
+                <select id="commune" class="input">
+                  <option value="">Choisir…</option>
+                </select>
+              </div>
+              <button class="btn" type="button" id="btnAddCommune">Ajouter</button>
             </div>
-            <div class="hint">Si tu veux plusieurs communes plus tard : on passera en sélection multiple (Patch suivant).</div>
+            <div class="pills" id="communeChips"></div>
+            <div class="hint">Choisis au moins 1 commune. Tu peux en ajouter plusieurs.</div>
           </div>
 
           <div class="field" style="grid-column:1/-1;">

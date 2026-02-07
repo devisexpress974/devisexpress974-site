@@ -2,6 +2,53 @@
 (() => {
   const $ = (id) => document.getElementById(id);
 
+  // PATCH37: multi-communes (chips)
+  const selectedCommunes = [];
+
+  function splitListLocal_(s){
+    s = String(s||"").trim();
+    if(!s) return [];
+    return s.split(/[,;|\/]+/).map(x => String(x||"").trim()).filter(Boolean);
+  }
+
+  function renderCommuneChips_(){
+    const wrap = $("communeChips");
+    if(!wrap) return;
+    wrap.innerHTML = "";
+    selectedCommunes.forEach((c) => {
+      const pill = document.createElement("span");
+      pill.className = "pill";
+      const txt = document.createElement("span");
+      txt.textContent = c;
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "pillX";
+      x.setAttribute("aria-label", "Retirer " + c);
+      x.textContent = "×";
+      x.addEventListener("click", () => {
+        const i = selectedCommunes.indexOf(c);
+        if(i >= 0) selectedCommunes.splice(i, 1);
+        renderCommuneChips_();
+      });
+      pill.appendChild(txt);
+      pill.appendChild(x);
+      wrap.appendChild(pill);
+    });
+  }
+
+  function addCommune_(v){
+    const c = String(v||"").trim();
+    if(!c) return;
+    if(selectedCommunes.indexOf(c) >= 0) return;
+    selectedCommunes.push(c);
+    renderCommuneChips_();
+  }
+
+  function resetCommunes_(){
+    selectedCommunes.length = 0;
+    renderCommuneChips_();
+  }
+
   // PATCH22: activer la recherche sur les selects (si présents)
   document.addEventListener("DOMContentLoaded", () => {
     if (!window.DXSearchSelect) return;
@@ -224,7 +271,13 @@
     $("showNote").value = (u.showNote || "OUI").toUpperCase();
 
     $("zone").value = u.zone || "";
-    refreshCommuneOptions(u.zone, u.commune || "");
+    // PATCH37: u.commune peut contenir plusieurs communes (séparées par , ; | /)
+    resetCommunes_();
+    splitListLocal_(u.commune || "").forEach(addCommune_);
+    // On sélectionne la première commune dans la liste pour le dropdown
+    const first = selectedCommunes.length ? selectedCommunes[0] : "";
+    refreshCommuneOptions($("zone").value, first);
+    renderCommuneChips_();
 
     $("description").value = u.description || "";
     $("serviceAutre").value = u.serviceAutre || "";
@@ -289,6 +342,7 @@
 
   document.addEventListener("change", (e) => {
     if(e.target && e.target.id === "zone"){
+      resetCommunes_();
       refreshCommuneOptions(e.target.value, "");
     }
     if(e.target && e.target.id === "service"){
@@ -297,11 +351,34 @@
   });
 
   document.addEventListener("DOMContentLoaded", () => {
+
+    // PATCH37: bouton "Ajouter" pour les communes
+    const btnAddCommune = $("btnAddCommune");
+    const communeSel = $("commune");
+    if(btnAddCommune && communeSel){
+      btnAddCommune.addEventListener("click", () => {
+        addCommune_(communeSel.value);
+        communeSel.value = "";
+        try{ communeSel.focus(); }catch(e){}
+      });
+    }
+
     const form = $("profileForm");
     if(form){
       form.addEventListener("submit", async (ev) => {
         ev.preventDefault();
         setNotice("", "");
+
+        // PATCH37: on prend la sélection actuelle si besoin
+        try{
+          const pick = $("commune") ? String($("commune").value||"").trim() : "";
+          if(pick) addCommune_(pick);
+        }catch(e){}
+        const communesJoined = selectedCommunes.join(", ").trim();
+        if(!communesJoined){
+          setNotice("❌ Choisis au moins 1 commune.", "bad");
+          return;
+        }
 
         const payload = {
           nom: $("nom").value,
@@ -313,7 +390,7 @@
           service: $("service").value,
           serviceAutre: $("serviceAutre").value,
           zone: $("zone").value,
-          commune: $("commune").value,
+          commune: communesJoined,
           description: $("description").value,
           typeOffreur: $("typeOffreur") ? $("typeOffreur").value : "PRO",
           siren: $("siren") ? String($("siren").value||"").replace(/[^0-9]/g,"").trim() : ""

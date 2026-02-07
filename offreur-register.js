@@ -31,7 +31,68 @@ document.addEventListener("DOMContentLoaded", () => {
     return v.startsWith("autre");
   }
 
-  if (!form || !btn) {
+    // PATCH37: multi-communes (chips) — on garde le <select id="commune"> pour la recherche
+  const communeSel = document.getElementById("commune");
+  const btnAddCommune = document.getElementById("btnAddCommune");
+  const communeChips = document.getElementById("communeChips");
+  const zoneSel = document.getElementById("zone");
+  const selectedCommunes = [];
+
+  function splitList(s){
+    s = (s || "").toString().trim();
+    if(!s) return [];
+    return s.split(/[,;|\/]+/).map(x => (x||"").toString().trim()).filter(Boolean);
+  }
+
+  function renderCommuneChips(){
+    if(!communeChips) return;
+    communeChips.innerHTML = "";
+    selectedCommunes.forEach((c) => {
+      const pill = document.createElement("span");
+      pill.className = "pill";
+      const txt = document.createElement("span");
+      txt.textContent = c;
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "pillX";
+      x.setAttribute("aria-label", "Retirer " + c);
+      x.textContent = "×";
+      x.addEventListener("click", () => {
+        const i = selectedCommunes.indexOf(c);
+        if(i >= 0) selectedCommunes.splice(i, 1);
+        renderCommuneChips();
+      });
+      pill.appendChild(txt);
+      pill.appendChild(x);
+      communeChips.appendChild(pill);
+    });
+  }
+
+  function addCommune(v){
+    const c = (v || "").toString().trim();
+    if(!c) return;
+    if(selectedCommunes.indexOf(c) >= 0) return;
+    selectedCommunes.push(c);
+    renderCommuneChips();
+  }
+
+  if(btnAddCommune && communeSel){
+    btnAddCommune.addEventListener("click", () => {
+      addCommune(communeSel.value);
+      communeSel.value = "";
+      try{ communeSel.focus(); }catch(e){}
+    });
+  }
+
+  if(zoneSel){
+    // Quand on change de zone, on vide la sélection de communes (la liste est régénérée par dx-geo-communes.js)
+    zoneSel.addEventListener("change", () => {
+      selectedCommunes.length = 0;
+      renderCommuneChips();
+    });
+  }
+
+if (!form || !btn) {
     show("err", "Erreur : formulaire d’inscription introuvable.");
     return;
   }
@@ -53,9 +114,17 @@ document.addEventListener("DOMContentLoaded", () => {
       service,
       serviceAutre,
       zone: document.getElementById("zone")?.value || "",
-      commune: document.getElementById("commune")?.value || "",
+      commune: "",
       description: (document.getElementById("description")?.value || "").trim(),
     };
+
+
+    // PATCH37: communes = liste (chips) ou choix actuel
+    if(communeSel){
+      const pick = (communeSel.value || "").toString().trim();
+      if(pick) addCommune(pick);
+    }
+    payload.commune = selectedCommunes.join(", ").trim();
 
     // Required
     if (
