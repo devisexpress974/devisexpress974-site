@@ -1,51 +1,85 @@
-// offreur-unsubscribe.js (Patch11)
-(async () => {
-  const params = new URLSearchParams(location.search);
-  const email = (params.get("email") || "").trim().toLowerCase();
-  const sig = (params.get("sig") || "").trim();
+// offreur-unsubscribe.js (Patch46) — Désinscription / Réabonnement emails
+(() => {
+  const $ = (id) => document.getElementById(id);
 
-  const emailTxt = document.getElementById("emailTxt");
-  const msg = document.getElementById("msg");
-  const btnUnsub = document.getElementById("btnUnsub");
-  const btnResub = document.getElementById("btnResub");
-
-  function show(text, danger){
-    msg.style.display = "block";
-    msg.classList.toggle("danger", !!danger);
-    msg.textContent = text;
+  function esc(s){
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
   }
 
-  if(!email || !sig){
-    emailTxt.textContent = "Lien incomplet.";
-    show("Lien invalide. Connecte-toi et utilise Mon compte → Notifications.", true);
-    btnUnsub.disabled = true;
-    btnResub.disabled = true;
-    return;
+  function getParam(name){
+    try { return new URLSearchParams(location.search).get(name) || ""; }
+    catch { return ""; }
   }
 
-  emailTxt.textContent = "Email : " + email;
+  function setStatus(html, cls){
+    const el = $("status");
+    if(!el) return;
+    el.className = "muted " + (cls || "");
+    el.innerHTML = html;
+  }
+
+  function showActions(show){
+    const a = $("actions");
+    if(a) a.style.display = show ? "flex" : "none";
+  }
+
+  const email = String(getParam("email") || "").trim().toLowerCase();
+  const sig = String(getParam("sig") || "").trim();
 
   async function call(action){
-    const r = await window.DX_API.getAny([action], { email, sig });
-    if(!r || !r.ok){
-      show((r && r.error) ? r.error : "Erreur", true);
-      return null;
-    }
-    show("OK — " + (r.notifEmail === "NON" ? "désinscrit" : "réactivé") + ".", false);
-    return r;
+    if(!window.DX_API) return { ok:false, error:"DX_API manquant" };
+    return window.DX_API.post(action, { email, sig });
   }
 
-  btnUnsub.addEventListener("click", async () => {
-    btnUnsub.disabled = true;
-    btnUnsub.textContent = "Traitement…";
-    try{ await call("unsubscribeEmail"); }
-    finally{ btnUnsub.disabled = false; btnUnsub.textContent = "Me désinscrire"; }
-  });
+  async function doUnsub(){
+    setStatus("Désinscription en cours…");
+    const r = await call("unsubscribeEmail");
+    if(r && r.ok){
+      setStatus('<span class="ok">OK.</span> Tu ne recevras plus d’emails de nouvelles demandes.', "ok");
+      showActions(true);
+      return;
+    }
+    setStatus('<span class="bad">Erreur :</span> ' + esc((r && r.error) || "Impossible de traiter la demande.") , "bad");
+    showActions(true);
+  }
 
-  btnResub.addEventListener("click", async () => {
-    btnResub.disabled = true;
-    btnResub.textContent = "Traitement…";
-    try{ await call("resubscribeEmail"); }
-    finally{ btnResub.disabled = false; btnResub.textContent = "Réactiver"; }
-  });
+  async function doResub(){
+    setStatus("Réabonnement en cours…");
+    const r = await call("resubscribeEmail");
+    if(r && r.ok){
+      setStatus('<span class="ok">OK.</span> Tu recevras à nouveau les emails de nouvelles demandes.', "ok");
+      showActions(true);
+      return;
+    }
+    setStatus('<span class="bad">Erreur :</span> ' + esc((r && r.error) || "Impossible de traiter la demande.") , "bad");
+    showActions(true);
+  }
+
+  function wire(){
+    const b1 = $("btnUnsub");
+    const b2 = $("btnResub");
+    if(b1) b1.addEventListener("click", doUnsub);
+    if(b2) b2.addEventListener("click", doResub);
+  }
+
+  function init(){
+    // Année footer (compat: certains footers utilisent y, d'autres year)
+    try{
+      const y = document.getElementById("y") || document.getElementById("year");
+      if(y) y.textContent = String(new Date().getFullYear());
+    }catch(e){}
+
+    wire();
+
+    if(!email || !sig){
+      setStatus('Lien incomplet. Ouvre le lien reçu par email, ou gère ça via <a href="./offreur-compte.html">Mon compte</a>.', "bad");
+      showActions(false);
+      return;
+    }
+
+    // One-click : on désinscrit automatiquement à l’ouverture du lien
+    doUnsub();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
 })();
