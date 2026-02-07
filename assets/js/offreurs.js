@@ -240,9 +240,15 @@ function fillSelect(select, items){
       const note = o.noteMoyenne || o.NoteMoyenne || o.note || "";
       const nb = o.nombreAvis || o.NombreAvis || o.nbAvis || "";
 
-      const badge = (note && Number(nb||0)>0)
-        ? `<span class="badge">${stars(note)} • ${esc(String(note))}/5 (${esc(String(nb))})</span>`
-        : `<span class="badge">Pas d’avis</span>`;
+      const showNote = String(o.showNote || o.ShowNote || o.afficherNote || o.AfficherNote || "OUI").toUpperCase();
+      let badge = "";
+      if(showNote !== "OUI"){
+        badge = `<span class="badge">Note masquée</span>`;
+      } else if (note && Number(nb||0)>0){
+        badge = `<span class="badge">${stars(note)} • ${esc(String(note))}/5 (${esc(String(nb))})</span>`;
+      } else {
+        badge = `<span class="badge">Pas d’avis</span>`;
+      }
 
       const card = document.createElement("div");
       card.className = "itemCard";
@@ -257,6 +263,7 @@ function fillSelect(select, items){
         <p class="itemMeta" style="margin-top:10px;">${esc(desc).slice(0, 180)}${desc.length>180 ? "…" : ""}</p>
         <div class="btnRow" style="margin-top:12px;">
           <a class="btn" href="offreur-profil.html?id=${encodeURIComponent(id)}">Voir profil</a>
+          <a class="btn" href="noter-offreur.html?id=${encodeURIComponent(id)}">Noter</a>
           <a class="btn btnPrimary" href="offreur-login.html">Contacter</a>
         </div>
       `;
