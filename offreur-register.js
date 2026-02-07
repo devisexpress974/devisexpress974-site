@@ -31,6 +31,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return v.startsWith("autre");
   }
 
+  function isAllIslandZone(v){
+    v = (v || "").toString().toLowerCase().trim();
+    if(!v) return false;
+    // accepte "Sur toute l'île" / "Toute l'île" / variantes
+    return (v.indexOf("toute") >= 0) && (v.indexOf("ile") >= 0 || v.indexOf("île") >= 0);
+  }
+
+  function syncCommuneUi(){
+    const isAll = isAllIslandZone(zoneSel ? zoneSel.value : "");
+    if(communeSel) communeSel.disabled = !!isAll;
+    if(btnAddCommune) btnAddCommune.disabled = !!isAll;
+    if(isAll){
+      // Sur toute l'île => communes inutiles
+      selectedCommunes.length = 0;
+      renderCommuneChips();
+      if(communeSel) communeSel.value = "";
+    }
+  }
+
+
     // PATCH37: multi-communes (chips) — on garde le <select id="commune"> pour la recherche
   const communeSel = document.getElementById("commune");
   const btnAddCommune = document.getElementById("btnAddCommune");
@@ -69,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addCommune(v){
+    if(isAllIslandZone(zoneSel ? zoneSel.value : "")) return;
     const c = (v || "").toString().trim();
     if(!c) return;
     if(selectedCommunes.indexOf(c) >= 0) return;
@@ -87,10 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if(zoneSel){
     // Quand on change de zone, on vide la sélection de communes (la liste est régénérée par dx-geo-communes.js)
     zoneSel.addEventListener("change", () => {
-      selectedCommunes.length = 0;
-      renderCommuneChips();
+      syncCommuneUi();
     });
-  }
+}
 
 if (!form || !btn) {
     show("err", "Erreur : formulaire d’inscription introuvable.");
@@ -125,6 +145,7 @@ if (!form || !btn) {
       if(pick) addCommune(pick);
     }
     payload.commune = selectedCommunes.join(", ").trim();
+    if(isAllIslandZone(payload.zone)) payload.commune = "";
 
     // Required
     if (
@@ -135,7 +156,7 @@ if (!form || !btn) {
       !payload.typeOffreur ||
       !payload.service ||
       !payload.zone ||
-      !payload.commune ||
+      (!payload.commune && !isAllIslandZone(payload.zone)) ||
       !payload.description
     ) {
       return show("err", "Merci de remplir tous les champs obligatoires (*).");

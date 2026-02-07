@@ -49,6 +49,27 @@
     renderCommuneChips_();
   }
 
+  function isAllIslandZone_(v){
+    v = String(v||"").toLowerCase().trim();
+    if(!v) return false;
+    return (v.indexOf("toute") >= 0) && (v.indexOf("ile") >= 0 || v.indexOf("île") >= 0);
+  }
+
+  function syncCommuneUi_(){
+    const z = $("zone") ? $("zone").value : "";
+    const isAll = isAllIslandZone_(z);
+    const sel = $("commune");
+    const btn = $("btnAddCommune");
+    if(sel) sel.disabled = !!isAll;
+    if(btn) btn.disabled = !!isAll;
+    if(isAll){
+      resetCommunes_();
+      if(sel) sel.value = "";
+      renderCommuneChips_();
+    }
+  }
+
+
   // PATCH22: activer la recherche sur les selects (si présents)
   document.addEventListener("DOMContentLoaded", () => {
     if (!window.DXSearchSelect) return;
@@ -306,6 +327,8 @@
     $("showNote").value = (u.showNote || "OUI").toUpperCase();
 
     $("zone").value = u.zone || "";
+    // PATCH48
+    syncCommuneUi_();
     // PATCH37: u.commune peut contenir plusieurs communes (séparées par , ; | /)
     resetCommunes_();
     splitListLocal_(u.commune || "").forEach(addCommune_);
@@ -405,6 +428,16 @@
       });
     }
 
+    // PATCH48: "Sur toute l'île" => communes inutiles
+    const zoneSel = $("zone");
+    if(zoneSel){
+      zoneSel.addEventListener("change", () => {
+        syncCommuneUi_();
+      });
+    }
+    // Init
+    syncCommuneUi_();
+
     const form = $("profileForm");
     if(form){
       form.addEventListener("submit", async (ev) => {
@@ -417,8 +450,10 @@
           if(pick) addCommune_(pick);
         }catch(e){}
         const communesJoined = selectedCommunes.join(", ").trim();
-        if(!communesJoined){
-          setNotice("❌ Choisis au moins 1 commune.", "bad");
+        const zoneVal = $("zone") ? $("zone").value : "";
+        const isAll = isAllIslandZone_(zoneVal);
+        if(!communesJoined && !isAll){
+          setNotice("❌ Choisis au moins 1 commune (ou sélectionne “Sur toute l'île”).", "bad");
           return;
         }
 
@@ -432,7 +467,7 @@
           service: $("service").value,
           serviceAutre: $("serviceAutre").value,
           zone: $("zone").value,
-          commune: communesJoined,
+          commune: (isAllIslandZone_($("zone") ? $("zone").value : "") ? "" : communesJoined),
           description: $("description").value,
           typeOffreur: $("typeOffreur") ? $("typeOffreur").value : "PRO",
           siren: $("siren") ? String($("siren").value||"").replace(/[^0-9]/g,"").trim() : ""
