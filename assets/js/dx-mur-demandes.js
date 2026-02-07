@@ -1,4 +1,4 @@
-/* DX48 - mur des demandes
+/* DX49 - mur des demandes
    - Public: affiche un aperçu (limité par service) + CTA connexion "Voir plus"
    - Connecté: affiche le mur complet via pagination (Voir plus)
    Dépend de api.js (window.DX_API). */
@@ -303,6 +303,7 @@ function pillHtml(info){
     opts = opts || {};
     var reset = !!opts.reset;
     var limit = opts.limit;
+    var forcePublic = !!opts.forcePublic;
 
     if(reset){
       all = [];
@@ -313,7 +314,20 @@ function pillHtml(info){
       var offset = all.length;
       var params = { offset: offset, limit: limit };
       if(currentQ) params.q = currentQ;
-      var res = await DX_API.get('listDemandesPublic', params);
+
+      var logged = isLoggedIn() && !forcePublic;
+      var action = logged ? "listDemandesForOffreur" : "listDemandesPublic";
+      var res = await DX_API.get(action, params);
+
+      // Token invalide => fallback en mode public (une seule fois)
+      if(logged && res && !res.ok){
+        var msg = String(res.error || "");
+        if(/connexion|token|session/i.test(msg)){
+          try{ localStorage.removeItem("dx_token"); }catch(e){}
+          return fetchPage({ reset: reset, limit: limit, forcePublic: true });
+        }
+      }
+
       if(res && res.ok){
         var items = res.data || [];
         var t = (res.total !== undefined && res.total !== null) ? Number(res.total) : null;
