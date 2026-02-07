@@ -48,56 +48,73 @@
   }
 
   async function refreshHeader(){
-    const loginCta = document.getElementById("loginCta");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const headerRight = document.getElementById("headerRight");
-    const loginCtaMobile = document.getElementById("loginCtaMobile");
-    const accountLink = document.getElementById("accountLink");
-    const accountLinkMobile = document.getElementById("accountLinkMobile");
-    const logoutMobileBtn = document.getElementById("logoutMobileBtn");
-    // desktop elements may exist on all pages, mobile ones are optional
-    if(!loginCta || !logoutBtn || !headerRight) return;
+  const loginCta = document.getElementById("loginCta");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const headerRight = document.getElementById("headerRight");
+  const loginCtaMobile = document.getElementById("loginCtaMobile");
+  const accountLink = document.getElementById("accountLink");
+  const accountLinkMobile = document.getElementById("accountLinkMobile");
+  const logoutMobileBtn = document.getElementById("logoutMobileBtn");
+  // desktop elements may exist on all pages, mobile ones are optional
+  if(!loginCta || !logoutBtn || !headerRight) return;
 
-    const token = getToken();
-    if(!token){
-      loginCta.style.display = "";
-      logoutBtn.style.display = "none";
-      if(loginCtaMobile) loginCtaMobile.style.display = "";
-      if(logoutMobileBtn) logoutMobileBtn.style.display = "none";
-      return;
-    }
+  function removePill(){
+    const pill = document.getElementById("userPill");
+    if(pill) pill.remove();
+  }
 
-    // try whoami
-    const me = await whoami();
-    if(me && me.ok && me.user){
-      loginCta.style.display = "none";
-      logoutBtn.style.display = "";
-      if(loginCtaMobile) loginCtaMobile.style.display = "none";
-      if(logoutMobileBtn) logoutMobileBtn.style.display = "";
-      // add small pill (once)
-      if(!document.getElementById("userPill")){
-        const pill = document.createElement("div");
-        pill.className = "userPill";
-        pill.id = "userPill";
-        pill.innerHTML = `<span class="userDot"></span><span>${(me.user.nom||"Offreur")}</span>`;
-        headerRight.prepend(pill);
-      } else {
-        const pill = document.getElementById("userPill");
-        pill.querySelector("span:last-child").textContent = (me.user.nom||"Offreur");
-      }
+  function setLoggedOut(){
+    loginCta.style.display = "";
+    logoutBtn.style.display = "none";
+    if(accountLink) accountLink.style.display = "none";
+    if(loginCtaMobile) loginCtaMobile.style.display = "";
+    if(accountLinkMobile) accountLinkMobile.style.display = "none";
+    if(logoutMobileBtn) logoutMobileBtn.style.display = "none";
+    removePill();
+  }
+
+  function setLoggedIn(displayName){
+    loginCta.style.display = "none";
+    logoutBtn.style.display = "";
+    if(accountLink) accountLink.style.display = "";
+    if(loginCtaMobile) loginCtaMobile.style.display = "none";
+    if(accountLinkMobile) accountLinkMobile.style.display = "";
+    if(logoutMobileBtn) logoutMobileBtn.style.display = "";
+
+    // add small pill (once)
+    const name = (displayName || "Offreur");
+    if(!document.getElementById("userPill")){
+      const pill = document.createElement("div");
+      pill.className = "userPill";
+      pill.id = "userPill";
+      pill.innerHTML = `<span class="userDot"></span><span></span>`;
+      pill.querySelector("span:last-child").textContent = name;
+      headerRight.prepend(pill);
     } else {
-      // token invalide
-      clearToken();
-      loginCta.style.display = "";
-      logoutBtn.style.display = "none";
-      if(loginCtaMobile) loginCtaMobile.style.display = "";
-      if(logoutMobileBtn) logoutMobileBtn.style.display = "none";
       const pill = document.getElementById("userPill");
-      if(pill) pill.remove();
+      const label = pill.querySelector("span:last-child");
+      if(label) label.textContent = name;
     }
   }
 
-  
+  const token = getToken();
+  if(!token){
+    setLoggedOut();
+    return;
+  }
+
+  // try whoami
+  const me = await whoami();
+  if(me && me.ok && me.user){
+    setLoggedIn(me.user.nom || me.user.name || "Offreur");
+  } else {
+    // token invalide
+    clearToken();
+    setLoggedOut();
+  }
+}
+
+
   function bindLogoutButtons(){
     const btns = [
       document.getElementById("logoutBtn"),
