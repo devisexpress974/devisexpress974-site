@@ -1885,22 +1885,14 @@ function requestResetOffreur_(e, body){
     }
 
     var bodyTxt =
-      "Voici ton code de réinitialisation (valable 30 min):
-
-" +
-      token + "
-
-";
+      "Bonjour,\n\n" +
+      "Voici ton code de réinitialisation (valable 30 min) :\n\n" +
+      token + "\n\n";
 
     if(link){
-      bodyTxt += "Lien direct :
-" + link + "
-
-";
+      bodyTxt += "Lien direct :\n" + link + "\n\n";
     }else{
-      bodyTxt += "Va sur DevisExpress974, page 'Réinitialiser le mot de passe', puis saisis ce code.
-
-";
+      bodyTxt += "Va sur DevisExpress974, page 'Réinitialiser le mot de passe', puis saisis ce code.\n\n";
     }
 
     bodyTxt += "Si tu n'es pas à l'origine de cette demande, ignore cet email.";
