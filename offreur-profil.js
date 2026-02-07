@@ -1,7 +1,7 @@
-// offreur-profil.js (profil PUBLIC)
+// offreur-profil.js (profil PUBLIC) — DX (v42)
 // Affiche un profil offreur depuis offreur-profil.html?id=XXXX
 // - Sans coordonnées (confidentialité)
-// - Chargement via backend (GAS via netlify/functions/gas ou API existante)
+// - Chargement via backend (GAS via /.netlify/functions/gas) via DX_API
 
 (function () {
   "use strict";
@@ -24,86 +24,66 @@
     box.innerHTML = html;
   }
 
-  function qp(obj) {
-    const u = new URLSearchParams();
-    Object.entries(obj || {}).forEach(([k, v]) => {
-      if (v === undefined || v === null || v === "") return;
-      u.set(k, String(v));
-    });
-    const s = u.toString();
-    return s ? `?${s}` : "";
-  }
-
-  async function fetchJson(url, opt) {
-    const res = await fetch(url, opt || {});
-    const txt = await res.text();
-    try {
-      return JSON.parse(txt);
-    } catch (e) {
-      return { ok: false, error: "Réponse non JSON", raw: (txt || "").slice(0, 180) };
-    }
-  }
-
-  async function callBackend(route, query) {
-    query = query || {};
-
-    // 1) Si ton api.js expose déjà une fonction, on l'utilise (si elle existe).
-    try {
-      if (window.DX_API && typeof window.DX_API.call === "function") {
-        return await window.DX_API.call(route, query);
-      }
-      if (typeof window.apiCall === "function") {
-        return await window.apiCall(route, query);
-      }
-      if (typeof window.apiGet === "function") {
-        return await window.apiGet(route, query);
-      }
-    } catch (e) {}
-
-    // 2) Fallback vers Netlify Function
-    const base = (window.DX_API_BASE || window.API_BASE || "").toString().trim();
-    const fn = base || "/.netlify/functions/gas";
-
-    const tries = [
-      fn + qp({ route, ...query }),
-      fn + qp({ action: route, ...query }),
-      fn + qp({ path: route, ...query }),
-      fn + qp({ fn: route, ...query }),
-    ];
-
-    for (const url of tries) {
-      try {
-        const js = await fetchJson(url);
-        if (js && (js.ok === true || js.offreur || js.user || js.data)) return js;
-      } catch (e) {}
-    }
-
-    const postOpt = (payload) => ({
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    for (const payload of [
-      { route, ...query },
-      { action: route, ...query },
-      { path: route, ...query },
-      { fn: route, ...query },
-    ]) {
-      try {
-        const js = await fetchJson(fn, postOpt(payload));
-        if (js && (js.ok === true || js.offreur || js.user || js.data)) return js;
-      } catch (e) {}
-    }
-
-    return { ok: false, error: "Impossible de joindre le backend" };
-  }
-
   function pick(obj, keys) {
     for (const k of keys) {
       if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
     }
     return "";
+  }
+
+  function qp(name) {
+    try { return (new URL(location.href)).searchParams.get(name) || ""; }
+    catch (e) { return ""; }
+  }
+
+  function pickOffreurId() {
+    return (qp("id") || qp("oid") || qp("offreurId") || qp("offreurID") || "").trim();
+  }
+
+  function toBoolShowNote(v) {
+    if (v === undefined || v === null || v === "") return true;
+    const s = String(v).trim().toLowerCase();
+    if (s === "non" || s === "0" || s === "false") return false;
+    return true;
+  }
+
+  function splitList(v) {
+    return String(v || "")
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean);
+  }
+
+  async function loadProfile(id) {
+    if (!window.DX_API || typeof window.DX_API.getAny !== "function") {
+      return { ok: false, error: "API non chargée (DX_API). Recharge la page." };
+    }
+
+    // 1) Profil public dédié (sans coordonnées)
+    let resp = null;
+    try {
+      resp = await window.DX_API.getAny(
+        ["getOffreurProfilePublic", "getOffreurProfile"],
+        { id }
+      );
+    } catch (e) {
+      resp = null;
+    }
+
+    if (resp && resp.ok) return resp;
+
+    // 2) Fallback ultime : liste publique (si le backend ne supporte pas l'endpoint direct)
+    try {
+      const list = await window.DX_API.getAny(["getOffreursPublic"], { q: "", limit: 200, offset: 0 });
+      if (list && list.ok && Array.isArray(list.data)) {
+        const found = list.data.find(o =>
+          String(pick(o, ["OffreurID", "offreurID", "id", "ID"])).trim() === id
+        );
+        if (found) return { ok: true, offreur: found };
+      }
+    } catch (e) {}
+
+    return resp || { ok: false, error: "Impossible de charger ce profil." };
   }
 
   function buildProfileHtml(p) {
@@ -115,19 +95,27 @@
       "Offreur";
 
     const service = pick(p, ["service", "Service"]) || pick(p, ["service_id", "Service_id"]);
+    const serviceAutre = pick(p, ["serviceAutre", "ServiceAutre"]);
     const zone = pick(p, ["zone", "Zone"]);
-    const commune = pick(p, ["commune", "Commune"]);
+    const communes = splitList(pick(p, ["commune", "Commune"]));
+
     const desc = pick(p, ["description", "Description", "bio", "Bio"]);
 
-    const showNoteRaw = pick(p, ["showNote", "ShowNote", "show_note", "Show_Note"]);
-    const showNote = (showNoteRaw === undefined || showNoteRaw === null)
-      ? true
-      : (String(showNoteRaw).trim().toUpperCase() !== "NON" && String(showNoteRaw).trim() !== "0" && String(showNoteRaw).trim().toLowerCase() !== "false");
-
+    const showNote = toBoolShowNote(pick(p, ["showNote", "ShowNote", "show_note", "Show_Note"]));
     const note = pick(p, ["note", "Note", "rating", "Rating"]);
     const nbAvis = pick(p, ["nbAvis", "NbAvis", "reviewsCount", "ReviewsCount"]);
 
-    const chips = [service, commune, zone].filter(Boolean).map((x) => `<span class="chip">${esc(x)}</span>`).join(" ");
+    const chipsArr = [];
+    if (service) chipsArr.push(String(service));
+    if (serviceAutre && String(service).toLowerCase().startsWith("autre")) chipsArr.push(String(serviceAutre));
+    communes.forEach(c => chipsArr.push(c));
+    if (zone) chipsArr.push(String(zone));
+
+    const chips = chipsArr
+      .filter(Boolean)
+      .slice(0, 10)
+      .map(x => `<span class="chip">${esc(x)}</span>`)
+      .join(" ");
 
     const noteLine = (!showNote)
       ? `<div style="margin-top:10px;" class="muted"><strong>Note :</strong> masquée</div>`
@@ -153,8 +141,8 @@
         </div>
 
         <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="btn" href="offreurs.html">Retour aux offreurs</a>
-          <a class="btn" href="mur-demandes.html">Voir le mur</a>
+          <a class="btn" href="./offreurs.html">Retour aux offreurs</a>
+          <a class="btn" href="./mur-demandes.html">Voir le mur</a>
         </div>
       </div>
     `;
@@ -164,21 +152,18 @@
     const y = document.getElementById("y");
     if (y) y.textContent = String(new Date().getFullYear());
 
-    const params = new URLSearchParams(location.search);
-    const id = params.get("id") || "";
-
+    const id = pickOffreurId();
     if (!id) {
-      setBox(`Profil introuvable : il manque l’identifiant.<br><br><a class="btn" href="offreurs.html">Retour</a>`, true);
+      setBox(`Profil introuvable : il manque l’identifiant.<br><br><a class="btn" href="./offreurs.html">Retour</a>`, true);
       return;
     }
 
     setBox("Chargement…", false);
 
-    const resp = await callBackend("getOffreurProfile", { id });
-
+    const resp = await loadProfile(id);
     if (!resp || resp.ok === false) {
       const err = resp?.error ? esc(resp.error) : "Erreur inconnue";
-      setBox(`Impossible de charger ce profil.<br><span class="muted">${err}</span><br><br><a class="btn" href="offreurs.html">Retour</a>`, true);
+      setBox(`Impossible de charger ce profil.<br><span class="muted">${err}</span><br><br><a class="btn" href="./offreurs.html">Retour</a>`, true);
       return;
     }
 
