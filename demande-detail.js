@@ -1,4 +1,4 @@
-/* DevisExpress974 — demande-detail.js (Patch24)
+/* DevisExpress974 — demande-detail.js (Patch53)
    Objectif :
    - Afficher une demande (public) et masquer les coordonnées
    - Si prestataire connecté : appeler getDemande et afficher coordonnées si CanSeeContact == true
@@ -111,7 +111,7 @@ function statusLabel(v){
   return s.charAt(0)+s.slice(1).toLowerCase();
 }
 
-function setTextfunction setText(id, v) {
+function setText(id, v) {
     var node = el(id);
     if (node) node.textContent = (v === undefined || v === null || v === "") ? "—" : String(v);
   }
@@ -209,6 +209,67 @@ function setTextfunction setText(id, v) {
 
     var login = el("btnLogin");
     if (login) login.href = "./offreur-login.html?redirect=" + encodeURIComponent(back);
+  }
+
+
+  function setUnlockNowUI(canSee, isLogged, reason, planData, token, demandeId){
+    var btn = el("btnUnlockNow");
+    var hint = el("unlockHint");
+    if(!btn) return;
+
+    // reset
+    btn.style.display = "none";
+    btn.disabled = false;
+    if(hint){
+      hint.style.display = "none";
+      hint.textContent = "";
+    }
+
+    if(canSee) return;
+    if(!isLogged) return;
+    if(!token || !demandeId) return;
+    if(reason === "NOT_MATCH_SERVICE" || reason === "DEMANDE_INACTIVE") return;
+
+    var credits = planData ? (Number(planData.credits || 0) || 0) : 0;
+    var aboActive = planData ? !!planData.aboActive : false;
+
+    // Important: on n'affiche PAS "Débloquer maintenant" si l'utilisateur n'a ni crédits ni abonnement actif,
+    // sinon il pourrait débloquer en "ponctuel" sans paiement réel.
+    if(!(credits > 0 || aboActive)) return;
+
+    var label = credits > 0 ? ("Débloquer maintenant (1 crédit)") : ("Débloquer maintenant (abonné)");
+    btn.textContent = label;
+    btn.style.display = "";
+
+    if(hint){
+      if(credits > 0) hint.textContent = "Crédits disponibles : " + credits;
+      else if(planData && planData.trialEnd) hint.textContent = "Abonnement actif (jusqu’au " + fmtDate(planData.trialEnd) + ")";
+      else hint.textContent = "Abonnement actif";
+      hint.style.display = "inline";
+    }
+
+    btn.onclick = async function(){
+      btn.disabled = true;
+      var old = btn.textContent;
+      btn.textContent = "Déblocage…";
+      showAlert("Déblocage en cours…");
+
+      try{
+        var res = await apiCall("grantAccess", { token: token, demandeId: demandeId, type: "auto" });
+        if(res && res.ok === true){
+          showAlert("Accès enregistré. Rafraîchissement…");
+          setTimeout(function(){ location.reload(); }, 350);
+          return;
+        }
+        btn.disabled = false;
+        btn.textContent = old;
+        showAlert((res && (res.error || res.message)) ? (res.error || res.message) : "Impossible de débloquer.");
+      }catch(e){
+        btn.disabled = false;
+        btn.textContent = old;
+        showAlert("Erreur : " + (e && e.message ? e.message : String(e)));
+      }
+    };
   }
 
   function renderAttachments(att) {
@@ -311,6 +372,7 @@ function setTextfunction setText(id, v) {
         } catch (e) {}
 
         setAccessUI(canSee, true, reason, planData);
+        setUnlockNowUI(canSee, true, reason, planData, token, demandeId);
 
         if (canSee) {
           setText("vTel", d.Tel || d.tel || d.Telephone || d.telephone || "—");
@@ -323,9 +385,12 @@ function setTextfunction setText(id, v) {
         // Token invalide → on repasse en mode non connecté
         setLoginUI(false);
         setAccessUI(false, false, "NOT_LOGGED", null);
+      setUnlockNowUI(false, false, "NOT_LOGGED", null, "", demandeId);
+        setUnlockNowUI(false, false, "NOT_LOGGED", null, "", demandeId);
       }
     } else {
       setAccessUI(false, false, "NOT_LOGGED", null);
+      setUnlockNowUI(false, false, "NOT_LOGGED", null, "", demandeId);
     }
   }
 

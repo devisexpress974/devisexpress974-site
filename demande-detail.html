@@ -106,7 +106,9 @@
         <div id="payBox" style="display:none;">
           <div class="muted" style="font-size:13px; margin-bottom:8px;">Choisis une option :</div>
           <div class="actions">
-            <a id="btnPay1" class="btn btnPrimary" href="./paiement-ponctuel.html">Débloquer 0,99€</a>
+                        <button id="btnUnlockNow" class="btn btnPrimary" style="display:none;">Débloquer maintenant</button>
+            <span id="unlockHint" class="muted" style="display:none; font-size:12px; margin-left:6px;"></span>
+<a id="btnPay1" class="btn btnGhost" href="./paiement-ponctuel.html">Débloquer 0,99€</a>
             <a id="btnPayPack" class="btn btnGhost" href="./paiement-pack.html">Pack 10 (2,99€)</a>
             <a id="btnPayAbo" class="btn btnGhost" href="./paiement-abonnement.html">Abonnement (4,99€)</a>
           </div>
@@ -128,6 +130,6 @@
 
   <script src="./auth.js?v=35"></script>
   <script src="./api.js?v=35"></script>
-  <script src="./demande-detail.js?v=35"></script>
+  <script src="./demande-detail.js?v=53"></script>
 </body>
 </html>
