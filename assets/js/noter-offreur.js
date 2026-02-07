@@ -1,73 +1,65 @@
-// noter-offreur.js
+// assets/js/noter-offreur.js (v100) — Page "Donner un avis" (DX)
+// Objectifs :
+// - utiliser le wrapper DX_API (même config que le reste du site)
+// - charger 1 seul offreur (getOffreurProfilePublic) sans récupérer toute la liste
+// - respecter "Afficher ma note" (ShowNote)
 (function(){
   'use strict';
 
-  const API_BASE = (window.DX_API_BASE || '/.netlify/functions/gas');
+  const $ = (id) => document.getElementById(id);
 
-  function qs(name){
-    const url = new URL(window.location.href);
-    return (url.searchParams.get(name) || '').trim();
-  }
-  function esc(s){
-    return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-  function show(el, html){
-    el.style.display = 'block';
-    el.innerHTML = html;
-  }
-  function hide(el){
-    el.style.display = 'none';
-    el.innerHTML = '';
-  }
+  const errBox = $('errBox');
+  const infoBox = $('infoBox');
 
-  async function apiGet(action, params){
-    const url = new URL(API_BASE, window.location.origin);
-    url.searchParams.set('action', action);
-    Object.entries(params||{}).forEach(([k,v]) => url.searchParams.set(k, v));
-    const r = await fetch(url.toString(), { method:'GET', credentials:'omit' });
-    return r.json();
-  }
-  async function apiPost(action, payload){
-    const url = new URL(API_BASE, window.location.origin);
-    url.searchParams.set('action', action);
-    const r = await fetch(url.toString(), {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify(payload||{})
-    });
-    return r.json();
-  }
+  const offreurCard = $('offreurCard');
+  const offreurNom = $('offreurNom');
+  const offreurMeta = $('offreurMeta');
+  const offreurRating = $('offreurRating');
 
-  const errBox = document.getElementById('errBox');
-  const infoBox = document.getElementById('infoBox');
-
-  const offreurCard = document.getElementById('offreurCard');
-  const offreurNom = document.getElementById('offreurNom');
-  const offreurMeta = document.getElementById('offreurMeta');
-  const offreurRating = document.getElementById('offreurRating');
-
-  const form = document.getElementById('avisForm');
-  const noteInput = document.getElementById('note');
-  const noteTxt = document.getElementById('noteTxt');
+  const form = $('avisForm');
+  const noteInput = $('note');
+  const noteTxt = $('noteTxt');
   const stars = Array.from(document.querySelectorAll('#stars .star'));
 
-  let selected = 0;
-
-  function setStars(v){
-    selected = v;
-    noteInput.value = String(v);
-    stars.forEach(btn => {
-      const b = Number(btn.dataset.v);
-      btn.classList.toggle('on', b <= v);
-    });
-    noteTxt.textContent = v ? ('Note : ' + v + '/5') : '(choisis une note)';
+  function qs(name){
+    try{ return (new URL(window.location.href)).searchParams.get(name) || ''; }
+    catch(e){ return ''; }
   }
 
+  function pickOffreurId(){
+    return (qs('oid') || qs('offreurId') || qs('offreurID') || qs('id') || '').trim();
+  }
+  function pickDemandeId(){
+    return (qs('did') || qs('demandeId') || qs('demandeID') || '').trim();
+  }
+
+  function showBox(el, text){
+    if(!el) return;
+    el.style.display = 'block';
+    el.textContent = String(text || '');
+  }
+  function hideBox(el){
+    if(!el) return;
+    el.style.display = 'none';
+    el.textContent = '';
+  }
+
+  // -------- Stars --------
+  let selected = 0;
+  function setStars(v){
+    selected = Number(v||0);
+    if(noteInput) noteInput.value = String(selected);
+    stars.forEach(btn => {
+      const b = Number(btn.dataset.v || 0);
+      btn.classList.toggle('on', b <= selected);
+    });
+    if(noteTxt) noteTxt.textContent = selected ? ('Note : ' + selected + '/5') : '(choisis une note)';
+  }
   stars.forEach(btn => {
-    btn.addEventListener('click', () => setStars(Number(btn.dataset.v)));
+    btn.addEventListener('click', () => setStars(Number(btn.dataset.v || 0)));
   });
 
-  // minimal styles injection if not present in styles.css
+  // Petits styles (au cas où styles.css n’a pas les classes)
   const style = document.createElement('style');
   style.textContent = `
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -81,94 +73,129 @@
   document.head.appendChild(style);
 
   async function loadOffreur(){
-    hide(errBox); hide(infoBox);
+    hideBox(errBox);
+    hideBox(infoBox);
 
-    const offreurId = qs('oid') || qs('offreurId') || qs('id');
+    const offreurId = pickOffreurId();
     if(!offreurId){
-      show(errBox, 'OffreurID manquant. (Lien invalide)');
+      showBox(errBox, 'OffreurID manquant (lien invalide).');
+      if(offreurCard) offreurCard.style.display = 'none';
       return null;
     }
 
+    if(!window.DX_API || typeof window.DX_API.getAny !== 'function'){
+      showBox(errBox, 'API non chargée (DX_API). Recharge la page.');
+      return null;
+    }
+
+    // 1) Charge profil public (sans coordonnées)
+    let resp = null;
     try{
-      // 1) on essaye l'action dédiée
-      let resp = await apiGet('getOffreurPublic', { id: offreurId });
-      if(!resp || resp.ok !== true){
-        // 2) fallback : liste et filtre
-        const r2 = await apiGet('listOffreursPublic', {});
-        if(r2 && r2.ok && Array.isArray(r2.data)){
-          const f = r2.data.find(x => String(x.id) === String(offreurId));
-          if(f) resp = { ok:true, offreur:f };
-        }
-      }
-      if(!resp || resp.ok !== true){
-        show(errBox, esc((resp && resp.error) || 'Prestataire introuvable'));
-        return null;
-      }
-
-      const o = resp.offreur;
-      offreurNom.textContent = o.nom || 'Prestataire';
-      offreurMeta.textContent = [o.service, o.zone, o.commune].filter(Boolean).join(' • ');
-      const avg = (o.noteMoyenne === '' || o.noteMoyenne == null) ? null : Number(o.noteMoyenne);
-      const cnt = Number(o.nombreAvis||0);
-      offreurRating.textContent = avg ? ('Note moyenne : ' + avg + '/5 (' + cnt + ' avis)') : ('Pas encore d’avis');
-      offreurCard.style.display = 'block';
-
-      // auto-valorise le nom si vide
-      const n = document.getElementById('auteurNom');
-      if(n && !n.value) n.value = '';
-
-      return offreurId;
+      resp = await window.DX_API.getAny([
+        'getOffreurProfilePublic',
+        'getOffreurProfile',
+        'getOffreursPublic'
+      ], { id: offreurId });
     }catch(e){
-      show(errBox, 'Erreur de chargement : ' + esc(e.message||e));
+      resp = null;
+    }
+
+    // 2) Fallback : liste et filtre (compat si action indisponible)
+    let data = null;
+    if(resp && resp.ok){
+      data = resp.data || resp.offreur || resp.user || null;
+    }
+    if(!data){
+      try{
+        const r2 = await window.DX_API.getAny(['listOffreursPublic','listOffreurs'], {});
+        if(r2 && r2.ok && Array.isArray(r2.data)){
+          data = r2.data.find(x => String(x.id||x.offreurId||x.OffreurID||'') === String(offreurId)) || null;
+        }
+      }catch(e){ data = null; }
+    }
+
+    if(!data){
+      showBox(errBox, 'Prestataire introuvable.');
+      if(offreurCard) offreurCard.style.display = 'none';
       return null;
     }
+
+    // Normalisation
+    const publicName = data.publicName || data.nom || data.Nom || 'Prestataire';
+    const service = data.service || data.Service || '';
+    const zone = data.zone || data.Zone || '';
+    const commune = data.commune || data.Commune || '';
+    const showNoteRaw = (data.showNote !== undefined) ? data.showNote : (data.ShowNote !== undefined ? data.ShowNote : 'OUI');
+    const showNote = String(showNoteRaw || 'OUI').trim().toUpperCase() !== 'NON';
+    const avgRaw = (data.noteMoyenne !== undefined) ? data.noteMoyenne : (data.NoteMoyenne !== undefined ? data.NoteMoyenne : '');
+    const avg = (avgRaw === '' || avgRaw === null || avgRaw === undefined) ? null : Number(avgRaw);
+    const cntRaw = (data.nombreAvis !== undefined) ? data.nombreAvis : (data.NombreAvis !== undefined ? data.NombreAvis : 0);
+    const cnt = Number(cntRaw || 0) || 0;
+
+    if(offreurNom) offreurNom.textContent = publicName;
+    if(offreurMeta) offreurMeta.textContent = [service, zone, commune].filter(Boolean).join(' • ');
+
+    if(offreurRating){
+      if(!showNote){
+        offreurRating.textContent = 'Note masquée par le prestataire.';
+      } else if(avg){
+        offreurRating.textContent = 'Note moyenne : ' + avg + '/5 (' + cnt + ' avis)';
+      } else {
+        offreurRating.textContent = 'Pas encore d’avis.';
+      }
+    }
+
+    if(offreurCard) offreurCard.style.display = 'block';
+
+    return offreurId;
   }
 
-  form.addEventListener('submit', async (ev) => {
+  async function submitAvis(ev){
     ev.preventDefault();
-    hide(errBox); hide(infoBox);
+    hideBox(errBox);
+    hideBox(infoBox);
 
-    const offreurId = qs('oid') || qs('offreurId') || qs('id');
-    const demandeId = qs('did') || qs('demandeId') || '';
-    const auteurNom = (document.getElementById('auteurNom').value || '').trim();
-    const auteurEmail = (document.getElementById('auteurEmail').value || '').trim();
-    const note = Number(noteInput.value || 0);
-    const commentaire = (document.getElementById('commentaire').value || '').trim();
+    const offreurId = pickOffreurId();
+    const demandeId = pickDemandeId();
+    const auteurNom = String(($('auteurNom') && $('auteurNom').value) || '').trim();
+    const auteurEmail = String(($('auteurEmail') && $('auteurEmail').value) || '').trim();
+    const note = Number((noteInput && noteInput.value) || 0);
+    const commentaire = String(($('commentaire') && $('commentaire').value) || '').trim();
 
-    if(!offreurId){ show(errBox, 'OffreurID manquant.'); return; }
-    if(!auteurNom){ show(errBox, 'Ton nom est obligatoire.'); return; }
-    if(!(note>=1 && note<=5)){ show(errBox, 'Choisis une note entre 1 et 5.'); return; }
+    if(!offreurId){ showBox(errBox, 'OffreurID manquant.'); return; }
+    if(!auteurNom){ showBox(errBox, 'Ton nom est obligatoire.'); return; }
+    if(!(note >= 1 && note <= 5)){ showBox(errBox, 'Choisis une note entre 1 et 5.'); return; }
 
-    const btn = document.getElementById('btnSend');
-    btn.disabled = true;
-    btn.textContent = 'Envoi…';
+    const btn = $('btnSend');
+    if(btn){ btn.disabled = true; btn.textContent = 'Envoi…'; }
 
     try{
-      const resp = await apiPost('addAvisOffreur', {
-        offreurId, demandeId,
-        note, commentaire,
-        auteurNom, auteurEmail
+      const resp = await window.DX_API.postAny(['addAvisOffreur','addAvis'], {
+        offreurId,
+        demandeId,
+        note,
+        commentaire,
+        auteurNom,
+        auteurEmail
       });
 
       if(resp && resp.ok){
-        show(infoBox, 'Merci ! Ton avis a été enregistré.');
-        form.reset();
+        showBox(infoBox, 'Merci ! Ton avis a été enregistré.');
+        if(form) form.reset();
         setStars(0);
-        // recharge note moyenne affichée
         await loadOffreur();
-      }else{
-        show(errBox, esc((resp && resp.error) || 'Erreur inconnue'));
+      } else {
+        showBox(errBox, (resp && (resp.error || resp.message)) ? (resp.error || resp.message) : 'Erreur inconnue.');
       }
     }catch(e){
-      show(errBox, 'Erreur réseau : ' + esc(e.message||e));
+      showBox(errBox, 'Erreur réseau : ' + String((e && e.message) || e));
     }finally{
-      btn.disabled = false;
-      btn.textContent = 'Envoyer l’avis';
+      if(btn){ btn.disabled = false; btn.textContent = 'Envoyer l’avis'; }
     }
-  });
+  }
 
   // init
   setStars(0);
   loadOffreur();
-
+  if(form) form.addEventListener('submit', submitAvis);
 })();
