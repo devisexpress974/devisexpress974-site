@@ -114,15 +114,14 @@
 <body>
 <div id="dx-header-slot"></div>
 <!-- Slot du header injecté -->
-<main class="container pageWrap"><div style="max-width:1100px;margin:24px auto;padding:0 16px;"><h1 style="margin:0 0 10px;font-size:38px;letter-spacing:-.5px;">Mur des demandes</h1><p style="margin:0 0 18px;color:#555;font-weight:600;">Toutes les demandes sont publiées avec coordonnées masquées. Les prestataires peuvent débloquer le contact via les tarifs.</p><div id="murStatus" style="display:none;margin:12px 0;padding:12px 14px;border-radius:12px;background:#f4f7ff;border:1px solid rgba(25,80,255,.15);color:#1a2b5a;font-weight:600;"></div><div id="murFilters" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 16px;"><input id="murSearch" placeholder="Rechercher (service, commune, description)..." style="flex:1;min-width:240px;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);" type="search"/><button id="murRefresh" style="padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:700;cursor:pointer;" type="button">Rafraîchir</button></div><div id="murList" style="display:flex;flex-direction:column;gap:14px;"></div>
-<div style="margin-top:14px; display:flex; justify-content:center;"><button id="btnMore" class="dxBtn dxBtnGhost" type="button" style="min-width:220px;">Voir plus</button></div></div></main>
+<main class="container pageWrap"><div style="max-width:1100px;margin:24px auto;padding:0 16px;"><h1 style="margin:0 0 10px;font-size:38px;letter-spacing:-.5px;">Mur des demandes</h1><p style="margin:0 0 18px;color:#555;font-weight:600;">Toutes les demandes sont publiées avec coordonnées masquées. Les prestataires peuvent débloquer le contact via les tarifs.</p><div id="murStatus" style="display:none;margin:12px 0;padding:12px 14px;border-radius:12px;background:#f4f7ff;border:1px solid rgba(25,80,255,.15);color:#1a2b5a;font-weight:600;"></div><div id="murFilters" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 16px;"><input id="murSearch" placeholder="Rechercher (service, commune, description)..." style="flex:1;min-width:240px;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);" type="search"/><button id="murRefresh" style="padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:700;cursor:pointer;" type="button">Rafraîchir</button></div><div id="murList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;"></div></div></main>
 <footer class="siteFooter">
 <div class="container footerRow">
 <div class="footLeft">© 2026 DevisExpress974 — Tous droits réservés.</div>
 <nav class="footLinks">
 <a href="./mentions-legales.html">Mentions légales</a>
 <a href="./cgv.html">CGV</a>
-<a href="./politique-confidentialite.html">Politique de confidentialité</a>
+<a href="./politique-politique-confidentialite.html">Politique de confidentialité</a>
 <a href="./cookies.html">Cookies</a>
 <a href="./contact.html">Contact</a>
 </nav>
@@ -152,7 +151,5 @@
       });
     })();
   </script>
-<div id="unlockModal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:18px;z-index:9999;"><div id="unlockBox" style="width:min(560px,100%);background:#fff;border-radius:16px;padding:16px 16px 14px;box-shadow:0 10px 40px rgba(0,0,0,.25);"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;"><h2 style="margin:0;font-size:20px;">Débloquer le contact</h2><button id="unlockClose" style="border:none;background:transparent;font-size:20px;cursor:pointer;line-height:1;" type="button">✕</button></div><div id="unlockContent"></div></div></div><script defer="True" src="./assets/js/dx-mur-demandes.js?v=48"></script>  <script src="./auth.js?v=1"></script>
-  <script src="./assets/js/dx-include-header.js?v=40"></script>
-</body>
+<div id="unlockModal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:18px;z-index:9999;"><div id="unlockBox" style="width:min(560px,100%);background:#fff;border-radius:16px;padding:16px 16px 14px;box-shadow:0 10px 40px rgba(0,0,0,.25);"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;"><h2 style="margin:0;font-size:20px;">Débloquer le contact</h2><button id="unlockClose" style="border:none;background:transparent;font-size:20px;cursor:pointer;line-height:1;" type="button">✕</button></div><div id="unlockContent"></div></div></div><script defer="True" src="./assets/js/dx-mur-demandes.js?v=48"></script></body>
 </html>

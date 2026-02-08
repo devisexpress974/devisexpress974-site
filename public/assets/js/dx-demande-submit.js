@@ -184,26 +184,10 @@ async function buildAttachments(fileList){
   return out;
 }
 
-  function detectHardBadWords(text){
-    var t = normText(text);
-    if(!t) return 0;
-    // Liste "hard" (bloquante) — éviter les contenus inappropriés
-    var bad = ["connard","encule","fdp","pute","salope","merde","bite","putain"];
-    var score = 0;
-    for(var i=0;i<bad.length;i++){
-      var w = bad[i];
-      var re = new RegExp("\\b" + w + "\\b","g");
-      var m = t.match(re);
-      if(m && m.length) score += Math.min(2, m.length);
-    }
-    return score;
-  }
-
   function detectSoftBadWords(text){
     var t = normText(text);
     if(!t) return 0;
-    // Liste "soft" (avertissement)
-    var bad = ["idiot","imbecile","debile","nul","con","sale","stupide","abruti","bouffon"];
+    var bad = ["idiot","imbecile","debile","nul","con","connard","sale","stupide","abruti","bouffon"];
     var score = 0;
     for(var i=0;i<bad.length;i++){
       var w = bad[i];
@@ -324,11 +308,6 @@ async function buildAttachments(fileList){
     }
 
     // soft checks
-    var hardScore = detectHardBadWords(description);
-    if(hardScore >= 1){
-      showStatus("Ta demande contient des mots inadaptés. Merci de reformuler.", "error");
-      return;
-    }
     var badScore = detectSoftBadWords(description);
     if(badScore >= 2){
       showStatus("Ta demande semble contenir des mots inadaptés : elle pourra être vérifiée avant publication.", "info");

@@ -1,7 +1,5 @@
 // mur-demandes.js (v14)
 document.addEventListener("DOMContentLoaded", () => {
-  const qs = new URLSearchParams(location.search);
-  const qpService = qs.get("service");
   const SERVICES_BY_CAT = {
   "BTP / Rénovation": [
     "Rénovation intérieure",
@@ -193,24 +191,17 @@ function fillSelect(select, items){
   }
 
   let ALL = [];
-  let FILTERED = [];
-  const PAGE_SIZE = 10;
-  let PAGE = 1;
 
-  
-  function renderPage(reset){
-    const items = FILTERED.slice(0, PAGE * PAGE_SIZE);
-    if(reset){ list.innerHTML = ""; }
-    countBox.textContent = `${FILTERED.length} demande(s)`;
-    if(!FILTERED.length){
+  function render(items){
+    list.innerHTML = "";
+    countBox.textContent = `${items.length} demande(s)`;
+
+    if(!items.length){
       empty.style.display = "block";
-      document.getElementById("btnMore") && (document.getElementById("btnMore").style.display="none");
       return;
     }
     empty.style.display = "none";
 
-    // On rend seulement la tranche visible
-    list.innerHTML = "";
     items.forEach(d=>{
       const id = d.id || d.DemandeID || d.demandeId || "";
       const service = d.service || d.Service || "Service";
@@ -236,11 +227,6 @@ function fillSelect(select, items){
       `;
       list.appendChild(card);
     });
-
-    const btnMore = document.getElementById("btnMore");
-    if(btnMore){
-      btnMore.style.display = (FILTERED.length > PAGE * PAGE_SIZE) ? "inline-flex" : "none";
-    }
   }
 
   function apply(){
@@ -292,14 +278,6 @@ function fillSelect(select, items){
     el.addEventListener("input", apply);
     el.addEventListener("change", apply);
   });
-  // Pagination
-  const btnMore = document.getElementById('btnMore');
-  if(btnMore){
-    btnMore.addEventListener('click', ()=>{
-      PAGE += 1;
-      renderPage(true);
-    });
-  }
 
   load();
 });

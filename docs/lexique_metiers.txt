@@ -1,0 +1,228 @@
+{
+  "version": "DX974_METIERS_V1",
+  "rule_no_duplicate_job_across_categories": true,
+  "categories": [
+    {
+      "id": "ADMIN_JURI",
+      "label": "Administratif & Juridique",
+      "order": 1,
+      "jobs": [
+        { "id": "ADMIN_ASSISTANT_ADMIN", "label": "Assistant(e) administratif(ve)", "synonyms": ["assistant administratif", "secrétariat", "gestion admin"] },
+        { "id": "ADMIN_COMPTABLE", "label": "Comptable / Aide comptable", "synonyms": ["compta", "tenue de comptes", "facturation"] },
+        { "id": "ADMIN_CREATION_ENTREPRISE", "label": "Consultant création d’entreprise", "synonyms": ["création entreprise", "statuts", "micro-entreprise"] },
+        { "id": "ADMIN_ECRIVAIN_PUBLIC", "label": "Écrivain public", "synonyms": ["courrier", "lettre", "dossier administratif"] },
+        { "id": "ADMIN_SECRETARIAT_SAISIE", "label": "Secrétariat / Saisie", "synonyms": ["saisie", "secrétariat", "mise en page"] },
+        { "id": "ADMIN_TRADUCTEUR_INTERPRETE", "label": "Traducteur / Interprète", "synonyms": ["traduction", "interprète", "anglais", "créole"] },
+        { "id": "ADMIN_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre administratif", "autre juridique"] }
+      ]
+    },
+    {
+      "id": "ANIMAUX",
+      "label": "Animaux",
+      "order": 2,
+      "jobs": [
+        { "id": "ANI_PETSITTER", "label": "Garde d’animaux / Pet-sitter", "synonyms": ["garde animaux", "petsitter", "garde chien", "garde chat"] },
+        { "id": "ANI_TOILETTAGE", "label": "Toilettage", "synonyms": ["toiletteur", "bain chien", "coupe poils"] },
+        { "id": "ANI_EDUCATEUR_CANIN", "label": "Éducateur canin", "synonyms": ["éducation chien", "dressage", "comportement canin"] },
+        { "id": "ANI_PROMENEUR", "label": "Promeneur de chien", "synonyms": ["promenade chien", "sortie chien"] },
+        { "id": "ANI_TRANSPORT", "label": "Transport animalier", "synonyms": ["transport animaux", "taxi animalier"] },
+        { "id": "ANI_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre animaux"] }
+      ]
+    },
+    {
+      "id": "AUTO_TRANSPORT",
+      "label": "Automobile & Transport",
+      "order": 3,
+      "jobs": [
+        { "id": "AUTO_MECANICIEN", "label": "Mécanicien auto", "synonyms": ["mécanique auto", "réparation voiture", "vidange"] },
+        { "id": "AUTO_CARROSSIER", "label": "Carrossier", "synonyms": ["carrosserie", "réparation carrosserie"] },
+        { "id": "AUTO_PEINTRE", "label": "Peintre auto", "synonyms": ["peinture voiture", "retouche peinture"] },
+        { "id": "AUTO_PNEUMATIQUES", "label": "Pneumatiques", "synonyms": ["pneus", "changement pneus", "équilibrage"] },
+        { "id": "AUTO_DEPANNAGE_REMORQUAGE", "label": "Dépannage / Remorquage", "synonyms": ["dépannage auto", "remorquage", "batterie à plat"] },
+        { "id": "AUTO_LAVAGE", "label": "Lavage auto", "synonyms": ["lavage voiture", "nettoyage voiture", "détailling"] },
+        { "id": "AUTO_CHAUFFEUR_PRIVE", "label": "Chauffeur / Transport privé", "synonyms": ["chauffeur", "transport privé", "véhicule avec chauffeur"] },
+        { "id": "AUTO_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre auto", "autre transport"] }
+      ]
+    },
+    {
+      "id": "BTP_RENOV",
+      "label": "BTP & Rénovation",
+      "order": 4,
+      "jobs": [
+        { "id": "BTP_CARRELEUR", "label": "Carreleur", "synonyms": ["carrelage", "pose carrelage"] },
+        { "id": "BTP_CHARPENTIER", "label": "Charpentier", "synonyms": ["charpente", "ossature bois"] },
+        { "id": "BTP_COUVREUR", "label": "Couvreur", "synonyms": ["toiture", "réparation toit"] },
+        { "id": "BTP_ELECTRICIEN", "label": "Électricien", "synonyms": ["électricité", "tableau électrique", "prise", "disjoncteur"] },
+        { "id": "BTP_ETANCHEUR", "label": "Étancheur", "synonyms": ["étanchéité", "infiltration", "toit plat"] },
+        { "id": "BTP_FACADIER", "label": "Façadier", "synonyms": ["façade", "ravalement façade"] },
+        { "id": "BTP_MACON", "label": "Maçon", "synonyms": ["maçonnerie", "mur", "dalle", "chape"] },
+        { "id": "BTP_MENUISIER", "label": "Menuisier", "synonyms": ["menuiserie", "porte", "fenêtre", "bois"] },
+        { "id": "BTP_PEINTRE_BATIMENT", "label": "Peintre en bâtiment", "synonyms": ["peinture maison", "peinture mur", "enduit peinture"] },
+        { "id": "BTP_PLAQUISTE", "label": "Plâtrier / Plaquiste", "synonyms": ["placo", "plâtre", "cloison", "faux plafond"] },
+        { "id": "BTP_PLOMBIER", "label": "Plombier", "synonyms": ["plomberie", "fuite", "débouchage", "évier bouché", "robinet"] },
+        { "id": "BTP_SERRURIER", "label": "Serrurier", "synonyms": ["serrure", "porte claquée", "ouverture porte"] },
+        { "id": "BTP_SOLIER_PARQUETEUR", "label": "Solier / Parqueteur", "synonyms": ["parquet", "revêtement sol", "sol pvc"] },
+        { "id": "BTP_VITRIER", "label": "Vitrier", "synonyms": ["vitre cassée", "remplacement vitre", "double vitrage"] },
+        { "id": "BTP_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre btp", "autre rénovation"] }
+      ]
+    },
+    {
+      "id": "DEMENAGEMENT_LOG",
+      "label": "Déménagement & Logistique",
+      "order": 5,
+      "jobs": [
+        { "id": "LOG_DEMENAGEUR", "label": "Déménageur", "synonyms": ["déménagement", "demenageur"] },
+        { "id": "LOG_MONTE_MEUBLES", "label": "Monte-meubles", "synonyms": ["monte meuble", "élévateur"] },
+        { "id": "LOG_DEBARRAS", "label": "Débarras / Enlèvement", "synonyms": ["débarras", "enlèvement encombrants"] },
+        { "id": "LOG_GARDE_MEUBLE", "label": "Stockage / Garde-meuble", "synonyms": ["garde meuble", "stockage"] },
+        { "id": "LOG_LIVRAISON", "label": "Livraison (hors plateformes)", "synonyms": ["livraison", "livreur"] },
+        { "id": "LOG_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre logistique"] }
+      ]
+    },
+    {
+      "id": "ENERGIE_CLIM",
+      "label": "Énergie & Climatisation",
+      "order": 6,
+      "jobs": [
+        { "id": "EN_CLIMATICIEN", "label": "Climaticien (installation/entretien)", "synonyms": ["clim", "climatisation", "entretien clim", "pose clim"] },
+        { "id": "EN_CHAUFFAGISTE", "label": "Chauffagiste", "synonyms": ["chauffage", "chaudière", "ballon eau chaude"] },
+        { "id": "EN_SOLAIRE", "label": "Installateur panneaux solaires", "synonyms": ["panneaux solaires", "solaire", "photovoltaïque"] },
+        { "id": "EN_AUDIT_ENERGIE", "label": "Diagnostic / Audit énergétique", "synonyms": ["audit énergétique", "diagnostic énergie", "consommation"] },
+        { "id": "EN_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre énergie"] }
+      ]
+    },
+    {
+      "id": "EVENEMENTIEL",
+      "label": "Événementiel",
+      "order": 7,
+      "jobs": [
+        { "id": "EV_DJ", "label": "DJ", "synonyms": ["dj", "animation musicale"] },
+        { "id": "EV_PHOTOGRAPHE", "label": "Photographe", "synonyms": ["photo", "photographe mariage", "shooting"] },
+        { "id": "EV_VIDEASTE", "label": "Vidéaste", "synonyms": ["vidéo", "filmer événement", "montage vidéo"] },
+        { "id": "EV_TRAITEUR", "label": "Traiteur", "synonyms": ["traiteur", "buffet", "repas événement"] },
+        { "id": "EV_ANIMATEUR", "label": "Animateur", "synonyms": ["animateur", "animation", "micro"] },
+        { "id": "EV_DECORATION", "label": "Décoration événementielle", "synonyms": ["décoration", "déco événement"] },
+        { "id": "EV_LOCATION_MATERIEL", "label": "Location matériel événementiel", "synonyms": ["location sono", "location tables", "location chaises"] },
+        { "id": "EV_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre événementiel"] }
+      ]
+    },
+    {
+      "id": "INFO_NUM",
+      "label": "Informatique & Numérique",
+      "order": 8,
+      "jobs": [
+        { "id": "IT_DEPANNAGE", "label": "Dépannage informatique", "synonyms": ["dépannage pc", "ordinateur lent", "virus", "réinstallation"] },
+        { "id": "IT_RESEAU", "label": "Technicien réseau", "synonyms": ["réseau", "wifi", "routeur", "câblage réseau"] },
+        { "id": "IT_DEV_WEB", "label": "Développeur web", "synonyms": ["dev web", "développement", "site web"] },
+        { "id": "IT_SITE_WEB", "label": "Création site web", "synonyms": ["création site", "site vitrine", "wordpress"] },
+        { "id": "IT_GRAPHISTE", "label": "Graphiste / Design", "synonyms": ["graphiste", "logo", "affiche", "design"] },
+        { "id": "IT_MONTAGE_VIDEO", "label": "Montage vidéo", "synonyms": ["montage", "editing", "post-production"] },
+        { "id": "IT_COMMUNITY", "label": "Community manager", "synonyms": ["réseaux sociaux", "community", "instagram", "facebook"] },
+        { "id": "IT_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre informatique"] }
+      ]
+    },
+    {
+      "id": "JARDIN_EXT",
+      "label": "Jardin & Extérieur",
+      "order": 9,
+      "jobs": [
+        { "id": "JEX_JARDINIER", "label": "Jardinier", "synonyms": ["jardinage", "tonte", "désherbage"] },
+        { "id": "JEX_PAYSAGISTE", "label": "Paysagiste", "synonyms": ["paysage", "aménagement jardin"] },
+        { "id": "JEX_ELAGAGE", "label": "Élagage / Abattage", "synonyms": ["élagage", "abattage arbre"] },
+        { "id": "JEX_DEBROUSSAILLAGE", "label": "Débroussaillage", "synonyms": ["débroussaillage", "nettoyage terrain"] },
+        { "id": "JEX_PISCINE", "label": "Entretien piscine", "synonyms": ["piscine", "nettoyage piscine", "traitement eau"] },
+        { "id": "JEX_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre extérieur"] }
+      ]
+    },
+    {
+      "id": "MAISON_DEPANNAGE",
+      "label": "Maison & Dépannage",
+      "order": 10,
+      "jobs": [
+        { "id": "MD_BRICOLEUR", "label": "Bricoleur / Homme toutes mains", "synonyms": ["bricolage", "petits travaux"] },
+        { "id": "MD_MONTAGE_MEUBLES", "label": "Montage de meubles", "synonyms": ["montage meuble", "ikea"] },
+        { "id": "MD_POSE_ACCESSOIRES", "label": "Pose tringles / étagères", "synonyms": ["pose tringle", "pose étagère"] },
+        { "id": "MD_REP_ELECTROMENAGER", "label": "Réparation électroménager", "synonyms": ["réparation machine", "lave-linge", "frigo"] },
+        { "id": "MD_REP_MULTIMEDIA", "label": "Réparation TV / multimédia", "synonyms": ["réparation tv", "home cinema"] },
+        { "id": "MD_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre dépannage maison"] }
+      ]
+    },
+    {
+      "id": "NETTOYAGE_ENTRETIEN",
+      "label": "Nettoyage & Entretien",
+      "order": 11,
+      "jobs": [
+        { "id": "NE_MENAGE", "label": "Femme / Homme de ménage", "synonyms": ["ménage", "entretien maison"] },
+        { "id": "NE_FIN_CHANTIER", "label": "Nettoyage fin de chantier", "synonyms": ["fin de chantier", "nettoyage chantier"] },
+        { "id": "NE_VITRES", "label": "Nettoyage vitres", "synonyms": ["vitres", "laveur de vitres"] },
+        { "id": "NE_CANAPE_TISSUS", "label": "Nettoyage canapé / tissus", "synonyms": ["canapé", "tapis", "tissus"] },
+        { "id": "NE_DESINFECTION", "label": "Désinfection / traitement", "synonyms": ["désinfection", "traitement", "assainissement"] },
+        { "id": "NE_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre nettoyage"] }
+      ]
+    },
+    {
+      "id": "BIEN_ETRE",
+      "label": "Santé, Beauté & Bien-être (non médical)",
+      "order": 12,
+      "jobs": [
+        { "id": "BB_COIFFEUR_DOM", "label": "Coiffeur(se) à domicile", "synonyms": ["coiffure domicile", "coiffeur"] },
+        { "id": "BB_ESTHETIQUE", "label": "Esthéticien(ne)", "synonyms": ["esthétique", "soins beauté"] },
+        { "id": "BB_MAQUILLAGE", "label": "Maquilleur(se)", "synonyms": ["maquillage", "makeup"] },
+        { "id": "BB_MASSAGE_BIEN_ETRE", "label": "Massage bien-être", "synonyms": ["massage", "relaxation"] },
+        { "id": "BB_COACH_SPORTIF", "label": "Coach sportif", "synonyms": ["coach", "coaching sportif", "sport"] },
+        { "id": "BB_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre bien-être"] }
+      ]
+    },
+    {
+      "id": "SECURITE",
+      "label": "Sécurité",
+      "order": 13,
+      "jobs": [
+        { "id": "SE_AGENT_SECURITE", "label": "Agent de sécurité", "synonyms": ["sécurité", "surveillance", "vigile"] },
+        { "id": "SE_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre sécurité"] }
+      ]
+    },
+    {
+      "id": "SAP",
+      "label": "Services à la personne",
+      "order": 14,
+      "jobs": [
+        { "id": "SAP_AIDE_DOMICILE", "label": "Aide à domicile", "synonyms": ["aide domicile", "aide personne"] },
+        { "id": "SAP_GARDE_ENFANTS", "label": "Garde d’enfants", "synonyms": ["baby-sitting", "babysitter", "garde enfant"] },
+        { "id": "SAP_COURSES", "label": "Assistance courses", "synonyms": ["courses", "aide courses"] },
+        { "id": "SAP_ACCOMPAGNEMENT", "label": "Accompagnement rendez-vous", "synonyms": ["accompagnement", "rendez-vous"] },
+        { "id": "SAP_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre services personne"] }
+      ]
+    },
+    {
+      "id": "VOYAGE_ACCOMP",
+      "label": "Voyage & Accompagnement",
+      "order": 15,
+      "jobs": [
+        { "id": "VA_CONSEILLER_VOYAGE", "label": "Conseiller voyage (organisation)", "synonyms": ["voyage", "itinéraire", "organiser voyage", "pérou"] },
+        { "id": "VA_GUIDE_ACCOMPAGNATEUR", "label": "Guide / Accompagnateur", "synonyms": ["guide", "accompagnateur", "visite"] },
+        { "id": "VA_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre voyage"] }
+      ]
+    },
+    {
+      "id": "AGRICULTURE",
+      "label": "Agriculture",
+      "order": 16,
+      "jobs": [
+        { "id": "AG_AIDE_AGRICOLE", "label": "Aide agricole (mission)", "synonyms": ["aide agricole", "aide ferme", "aide exploitation"] },
+        { "id": "AG_OUVRIER_AGRICOLE", "label": "Ouvrier agricole", "synonyms": ["ouvrier agricole", "travail agricole"] },
+        { "id": "AG_RECOLTE_SAISONNIER", "label": "Récolte / Saisonnier", "synonyms": ["récolte", "saisonnier", "cueillette"] },
+        { "id": "AG_ENTRETIEN_EXPLOITATION", "label": "Entretien exploitation", "synonyms": ["entretien exploitation", "maintenance ferme"] },
+        { "id": "AG_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre agriculture"] }
+      ]
+    },
+    {
+      "id": "AUTRES",
+      "label": "Autres (à préciser)",
+      "order": 17,
+      "jobs": [
+        { "id": "OTHER_AUTRE", "label": "Autre (à préciser)", "synonyms": ["autre", "divers"] }
+      ]
+    }
+  ]
+}

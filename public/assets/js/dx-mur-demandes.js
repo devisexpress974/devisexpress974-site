@@ -90,6 +90,118 @@ function pillHtml(info){
 
   // ---- filtres ----
   var currentQ = '';
+  var currentSvc = '';
+
+  function readUrlParam_(name){
+    try{
+      var sp = new URLSearchParams(location.search || '');
+      return (sp.get(name) || '').toString().trim();
+    }catch(e){
+      return '';
+    }
+  }
+
+  function initFromUrl_(){
+    // exact métier (filtre strict)
+    currentSvc = readUrlParam_('service') || readUrlParam_('svc') || readUrlParam_('typeService') || '';
+    // recherche libre (texte)
+    var q = readUrlParam_('q') || '';
+    var input = $('murSearch');
+    if(input && q) input.value = q;
+    // badge métier
+    renderSvcBadge_();
+  }
+
+  function sameText_(a,b){
+    a = (a||'').toString().trim().toLowerCase();
+    b = (b||'').toString().trim().toLowerCase();
+    try{
+      a = a.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      b = b.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    }catch(e){}
+    return a === b;
+  }
+
+  function containsText_(hay, needle){
+    hay = (hay||'').toString().toLowerCase();
+    needle = (needle||'').toString().toLowerCase().trim();
+    if(!needle) return true;
+    try{
+      hay = hay.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      needle = needle.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    }catch(e){}
+    return hay.indexOf(needle) !== -1;
+  }
+
+  function applyFilters_(list){
+    var out = (list || []).slice();
+    // filtre strict service
+    if(currentSvc){
+      out = out.filter(function(it){
+        return sameText_(serviceLabel(it), currentSvc);
+      });
+    }
+    // recherche texte (client-side en plus du server-side, pour robustesse)
+    if(currentQ){
+      out = out.filter(function(it){
+        var blob = [
+          serviceLabel(it),
+          it.zone || it.Zone || '',
+          it.commune || it.Commune || '',
+          it.description || it.Description || '',
+          it.serviceAutre || it.ServiceAutre || ''
+        ].join(' ');
+        return containsText_(blob, currentQ);
+      });
+    }
+    return out;
+  }
+
+  function getVisible_(){
+    return applyFilters_(all);
+  }
+
+  function setQueryParam_(k,v){
+    try{
+      var sp = new URLSearchParams(location.search || '');
+      if(!v) sp.delete(k);
+      else sp.set(k, v);
+      var qs = sp.toString();
+      var url = location.pathname + (qs ? ('?' + qs) : '');
+      history.replaceState(null, '', url);
+    }catch(e){}
+  }
+
+  function renderSvcBadge_(){
+    var host = $('murFilters');
+    var existing = document.getElementById('murServiceBadge');
+    if(!host){
+      if(existing) existing.remove();
+      return;
+    }
+    if(!currentSvc){
+      if(existing) existing.remove();
+      return;
+    }
+    if(!existing){
+      existing = document.createElement('button');
+      existing.id = 'murServiceBadge';
+      existing.type = 'button';
+      existing.style.cssText = 'padding:10px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:900;cursor:pointer;';
+      existing.addEventListener('click', function(){
+        // clear filtre métier
+        currentSvc = '';
+        setQueryParam_('service','');
+        setQueryParam_('svc','');
+        setQueryParam_('typeService','');
+        renderSvcBadge_();
+        load();
+      });
+      host.insertBefore(existing, host.firstChild);
+    }
+    existing.textContent = 'Métier: ' + currentSvc + ' ✕';
+  }
+
   var debounceT = null;
 
   // ---- aperçu public ----
@@ -185,7 +297,7 @@ function pillHtml(info){
     if(!host) return;
     host.innerHTML = '';
 
-    var groups = groupByService(all);
+    var groups = groupByService(getVisible_());
 
     // ordre: services avec le plus de demandes récentes d’abord
     var keys = Object.keys(groups).sort(function(a,b){
@@ -270,7 +382,7 @@ function pillHtml(info){
       return;
     }
 
-    var shown = all.length || 0;
+    var shown = getVisible_().length || 0;
     var t = total || shown;
 
     if(count) count.textContent = shown + ' / ' + t;
@@ -289,7 +401,7 @@ function pillHtml(info){
     var host = $('murList');
     if(!host) return;
     host.innerHTML = '';
-    renderCards(all, host);
+    renderCards(getVisible_(), host);
     updatePager();
   }
 
@@ -314,6 +426,7 @@ function pillHtml(info){
       var offset = all.length;
       var params = { offset: offset, limit: limit };
       if(currentQ) params.q = currentQ;
+      if(currentSvc) params.service = currentSvc;
 
       var logged = isLoggedIn() && !forcePublic;
       var action = logged ? "listDemandesForOffreur" : "listDemandesPublic";
@@ -430,6 +543,7 @@ function pillHtml(info){
   };
 
   document.addEventListener('DOMContentLoaded', function(){
+    initFromUrl_();
     initFilters();
     load();
   });

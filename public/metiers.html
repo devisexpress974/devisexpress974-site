@@ -3,46 +3,78 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tous les métiers | DevisExpress974</title>
+  <title>Tous les métiers (A→Z) — DevisExpress974</title>
+
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="theme-color" content="#ff3b0a" />
-  <link rel="stylesheet" href="./assets/css/dx.css?v=1" />
+
+  <link rel="stylesheet" href="./styles.css?v=40" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=40" />
+  <script defer src="./assets/js/dx-include-header.js?v=40"></script>
+
+  <!-- (fallback) liste métiers -->
+  <script defer src="./services_devisexpress974.js?v=40"></script>
+  <script defer src="./assets/js/dx-metiers.js?v=1"></script>
+
+  <style>
+    .metiersHead{margin:18px 0 14px 0}
+    .metiersTitle{margin:0 0 8px 0;font-size:clamp(24px,3vw,34px);letter-spacing:-.01em}
+    .metiersSub{margin:0;color:var(--muted);font-weight:700}
+    .metiersTools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 10px}
+    .metiersSearch{flex:1;min-width:240px}
+    .metiersSearch input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:700}
+    .metiersCount{color:var(--muted);font-weight:700}
+    .azNav{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+    .azNav a{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 10px;border-radius:999px;background:#f4f7ff;border:1px solid rgba(25,80,255,.15);color:#1a2b5a;font-weight:800;text-decoration:none}
+    .azNav a:hover{filter:brightness(.98)}
+    .metiersList{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .metierCard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 8px 20px rgba(0,0,0,.06)}
+    .metierLabel{font-weight:900;margin:0 0 6px 0}
+    .metierCat{color:var(--muted);font-weight:800;margin:0 0 10px 0}
+    .metierBtns{display:flex;gap:8px;flex-wrap:wrap}
+    .metierBtns a{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);background:#fff;font-weight:900;text-decoration:none}
+    .metierBtns a.primary{background:var(--accent);border-color:rgba(0,0,0,.05);color:#fff}
+    .azSection{margin:18px 0 6px}
+    .azLetter{font-size:20px;font-weight:1000;margin:0}
+    .azDivider{height:1px;background:rgba(0,0,0,.10);margin:10px 0 12px}
+  </style>
 </head>
+
 <body>
   <div id="dx-header-slot"></div>
 
-  <main class="container" style="padding:18px 0 28px;">
-    <h1 style="margin:0 0 6px;">Tous les métiers (A→Z)</h1>
-    <p class="muted" style="margin:0 0 14px;">
-      Sélectionne un métier pour afficher les demandes correspondantes (coordonnées floutées) ou voir les offreurs (sans coordonnées).
-    </p>
-
-    <div class="card" style="padding:12px 14px; margin-bottom:14px;">
-      <label for="q" style="display:block; font-weight:700; margin-bottom:6px;">Rechercher un métier</label>
-      <input id="q" type="search" placeholder="Ex : plombier, clim, ménage…" style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:12px;" />
-      <div id="hint" class="muted" style="margin-top:6px;"></div>
+  <main class="container pageWrap">
+    <div class="metiersHead">
+      <h1 class="metiersTitle">Tous les métiers (A→Z)</h1>
+      <p class="metiersSub">Clique sur un métier pour voir les demandes filtrées, ou faire une demande directement.</p>
     </div>
 
-    <div id="azNav" class="card" style="padding:10px 12px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:8px;"></div>
+    <div class="metiersTools">
+      <div class="metiersSearch">
+        <input id="metierSearch" type="search" placeholder="Rechercher un métier (ex: plomberie, carrelage, avocat…)" autocomplete="off" />
+      </div>
+      <div class="metiersCount" id="metierCount">—</div>
+      <a class="dxBtn dxBtnGhost" href="./demande.html">Faire une demande</a>
+    </div>
 
-    <div id="azList"></div>
+    <div class="azNav" id="azNav"></div>
+
+    <div id="metiersHost"></div>
   </main>
 
   <footer class="siteFooter">
     <div class="container footerRow">
       <div class="footLeft">© 2026 DevisExpress974 — Tous droits réservés.</div>
-      <div class="footRight">
+      <nav class="footLinks">
         <a href="./mentions-legales.html">Mentions légales</a>
-        <span class="sep">•</span>
         <a href="./cgv.html">CGV</a>
-        <span class="sep">•</span>
         <a href="./politique-confidentialite.html">Politique de confidentialité</a>
-      </div>
+        <a href="./cookies.html">Cookies</a>
+        <a href="./contact.html">Contact</a>
+      </nav>
     </div>
   </footer>
-
-  <script src="./api.js?v=1"></script>
-  <script src="./auth.js?v=1"></script>
-  <script src="./assets/js/dx-include-header.js?v=40"></script>
-  <script src="./assets/js/dx-metiers-page.js?v=1"></script>
 </body>
 </html>

@@ -17,6 +17,7 @@
   <!-- header "image 3" -->
 
   <script defer src="./assets/js/dx-include-header.js?v=39"></script>
+  <script defer src="./assets/js/dx-metiers-index.js?v=1"></script>
 </head>
 
 <body>
@@ -68,6 +69,18 @@
             <div id="videoMsg" class="videoMsg" style="display:none;"></div>
           </div>
         </div>
+
+        <div class="card pad" style="margin-top:14px;">
+          <h2 class="sectionTitle">Trouver un métier</h2>
+          <p class="small" style="margin-top:6px;">Recherche un métier, puis va sur la liste A→Z ou sur le mur filtré.</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px;">
+            <input id="indexMetierSearch" class="input" type="search" list="dxMetiersDatalist" placeholder="Ex: plomberie, carrelage, électricité…" style="flex:1; min-width:240px; padding:12px 14px; border-radius:12px; border:1px solid rgba(0,0,0,.15); background:#fff; font-weight:800;" />
+            <datalist id="dxMetiersDatalist"></datalist>
+            <a id="btnMetierGo" class="btn btnPrimary" href="./metiers.html">Rechercher</a>
+            <a class="btn" href="./metiers.html">Tous les métiers (A→Z)</a>
+          </div>
+        </div>
+
       </section>
 
       <section class="card pad" style="margin-top:16px;">
@@ -171,7 +184,7 @@
       <div class="footLinks">
         <a href="mentions-legales.html">Mentions légales</a>
         <a href="cgv.html">CGV</a>
-        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="politique-politique-confidentialite.html">Politique de confidentialité</a>
         <a href="cookies.html">Cookies</a>
         <a href="contact.html">Contact</a>
       </div>
@@ -191,9 +204,6 @@
     if (y) y.textContent = new Date().getFullYear();
   })();
   </script>
-  <script src="./api.js?v=1"></script>
-  <script src="./auth.js?v=1"></script>
-  <script src="./assets/js/dx-include-header.js?v=40"></script>
 </body>
 </html>
 
