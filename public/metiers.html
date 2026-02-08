@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tous les métiers | DevisExpress974</title>
+  <meta name="theme-color" content="#ff3b0a" />
+  <link rel="stylesheet" href="./assets/css/dx.css?v=1" />
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+
+  <main class="container" style="padding:18px 0 28px;">
+    <h1 style="margin:0 0 6px;">Tous les métiers (A→Z)</h1>
+    <p class="muted" style="margin:0 0 14px;">
+      Sélectionne un métier pour afficher les demandes correspondantes (coordonnées floutées) ou voir les offreurs (sans coordonnées).
+    </p>
+
+    <div class="card" style="padding:12px 14px; margin-bottom:14px;">
+      <label for="q" style="display:block; font-weight:700; margin-bottom:6px;">Rechercher un métier</label>
+      <input id="q" type="search" placeholder="Ex : plombier, clim, ménage…" style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:12px;" />
+      <div id="hint" class="muted" style="margin-top:6px;"></div>
+    </div>
+
+    <div id="azNav" class="card" style="padding:10px 12px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:8px;"></div>
+
+    <div id="azList"></div>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerRow">
+      <div class="footLeft">© 2026 DevisExpress974 — Tous droits réservés.</div>
+      <div class="footRight">
+        <a href="./mentions-legales.html">Mentions légales</a>
+        <span class="sep">•</span>
+        <a href="./cgv.html">CGV</a>
+        <span class="sep">•</span>
+        <a href="./politique-confidentialite.html">Politique de confidentialité</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./api.js?v=1"></script>
+  <script src="./auth.js?v=1"></script>
+  <script src="./assets/js/dx-include-header.js?v=40"></script>
+  <script src="./assets/js/dx-metiers-page.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevisExpress974 — Mon abonnement</title>
+  <meta name="theme-color" content="#ff3b0a" />
+  <link rel="stylesheet" href="./styles.css?v=57" />
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+
+<header class="siteHeader">
+  <div class="container headerRow">
+    <a class="brand" href="index.html" aria-label="Accueil">
+      <span class="logoBolt" aria-hidden="true"></span>
+      <span class="brandText">DevisExpress974</span>
+    </a>
+    <nav class="nav">
+      <a href="mur-demandes.html">Mur</a>
+      <a href="offreur-compte.html">Mon compte</a>
+      <a href="offreur-abonnement.html" class="active">Abonnement</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container" style="max-width: 980px;">
+  <h1>Mon abonnement</h1>
+  <p class="muted">Statut, mois offert et renouvellement (4,99€).</p>
+
+  <div class="grid2">
+    <section class="card" style="padding:16px;">
+      <h2 style="margin-top:0;">Statut</h2>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpiLabel">Plan</div>
+          <div class="kpiValue" id="kPlan">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpiLabel">Crédits</div>
+          <div class="kpiValue" id="kCredits">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpiLabel">Abonnement actif</div>
+          <div class="kpiValue" id="kAbo">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpiLabel">Paiement abonnement</div>
+          <div class="kpiValue" id="kAboPaid">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpiLabel">Fin du mois offert</div>
+          <div class="kpiValue" id="kTrialEnd">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpiLabel">Échéance (si payé)</div>
+          <div class="kpiValue" id="kPaidUntil">—</div>
+        </div>
+      </div>
+
+      <p id="danger" class="warn" style="display:none; margin-top:12px;"></p>
+      <p id="msg" class="muted" style="margin-top:10px;"></p>
+    </section>
+
+    <aside class="card" style="padding:16px;">
+      <h2 style="margin-top:0;">Actions</h2>
+
+      <div class="stack">
+        <button id="btnStartTrial" class="btn primary">Activer le mois offert</button>
+
+        <a id="btnBuyAbo" class="btn primary" href="paiement-abonnement.html" rel="nofollow">
+          Payer / renouveler (4,99€)
+        </a>
+
+        <button id="btnCancel" class="btn danger" style="display:none;">Arrêter l’abonnement</button>
+
+        <a class="btn" href="mur-demandes.html">Aller au mur</a>
+      </div>
+
+      <p class="muted" style="margin-top: 14px;">
+        Rappel : l’abonnement est lié à un seul métier (verrouillé). Tu peux recevoir les demandes sans payer, mais les coordonnées restent masquées sans accès.
+      </p>
+    </aside>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container footerRow">
+    <span class="muted">© DevisExpress974</span>
+    <span class="footerLinks">
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="cgv.html">CGV</a>
+      <a href="politique-confidentialite.html">Confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="contact.html">Contact</a>
+    </span>
+  </div>
+</footer>
+
+<script src="./api.js?v=57"></script>
+<script src="./paypal-config.js?v=57"></script>
+<script src="./offreur-abonnement.js?v=57"></script>
+  <script src="./api.js?v=1"></script>
+  <script src="./auth.js?v=1"></script>
+  <script src="./assets/js/dx-include-header.js?v=40"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Noter un prestataire — DevisExpress974</title>
+  <meta name="theme-color" content="#ff3b0a" />
+  <link rel="stylesheet" href="./styles.css?v=99" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
+</head>
+<body>
+<div id="dx-header-slot"></div>
+
+  <main class="container" style="max-width: 920px;">
+    <div class="card" style="margin-top: 18px;">
+      <h1 style="margin:0 0 6px 0;">Donner un avis</h1>
+      <p class="muted" style="margin:0;">Ton avis aide la communauté à choisir les meilleurs prestataires.</p>
+      <div id="infoBox" class="notice" style="margin-top:12px; display:none;"></div>
+      <div id="errBox" class="alert" style="margin-top:12px; display:none;"></div>
+    </div>
+
+    <div class="card" style="margin-top: 14px;">
+      <div id="offreurCard" style="display:none;">
+        <h2 id="offreurNom" style="margin:0 0 6px 0;"></h2>
+        <div class="muted" id="offreurMeta"></div>
+        <div class="muted" id="offreurRating" style="margin-top:6px;"></div>
+        <hr style="margin:14px 0;" />
+      </div>
+
+      <form id="avisForm">
+        <div class="grid2">
+          <div>
+            <label for="auteurNom"><strong>Ton nom (affiché)</strong></label>
+            <input id="auteurNom" name="auteurNom" type="text" placeholder="Ex : Cédric" maxlength="60" required />
+          </div>
+          <div>
+            <label for="auteurEmail"><strong>Ton email (optionnel)</strong></label>
+            <input id="auteurEmail" name="auteurEmail" type="email" placeholder="Ex : nom@domaine.fr" maxlength="120" />
+            <div class="muted" style="margin-top:6px;">(servira uniquement en cas de modération / abus)</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 12px;">
+          <label><strong>Note</strong></label>
+          <div class="stars" id="stars">
+            <button type="button" class="star" data-v="1">★</button>
+            <button type="button" class="star" data-v="2">★</button>
+            <button type="button" class="star" data-v="3">★</button>
+            <button type="button" class="star" data-v="4">★</button>
+            <button type="button" class="star" data-v="5">★</button>
+            <span class="muted" id="noteTxt" style="margin-left:10px;">(choisis une note)</span>
+          </div>
+          <input type="hidden" id="note" name="note" value="0" />
+        </div>
+
+        <div style="margin-top: 12px;">
+          <label for="commentaire"><strong>Commentaire</strong> <span class="muted">(facultatif)</span></label>
+          <textarea id="commentaire" name="commentaire" rows="4" placeholder="Ex : rapide, pro, bon prix..." maxlength="800"></textarea>
+        </div>
+
+        <div style="margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="btnSend" class="btn primary" type="submit">Envoyer l’avis</button>
+          <a class="btn" href="./offreurs.html">Voir les prestataires</a>
+        </div>
+
+        <div class="muted" style="margin-top:10px; font-size: 0.95rem;">
+          En envoyant cet avis, tu confirmes qu’il reflète ton expérience réelle.
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="./assets/js/dx-include-header.js?v=39"></script>
+  <script src="./api.js?v=99"></script>
+  <script src="./assets/js/noter-offreur.js?v=100" defer></script>
+
+  <script src="./api.js?v=1"></script>
+  <script src="./auth.js?v=1"></script>
+  <script src="./assets/js/dx-include-header.js?v=40"></script>
+</body>
+</html>

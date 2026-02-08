@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>DevisExpress974 — Publier une demande</title>
+
+  <meta content="no-store, max-age=0" http-equiv="Cache-Control"/>
+  <meta content="no-cache" http-equiv="Pragma"/>
+  <meta content="0" http-equiv="Expires"/>
+  <meta content="#ff3b0a" name="theme-color"/>
+
+  <link href="./styles.css?v=35" rel="stylesheet"/>
+  <link href="./assets/css/dx-header.css?v=39" rel="stylesheet"/>
+  <link rel="stylesheet" href="./assets/css/dx-searchable-select.css?v=45" />
+  <script defer src="./assets/js/dx-include-header.js?v=39"></script>
+
+  <style>
+    .pageWrap{ padding:18px 0 26px; }
+    .heroCard{ background: linear-gradient(180deg, rgba(255,209,64,.18), rgba(255,59,10,.06)); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .heroGrid2{ display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; align-items:stretch; }
+    @media (max-width:980px){ .heroGrid2{ grid-template-columns:1fr; } }
+    .heroMini{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+    @media (max-width:980px){ .heroMini{ grid-template-columns:1fr; } }
+    .noteBox{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:12px 14px; }
+    .tipsBox{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px; height:100%; }
+    .tipsTitle{ margin:0 0 8px; font-size:16px; font-weight:900; letter-spacing:-.01em; }
+    .tipsList{ margin:0; padding-left:18px; }
+    .tipsList li{ margin:8px 0; color:var(--muted); font-weight:800; font-size:13px; }
+    .formShell{ margin-top:16px; }
+    .formCard{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .formRow{ display:grid; grid-template-columns:260px 1fr; gap:10px; align-items:center; margin:10px 0; }
+    @media (max-width:980px){ .formRow{ grid-template-columns:1fr; } }
+    label{ font-weight:1000; }
+    input[type="text"], input[type="email"], input[type="tel"], textarea, select{
+      width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+      outline:none; font:inherit; background:#fff;
+    }
+    textarea{ min-height:120px; resize:vertical; }
+    input[type="file"]{ width:100%; padding:10px 12px; border-radius:12px; border:1px dashed rgba(0,0,0,.18); background:#fff; cursor:pointer; }
+    .help{ color:var(--muted); font-weight:800; font-size:13px; margin:6px 0 0; }
+    .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; align-items:center; }
+    .errorLine{ display:none; margin-top:10px; font-weight:1000; color:#b00020; }
+    .inline{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .pill{ display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border:1px solid var(--border); border-radius:999px; background:#fff; font-weight:900; }
+    .counter{ font-weight:900; font-size:12px; color:var(--muted); text-align:right; }
+    .legalRow{ margin-top:10px; padding-top:10px; border-top:1px dashed rgba(0,0,0,.12); }
+  </style>
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+
+  <main class="container pageWrap">
+    <section class="heroCard pad">
+      <div class="heroGrid2">
+        <div>
+          <h1 class="heroTitle" style="margin:0 0 6px;">Publier une demande</h1>
+          <div id="demandeStatus" style="display:none;margin:16px auto;max-width:1100px;padding:12px 14px;border-radius:12px;background:#fff3e6;border:1px solid rgba(255,120,0,.25);color:#333;font-weight:600;">...</div>
+          <p class="heroSub" style="margin:0;">
+            Les prestataires voient ta demande sur le mur, <strong>sans tes coordonnées</strong>. Ils débloquent pour te contacter.
+          </p>
+          <div class="heroMini">
+            <div class="noteBox">
+              <div class="sectionTitle" style="margin:0 0 6px; font-size:16px;">Coordonnées masquées</div>
+              <div class="muted">sur le mur public</div>
+            </div>
+            <div class="noteBox">
+              <div class="sectionTitle" style="margin:0 0 6px; font-size:16px;">Publication rapide</div>
+              <div class="muted">en 2 minutes</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="tipsBox">
+          <div class="tipsTitle">Pour recevoir des devis plus vite</div>
+          <ul class="tipsList">
+            <li>Sois précis : “fuite sous évier + photo”</li>
+            <li>Indique la commune exacte</li>
+            <li>Ajoute 1 à 3 photos / PDF (max)</li>
+            <li>Si tu as un budget : même une fourchette</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="card pad formShell">
+      <h2 class="sectionTitle">Formulaire</h2>
+      <div class="formCard">
+        <form id="demandeForm" enctype="multipart/form-data" novalidate>
+          <div class="formRow">
+            <label for="typeService">Type de service *</label>
+            <select id="typeService" name="typeService" required>
+              <option value="">Choisir un service…</option>
+              <!-- rempli par Patch6 (dx-services.js) -->
+            </select>
+          </div>
+
+          <div class="formRow" id="rowAutreService" style="display:none;">
+            <label for="autreService">Autre (si besoin)</label>
+            <input id="autreService" name="autreService" placeholder="Ex : banquier, coach sportif..." type="text"/>
+            <div class="help" style="grid-column:1 / -1;">Si tu choisis “Autre”, précise ici pour un matching exploitable.</div>
+          </div>
+
+          <div class="formRow">
+            <label for="zone">Zone *</label>
+            <select id="zone" name="zone" required>
+              <option value="">Choisir une zone…</option>
+              <option>Nord</option>
+              <option>Sud</option>
+              <option>Est</option>
+              <option>Ouest</option>
+            </select>
+          </div>
+
+          <div class="formRow">
+            <label for="commune">Commune *</label>
+            <select id="commune" name="commune" required>
+              <option value="">Choisir une commune…</option>
+              <!-- filtré par Patch8 (dx-geo-communes.js) -->
+            </select>
+          </div>
+
+          <div class="formRow" style="align-items:start;">
+            <label for="besoin">Décris ton besoin *</label>
+            <div>
+              <textarea id="besoin" name="besoin" placeholder="Ex : je cherche un plombier pour..." required></textarea>
+              <div class="counter"><span id="descCount">0</span>/50 caractères minimum</div>
+              <div class="help">Évite les insultes. Les demandes non conformes peuvent être mises en vérification.</div>
+            </div>
+          </div>
+
+          <div class="formRow">
+            <label for="pieces">Pièces jointes (max 3)</label>
+            <input id="pieces" name="pieces" type="file" accept=".jpg,.jpeg,.png,.pdf" multiple/>
+            <div class="help" style="grid-column:1 / -1;">Formats : JPG, PNG, PDF. Jusqu'à 10 Mo par fichier (les photos sont optimisées automatiquement).</div>
+          </div>
+
+          <div class="formRow">
+            <label for="budget">Budget (optionnel)</label>
+            <input id="budget" name="budget" placeholder="Ex : 200" type="text"/>
+          </div>
+
+          <div class="formRow">
+            <label for="nomPrenom">Nom / prénom *</label>
+            <input id="nomPrenom" name="nomPrenom" required type="text"/>
+          </div>
+
+          <div class="formRow" style="align-items:start;">
+            <label>Contact *</label>
+            <div>
+              <div class="help" style="margin:0 0 8px;">Au moins 1 obligatoire : téléphone OU email (tu peux mettre les deux).</div>
+              <div class="formRow" style="grid-template-columns:1fr; margin:0 0 10px;">
+                <label for="telephone" style="font-weight:900;">Téléphone</label>
+                <input id="telephone" name="telephone" placeholder="0692..." type="tel"/>
+              </div>
+              <div class="formRow" style="grid-template-columns:1fr; margin:0;">
+                <label for="email" style="font-weight:900;">Email</label>
+                <input id="email" name="email" placeholder="nom@email.com" type="email"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="legalRow">
+<div class="formRow">
+              <label for="optInContact">Contact pro *</label>
+              <div>
+                <label class="pill" style="border-radius:14px;">
+                  <input id="optInContact" type="checkbox" required>
+                  J’accepte d’être contacté(e) par des professionnels pour recevoir des devis liés à cette demande.
+                </label>
+              </div>
+            </div>
+
+<div class="formRow">
+              <label for="acceptCgv">Conditions *</label>
+              <div>
+                <label class="pill" style="border-radius:14px;">
+                  <input id="acceptCgv" type="checkbox" required>
+                  J’accepte les <a href="./cgv.html" target="_blank" rel="noopener">CGV</a> et la <a href="./politique-confidentialite.html" target="_blank" rel="noopener">confidentialité</a>.
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btnPrimary" type="submit">Publier</button>
+            <a class="btn" href="./mur-demandes.html">Voir le mur</a>
+            <div class="help" style="margin:0;">Tes coordonnées restent confidentielles sur le mur.</div>
+          </div>
+
+          <div class="errorLine" id="fileError">Tu peux joindre maximum 3 fichiers. Supprime-en un et réessaie.</div>
+          <p class="help" style="margin-top:10px;">Les champs marqués * sont obligatoires.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerRow">
+      <div class="footLeft">© 2026 DevisExpress974 — Tous droits réservés.</div>
+      <nav class="footLinks">
+        <a href="./mentions-legales.html">Mentions légales</a>
+        <a href="./cgv.html">CGV</a>
+        <a href="./politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="./cookies.html">Cookies</a>
+        <a href="./contact.html">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Dépendances -->
+  <script src="./api.js?v=35"></script>
+  <script src="./auth.js?v=35"></script>
+  <script src="./main.js?v=35"></script>
+
+  <!-- Patch6: services -->
+  <script src="./services_devisexpress974.js?v=35"></script>
+    <script src="./assets/js/dx-searchable-select.js?v=45"></script>
+<script src="./assets/js/dx-services.js?v=35"></script>
+
+  <!-- Patch8: zone -> communes -->
+  <script src="./dx-geo-communes.js?v=35"></script>
+
+  <!-- Patch9: submit + validations -->
+  <script defer src="./assets/js/dx-demande-submit.js?v=36"></script>
+  <script src="./api.js?v=1"></script>
+  <script src="./auth.js?v=1"></script>
+  <script src="./assets/js/dx-include-header.js?v=40"></script>
+</body>
+</html>

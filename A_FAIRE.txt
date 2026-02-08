@@ -1,4 +1,0 @@
-Tests rapides :
-- Mur (non connecté) : voit peu + bouton connexion.
-- Mur (connecté) : voit tout.
-- Offreurs : choisir Service => affiche; sans Service => rien.

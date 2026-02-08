@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profil offreur | DevisExpress974</title>
+
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="theme-color" content="#ff3b0a" />
+
+  <link rel="stylesheet" href="./styles.css?v=49" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=49" />
+  <script defer src="./assets/js/dx-include-header.js?v=49"></script>
+
+  <style>
+    .pageWrap{ padding:18px 0 26px; }
+    .badge{ display:inline-flex; align-items:center; gap:8px; font-weight:900; font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:#fff; }
+    .kv{ display:grid; grid-template-columns: 140px 1fr; gap:8px 12px; margin-top:12px; }
+    .kv .k{ color:#666; font-weight:800; font-size:12px; }
+    .kv .v{ font-weight:800; }
+    .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+  </style>
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+
+  <main class="pageWrap">
+    <div class="container">
+      <section class="card pad">
+        <h1 class="heroTitle" style="font-size:42px;">Profil offreur</h1>
+        <p class="heroSub">Profil public (sans coordonnées). Tu peux laisser un avis.</p>
+
+        <div id="box" class="notice muted" style="margin-top:12px;">Chargement…</div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerInner">
+      <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks" aria-label="Liens légaux">
+        <a href="./mentions-legales.html">Mentions légales</a>
+        <a href="./cgv.html">CGV</a>
+        <a href="./politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="./cookies.html">Cookies</a>
+        <a href="./contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./api.js?v=49"></script>
+  <script src="./auth.js?v=49"></script>
+  <script src="./offreur-profil.js?v=49"></script>
+  <script>
+    (function(){ var y=document.getElementById("y"); if(y) y.textContent = String(new Date().getFullYear()); })();
+  </script>
+  <script src="./api.js?v=1"></script>
+  <script src="./auth.js?v=1"></script>
+  <script src="./assets/js/dx-include-header.js?v=40"></script>
+</body>
+</html>
