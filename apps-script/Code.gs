@@ -99,7 +99,7 @@ var HEADERS = {
   Access:   ["Date","EmailOffreur","OffreurID","DemandeID","Type","ExpireAt"],
   Avis:     ["Date","AvisID","OffreurID","Note","Commentaire","AuteurNom"],
   Sessions: ["Date","Token","EmailOffreur","OffreurID","ExpiresAt"],
-  Resets:   ["Date","ResetToken","EmailOffreur","ExpiresAt"],
+  Resets:   ["Date","ResetToken","EmailOffreur","ExpiresAt","UsedAt","EmailSentAt","EmailError"],
   Notifs:   ["Date","DemandeID","OffreurID","EmailOffreur","Mode","Service","Zone","Commune"]
 };
 
@@ -198,6 +198,43 @@ function randomToken_(len){
   }
   return out.slice(0, len);
 }
+
+/** Secret privé (script properties) pour hasher les tokens de reset (ne jamais exposer). */
+function resetSecret_(){
+  return getOrCreateSecret_("DX_RESET_SECRET");
+}
+
+/** Stockage sûr du token: on ne garde JAMAIS le token brut en sheet (on stocke un hash). */
+function hashResetToken_(token){
+  token = String(token || "");
+  var secret = resetSecret_();
+  return "h:" + sha256_(secret + "|" + token);
+}
+
+/** Retourne "" si OK, sinon un message d'erreur. */
+function passwordPolicyError_(pw){
+  pw = String(pw || "");
+  if(pw.length < 8) return "Mot de passe : 8 caractères minimum.";
+  if(!/[a-z]/.test(pw)) return "Mot de passe : ajoute au moins 1 minuscule.";
+  if(!/[A-Z]/.test(pw)) return "Mot de passe : ajoute au moins 1 majuscule.";
+  if(!/[0-9]/.test(pw)) return "Mot de passe : ajoute au moins 1 chiffre.";
+  if(!/[^A-Za-z0-9]/.test(pw)) return "Mot de passe : ajoute au moins 1 symbole.";
+  return "";
+}
+
+/** À exécuter 1 fois dans Apps Script (UI) pour autoriser l'envoi d'emails (MailApp). */
+function dxAuthorizeMail_(){
+  var to = "";
+  try{ to = Session.getEffectiveUser().getEmail(); }catch(e){}
+  if(!to) to = cfg_().OWNER_EMAIL || "";
+  if(!to) throw new Error("Impossible de déterminer l'email d'envoi. Renseigne OWNER_EMAIL (Script Properties).");
+  MailApp.sendEmail(to, "DevisExpress974 — test email", "Autorisation MailApp OK.");
+  return { ok:true, to:to };
+}
+
+
+
+
 
 
 function norm_(s){
@@ -2057,76 +2094,147 @@ function getDemande_(e, body){
 
 
 function requestResetOffreur_(e, body){
-  var email = String((body && body.email) || (body && body.payload && body.payload.email) || (e && e.parameter && e.parameter.email) || "").trim().toLowerCase();
+  var email = String(
+    (body && (body.email || body.Email)) ||
+    (body && body.payload && (body.payload.email || body.payload.Email)) ||
+    (e && e.parameter && (e.parameter.email || e.parameter.Email)) ||
+    ""
+  ).trim().toLowerCase();
+
   if(!email) return { ok:false, error:"Email manquant" };
 
-  // Rate limit (par email) : 3 demandes / heure (même réponse neutre)
+  // Rate limit (par email) : 3 demandes / heure (réponse neutre)
   try{
     var cache = CacheService.getScriptCache();
     var key = "dx_reset_req_" + email;
     var n = Number(cache.get(key) || "0") + 1;
     cache.put(key, String(n), 60*60);
     if(n > 3){
-      return { ok:false, error:"Trop de demandes de réinitialisation. Réessaie plus tard." };
+      // Réponse neutre (on ne révèle rien)
+      return { ok:true };
     }
   }catch(e0){}
 
-  // Ne pas révéler si l’email existe : on renvoie OK de façon neutre
-  // et on envoie le mail uniquement si un compte existe.
+  // Vérifie existence offreur (sans révéler au client)
   var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
-  var rows = sheetToObjects_(shOff);
-  var exists = false;
-  for(var i=0;i<rows.length;i++){
-    if(String(rows[i].Email||"").trim().toLowerCase() === email){ exists = true; break; }
-  }
-  if(!exists){
-    return { ok:true };
-  }
+  var vals = shOff.getDataRange().getValues();
+  if(vals.length < 2) return { ok:true };
 
+  var h = vals[0];
+  var iEmail = h.indexOf("Email");
+  var iActif = h.indexOf("Actif");
+  if(iEmail < 0) return { ok:true };
+
+  var exists = false;
+  for(var r=1; r<vals.length; r++){
+    var row = vals[r];
+    var em = String(row[iEmail] || "").trim().toLowerCase();
+    if(em === email){
+      var actifOk = true;
+      if(iActif >= 0){
+        var a = String(row[iActif] || "").trim().toLowerCase();
+        if(a === "non" || a === "0" || a === "false") actifOk = false;
+      }
+      if(actifOk){ exists = true; }
+      break;
+    }
+  }
+  if(!exists) return { ok:true };
+
+  // Crée token + hash (on stocke le hash uniquement)
   var token = randomToken_(32);
-  var now = new Date();
-  var exp = new Date(now.getTime() + 1000*60*30); // 30 minutes
+  var tokenHash = hashResetToken_(token);
 
   var sh = ensureSheetStrict_(SHEETS.RESETS, HEADERS.Resets);
-  sh.appendRow([nowIso_(), token, email, exp.toISOString()]);
+  var values = sh.getDataRange().getValues();
+  var hh = values[0];
+  var iTok = hh.indexOf("ResetToken");
+  var iEm  = hh.indexOf("EmailOffreur");
+  var iExp = hh.indexOf("ExpiresAt");
+  var iUsed = hh.indexOf("UsedAt");
+  var iSent = hh.indexOf("EmailSentAt");
+  var iErr  = hh.indexOf("EmailError");
 
-  // Email (best effort)
+  // Invalide d'anciens tokens (même email) — best effort
   try{
-    var link = "";
-    if(SITE_URL){
-      var base = String(SITE_URL).replace(/\/$/,"");
-      link = base + "/offreur-reset.html?token=" + encodeURIComponent(token);
+    for(var i=values.length-1; i>=1; i--){
+      var row2 = values[i];
+      var em2 = String(row2[iEm] || "").trim().toLowerCase();
+      if(em2 === email){
+        // marque comme utilisé/expiré
+        var rr = i+1;
+        if(iUsed >= 0) sh.getRange(rr, iUsed+1).setValue(nowIso_());
+        if(iExp  >= 0) sh.getRange(rr, iExp+1).setValue(nowIso_());
+        if(iTok  >= 0) sh.getRange(rr, iTok+1).setValue("");
+      }
     }
+  }catch(e1){}
+
+  var now = new Date();
+  var expires = new Date(now.getTime() + 30*60*1000); // 30 min
+  var nowIso = now.toISOString();
+  var expIso = expires.toISOString();
+
+  // Ajoute la ligne reset (EmailSentAt/EmailError vides au départ)
+  sh.appendRow([
+    nowIso,
+    tokenHash,
+    email,
+    expIso,
+    "", // UsedAt
+    "", // EmailSentAt
+    ""  // EmailError
+  ]);
+
+  // Envoi email (IMPORTANT : lien + code) — si l'envoi échoue, on invalide le token
+  try{
+    var cfg = cfg_();
+    var base = String(cfg.SITE_URL || "https://devisexpress974.netlify.app").replace(/\/$/,"");
+    var link = base + "/offreur-reset?token=" + encodeURIComponent(token);
 
     var bodyTxt =
       "Bonjour,\n\n" +
-      "Voici ton code de réinitialisation (valable 30 min) :\n\n" +
-      token + "\n\n";
-
-    if(link){
-      bodyTxt += "Lien direct :\n" + link + "\n\n";
-    }else{
-      bodyTxt += "Va sur DevisExpress974, page 'Réinitialiser le mot de passe', puis saisis ce code.\n\n";
-    }
-
-    bodyTxt += "Si tu n'es pas à l'origine de cette demande, ignore cet email.";
+      "Voici ton lien sécurisé pour réinitialiser ton mot de passe (valable 30 minutes) :\n\n" +
+      link + "\n\n" +
+      "Si le lien ne fonctionne pas, tu peux aussi saisir ce code sur la page 'Mot de passe oublié' :\n\n" +
+      token + "\n\n" +
+      "Si tu n'es pas à l'origine de cette demande, ignore cet email.\n";
 
     MailApp.sendEmail({
       to: email,
       subject: "DevisExpress974 — Réinitialisation du mot de passe",
       body: bodyTxt
     });
-  }catch(err){}
 
+    // marque EmailSentAt sur la DERNIÈRE ligne ajoutée
+    try{
+      var lastRow = sh.getLastRow();
+      if(iSent >= 0) sh.getRange(lastRow, iSent+1).setValue(nowIso_());
+      if(iErr  >= 0) sh.getRange(lastRow, iErr+1).setValue("");
+    }catch(e2){}
+  }catch(err){
+    // invalide le token si email non envoyé (sécurité)
+    try{
+      var lastRow2 = sh.getLastRow();
+      if(iErr >= 0) sh.getRange(lastRow2, iErr+1).setValue(String(err && err.message ? err.message : err).slice(0,180));
+      if(iExp >= 0) sh.getRange(lastRow2, iExp+1).setValue(nowIso_());
+      if(iTok >= 0) sh.getRange(lastRow2, iTok+1).setValue("");
+    }catch(e3){}
+  }
+
+  // Réponse neutre (ne révèle pas l'existence)
   return { ok:true };
 }
+
 
 
 function confirmResetOffreur_(p){
   var token = String(p.token || p.resetToken || "").trim();
   var password = String(p.password || p.newPassword || "").trim();
   if(!token) return { ok:false, error:"Token manquant" };
-  if(!password || password.length < 8) return { ok:false, error:"Mot de passe : 8 caractères minimum" };
+
+  var perr = passwordPolicyError_(password);
+  if(perr) return { ok:false, error: perr };
 
   var sh = ensureSheetStrict_(SHEETS.RESETS, HEADERS.Resets);
   var values = sh.getDataRange().getValues();
@@ -2136,54 +2244,106 @@ function confirmResetOffreur_(p){
   var iTok = h.indexOf("ResetToken");
   var iEmail = h.indexOf("EmailOffreur");
   var iExp = h.indexOf("ExpiresAt");
+  var iUsed = h.indexOf("UsedAt");
+  var iSent = h.indexOf("EmailSentAt");
+
   if(iTok < 0 || iEmail < 0 || iExp < 0) return { ok:false, error:"Config Resets invalide" };
 
-  var email = "";
-  var exp = null;
-  var rowIndex = -1;
-  for(var r=1;r<values.length;r++){
-    if(String(values[r][iTok]||"") === token){
-      email = String(values[r][iEmail]||"").trim().toLowerCase();
-      try{ exp = new Date(values[r][iExp]); }catch(e){}
-      rowIndex = r+1; // 1-indexed for sheet range
-      break;
-    }
-  }
-  if(!email) return { ok:false, error:"Token invalide" };
-  if(exp && exp.getTime && exp.getTime() < new Date().getTime()) return { ok:false, error:"Token expiré" };
+  var now = new Date();
+  var tokenHash = hashResetToken_(token);
 
-  // Update password on Offreurs
-  var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
-  var data = shOff.getDataRange().getValues();
-  if(data.length < 2) return { ok:false, error:"Aucun compte" };
-  var hh = data[0];
-  var iEmail2 = hh.indexOf("Email");
-  var iHash = hh.indexOf("PasswordHash");
-  var iSalt = hh.indexOf("Salt");
-  if(iEmail2 < 0 || iHash < 0 || iSalt < 0) return { ok:false, error:"Colonnes sécurité manquantes" };
+  // Concurrency guard
+  var lock = LockService.getScriptLock();
+  try{ lock.waitLock(8000); }catch(eLock){}
 
-  var foundRow = -1;
-  for(var i=1;i<data.length;i++){
-    if(String(data[i][iEmail2]||"").trim().toLowerCase() === email){
-      foundRow = i+1;
-      break;
-    }
-  }
-  if(foundRow < 0) return { ok:false, error:"Compte introuvable" };
-
-  var salt = randomSalt_();
-  var hash = sha256_(salt + "|" + password);
-
-  shOff.getRange(foundRow, iHash+1).setValue(hash);
-  shOff.getRange(foundRow, iSalt+1).setValue(salt);
-
-  // Invalidate token (best effort: delete row)
   try{
-    sh.deleteRow(rowIndex);
-  }catch(e){}
+    // Re-read fresh after lock
+    values = sh.getDataRange().getValues();
+    if(values.length < 2) return { ok:false, error:"Token invalide" };
+    h = values[0];
 
-  return { ok:true };
+    var rowIndex = -1;
+    var email = "";
+
+    for(var i=1; i<values.length; i++){
+      var row = values[i];
+      var stored = String(row[iTok] || "").trim();
+      if(!stored) continue;
+
+      var match = false;
+      if(stored.indexOf("h:") === 0){
+        match = (stored === tokenHash);
+      }else{
+        // compat legacy (ancien format où on stockait le token brut)
+        match = (stored === token);
+      }
+      if(match){
+        rowIndex = i+1;
+        email = String(row[iEmail] || "").trim().toLowerCase();
+        break;
+      }
+    }
+
+    if(rowIndex < 0) return { ok:false, error:"Token invalide" };
+
+    // Sécurité : on accepte uniquement si l'email a été envoyé (sinon token invalide)
+    if(iSent >= 0){
+      var sentAt = String(values[rowIndex-1][iSent] || "").trim();
+      if(!sentAt){
+        return { ok:false, error:"Lien non envoyé. Refais une demande de réinitialisation." };
+      }
+    }
+
+    // Expiration
+    var exp = new Date(String(values[rowIndex-1][iExp] || ""));
+    if(!exp || isNaN(exp.getTime()) || exp.getTime() < now.getTime()){
+      return { ok:false, error:"Lien expiré. Refais une demande." };
+    }
+
+    // Déjà utilisé ?
+    if(iUsed >= 0){
+      var usedAt = String(values[rowIndex-1][iUsed] || "").trim();
+      if(usedAt) return { ok:false, error:"Lien déjà utilisé." };
+    }
+
+    // Update offreur password
+    var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
+    var valsOff = shOff.getDataRange().getValues();
+    if(valsOff.length < 2) return { ok:false, error:"Offreur introuvable" };
+
+    var ho = valsOff[0];
+    var iE = ho.indexOf("Email");
+    var iHash = ho.indexOf("PasswordHash");
+    var iSalt = ho.indexOf("Salt");
+    if(iE < 0 || iHash < 0 || iSalt < 0) return { ok:false, error:"Config Offreurs invalide" };
+
+    var foundRow = -1;
+    for(var r=1; r<valsOff.length; r++){
+      var em = String(valsOff[r][iE] || "").trim().toLowerCase();
+      if(em === email){ foundRow = r+1; break; }
+    }
+    if(foundRow < 0) return { ok:false, error:"Offreur introuvable" };
+
+    var salt = randomSalt_();
+    var hash = sha256_(salt + "|" + password);
+
+    shOff.getRange(foundRow, iHash+1).setValue(hash);
+    shOff.getRange(foundRow, iSalt+1).setValue(salt);
+
+    // Invalidate token (single-use, audit)
+    try{
+      var nowS = nowIso_();
+      if(iUsed >= 0) sh.getRange(rowIndex, iUsed+1).setValue(nowS);
+      sh.getRange(rowIndex, iExp+1).setValue(nowS);
+      sh.getRange(rowIndex, iTok+1).setValue(""); // supprime le token hash
+    }catch(eInv){}
+
+    return { ok:true };
+  }finally{
+    try{ lock.releaseLock(); }catch(eRel){}
+  }
 }
+
 
 function cronTrials_(){
   // Optionnel : alerte J-5 et désactivation après TrialEnd si non payé

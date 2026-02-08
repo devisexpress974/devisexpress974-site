@@ -1,5 +1,52 @@
 // offreur-reset.js (v15) — demande de lien + confirmation token
+
+
+function dxPwRules_(pw){
+  pw = String(pw||"");
+  return {
+    len: pw.length >= 8,
+    lower: /[a-z]/.test(pw),
+    upper: /[A-Z]/.test(pw),
+    digit: /[0-9]/.test(pw),
+    symbol: /[^A-Za-z0-9]/.test(pw)
+  };
+}
+function dxPwIsStrong_(pw){
+  const r = dxPwRules_(pw);
+  return r.len && r.lower && r.upper && r.digit && r.symbol;
+}
+function dxPwUpdateUI_(){
+  const inp = document.getElementById("password");
+  const ul = document.getElementById("pwRules");
+  if(!inp || !ul) return;
+  const r = dxPwRules_(inp.value);
+  ul.querySelectorAll("li[data-rule]").forEach(li=>{
+    const k = li.getAttribute("data-rule");
+    const ok = !!r[k];
+    li.classList.toggle("ok", ok);
+    const baseText = li.textContent.replace(/^✅\s+|^❌\s+/,"");
+    li.textContent = (ok ? "✅ " : "❌ ") + baseText;
+  });
+}
+function dxInitPwToggles_(){
+  document.querySelectorAll(".pwToggle[data-target]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.getAttribute("data-target");
+      const inp = document.getElementById(id);
+      if(!inp) return;
+      const isPw = inp.type === "password";
+      inp.type = isPw ? "text" : "password";
+      btn.textContent = isPw ? "🙈" : "👁";
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  dxInitPwToggles_();
+  dxPwUpdateUI_();
+  const pw1 = document.getElementById("password");
+  if(pw1){ pw1.addEventListener("input", dxPwUpdateUI_); }
+
   const formReq = document.getElementById("resetRequestForm");
   const formConf = document.getElementById("resetConfirmForm");
   const msg = document.getElementById("msg");
@@ -91,8 +138,8 @@ document.addEventListener("DOMContentLoaded", () => {
         show("err", "Code / Token manquant.");
         return;
       }
-      if(!p1 || p1.length < 8){
-        show("err", "Mot de passe : 8 caractères minimum.");
+      if(!p1 || !dxPwIsStrong_(p1)){
+        show("err", "Mot de passe : 8+ caractères avec minuscule, majuscule, chiffre et symbole.");
         return;
       }
       if(p1 !== p2){

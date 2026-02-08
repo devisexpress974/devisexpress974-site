@@ -1,1 +1,16 @@
 # (optionnel) règles de redirection
+
+# Pretty URLs (sécurise le chargement des scripts/assets)
+ /offreur-reset            /offreur-reset.html            200
+ /offreur-login            /offreur-login.html            200
+ /offreur-register         /offreur-register.html         200
+ /offreur-compte           /offreur-compte.html           200
+ /offreur-abonnement       /offreur-abonnement.html       200
+ /paiement-pack            /paiement-pack.html            200
+ /paiement-abonnement      /paiement-abonnement.html      200
+ /paypal-return            /paypal-return.html            200
+ /paypal-cancel            /paypal-cancel.html            200
+
+# Alias liens historiques
+ /cvg.html                 /cgv.html                      301
+ /confidentialite.html     /politique-confidentialite.html 301
