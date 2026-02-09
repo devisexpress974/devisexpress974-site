@@ -1,5 +1,5 @@
 // offreurs.js (v49)
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const SERVICES_BY_CAT = {
   "BTP / Rénovation": [
     "Rénovation intérieure",
@@ -148,13 +148,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     select.appendChild(other);
   }
 
-  const ZONES = ["Sur toute l'île","Nord","Sud","Est","Ouest"];
-  const COMMUNES_BY_ZONE = {
-    "Nord": ["Saint-Denis","Sainte-Marie","Sainte-Suzanne"],
-    "Est": ["Bras-Panon","La Plaine-des-Palmistes","Salazie","Saint-André","Saint-Benoît","Sainte-Rose"],
-    "Ouest": ["La Possession","Le Port","Saint-Leu","Saint-Paul","Trois-Bassins"],
-    "Sud": ["Cilaos","Entre-Deux","L'Étang-Salé","Le Tampon","Les Avirons","Petite-Île","Saint-Joseph","Saint-Louis","Saint-Philippe","Saint-Pierre"]
-  };
+  const ZONES = ["Nord","Sud","Est","Ouest"];
+  const COMMUNES = [
+    "Saint-Denis","Sainte-Marie","Sainte-Suzanne","Saint-André","Bras-Panon","Saint-Benoît",
+    "Sainte-Rose","Saint-Philippe","Saint-Joseph","Petite-Île","Saint-Pierre","Le Tampon",
+    "Entre-Deux","Saint-Louis","Les Avirons","L’Étang-Salé","Saint-Leu","Trois-Bassins",
+    "Saint-Paul","La Possession","Le Port","Cilaos","Salazie","La Plaine-des-Palmistes"
+  ];
 
   const $ = (id) => document.getElementById(id);
   const q = $("q");
@@ -166,9 +166,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const list = $("list");
   const empty = $("empty");
   const countBox = $("countBox");
+
+  // PATCH22: recherche dans les filtres (métier/commune)
+  if (window.DXSearchSelect) {
+    if (serviceFilter) window.DXSearchSelect.enhance(serviceFilter, { placeholder: "Rechercher un métier…" });
+    if (communeFilter) window.DXSearchSelect.enhance(communeFilter, { placeholder: "Rechercher une commune…" });
+  }
+
   // état initial: filtres secondaires désactivés tant que le métier n’est pas choisi
   try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; if(sort) sort.disabled = true; }catch(e){}
-  if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un métier pour afficher les offreurs."; }
+  if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs."; }
   if(countBox){ countBox.textContent = "0"; }
 
 
@@ -234,9 +241,7 @@ function fillSelect(select, items){
   }
 
   function sortItems(items){
-    // Annuaire : si une commune est sélectionnée, on force le tri alphabétique
-    const forcedAlpha = (communeFilter && communeFilter.value);
-    const mode = forcedAlpha ? "alpha_asc" : ((sort && sort.value) ? sort.value : "alpha_asc");
+    const mode = (sort && sort.value) ? sort.value : "note_desc";
     const arr = (items || []).slice();
 
     const nameOf = (o) => String(o.publicName || o.nom || o.Nom || o.Pseudo || "Offreur");
@@ -273,7 +278,7 @@ function fillSelect(select, items){
 
     if(!items.length){
       empty.style.display = "block";
-      empty.textContent = (serviceFilter && serviceFilter.value) ? "Aucun offreur trouvé pour ces critères." : "Sélectionne un métier pour afficher les offreurs.";
+      empty.textContent = (serviceFilter && serviceFilter.value) ? "Aucun offreur trouvé pour ces critères." : "Sélectionne un domaine d’activité pour afficher les offreurs.";
       return;
     }
     empty.style.display = "none";
@@ -344,21 +349,7 @@ function fillSelect(select, items){
   }
 
   function setControlsDisabled(disabled){
-    try{
-      if(disabled){
-        zoneFilter.disabled = true;
-        communeFilter.disabled = true;
-        if(q) q.disabled = true;
-        if(sort) sort.disabled = true;
-        if(btnReload) btnReload.disabled = true;
-      }else{
-        zoneFilter.disabled = false;
-        if(q) q.disabled = false;
-        if(sort) sort.disabled = false;
-        if(btnReload) btnReload.disabled = false;
-        // communeFilter est piloté par setCommunesForZone()
-      }
-    }catch(e){}
+    try{ zoneFilter.disabled = disabled; communeFilter.disabled = disabled; q.disabled = disabled; if(sort) sort.disabled = disabled; }catch(e){}
   }
 
   function updateCount(){
@@ -379,7 +370,7 @@ function fillSelect(select, items){
       setControlsDisabled(true);
       if(empty){
         empty.style.display = "block";
-        empty.textContent = "Sélectionne un métier pour afficher les offreurs.";
+        empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs.";
       }
       STATE.items = [];
       STATE.total = 0;
@@ -401,32 +392,18 @@ function fillSelect(select, items){
   }
 
   function currentParams(){
-    const service = serviceFilter.value;
-    const zone = zoneFilter.value;
-    const commune = communeFilter.value;
-
-    // Le filtrage réel se fait par commune (et service), la zone sert à filtrer la liste des communes.
-    // Si on est sur une zone (Nord/Sud/Est/Ouest), on exige une commune choisie.
-    const isAll = (zone === "Sur toute l'île" || zone === "Toute l'île" || zone === "Toute l’ile" || zone === "Toute l'île");
-
     return {
-      service,
-      zone: isAll ? "Sur toute l'île" : zone,
-      commune: isAll ? "" : commune,
-      q: q ? q.value.trim() : "",
-      sort: (sort && sort.value) ? sort.value : "alpha_asc"
+      service: serviceFilter.value,
+      zone: zoneFilter.value,
+      commune: communeFilter.value,
+      q: q.value.trim(),
+      sort: (sort && sort.value) ? sort.value : "note_desc"
     };
   }
 
   async function fetchFirst(){
     const p = currentParams();
-
     if(!p.service){
-      // Rien tant que le métier n'est pas choisi
-      STATE.items = [];
-      STATE.total = 0;
-      STATE.offset = 0;
-      render([]);
       updatePager();
       return;
     }
@@ -491,88 +468,13 @@ function fillSelect(select, items){
     tmr = setTimeout(fetchFirst, 250);
   }
 
-  async function initServices(){
-    try{
-      const res = await fetch("./assets/data/services_devisexpress974.json?v=1", { cache:"no-store" });
-      const rows = await res.json();
-      const cats = new Map();
-      (Array.isArray(rows) ? rows : []).forEach(r=>{
-        const cat = String(r.category || "Autres").trim() || "Autres";
-        const label = String(r.label || "").trim();
-        if(!label) return;
-        if(!cats.has(cat)) cats.set(cat, []);
-        cats.get(cat).push(label);
-      });
-
-      // tri catégories A→Z et labels A→Z
-      const catNames = Array.from(cats.keys()).sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-      serviceFilter.innerHTML = '<option value="">Choisir un métier…</option>';
-      catNames.forEach(cat=>{
-        const labels = cats.get(cat).slice().sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-        const og = document.createElement("optgroup");
-        og.label = cat;
-        labels.forEach(l=>{
-          const opt = document.createElement("option");
-          opt.value = l;
-          opt.textContent = l;
-          og.appendChild(opt);
-        });
-        serviceFilter.appendChild(og);
-      });
-    }catch(e){
-      // fallback : liste minimale (ne bloque pas)
-      console.error("services json error", e);
-    }
-  }
-  await initServices();
-
+  fillServiceSelect(serviceFilter, { includeAll: false });
   fillSelect(zoneFilter, ZONES);
-
-  const communeField = document.getElementById("communeField");
-
-  function setCommunesForZone(zone){
-    const isAll = (zone === "Sur toute l'île" || !zone);
-    if(isAll){
-      if(communeField) communeField.classList.add("isHidden");
-      communeFilter.innerHTML = '<option value="">Toutes</option>';
-      communeFilter.value = "";
-      communeFilter.disabled = true;
-      return;
-    }
-    if(communeField) communeField.classList.remove("isHidden");
-    communeFilter.disabled = false;
-
-    const list = (COMMUNES_BY_ZONE[zone] || []).slice().sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-    communeFilter.innerHTML = '<option value="">Toutes les communes</option>' + list.map(c=>`<option>${c}</option>`).join("");
-    communeFilter.value = "";
-  }
-
-  // init zone/commune
-  setCommunesForZone(zoneFilter.value || "Sur toute l'île");
-
+  fillSelect(communeFilter, COMMUNES);
   btnReload.addEventListener("click", fetchFirst);
-  serviceFilter.addEventListener("change", () => {
-    // Active les filtres secondaires seulement une fois le métier choisi
-    zoneFilter.disabled = !serviceFilter.value;
-    setCommunesForZone(zoneFilter.value || "Sur toute l'île");
-    fetchFirst();
-  });
-
-  zoneFilter.addEventListener("change", () => {
-    setCommunesForZone(zoneFilter.value);
-    if(serviceFilter.value){
-      fetchFirst();
-    }else{
-      render([]);
-      updatePager();
-    }
-  });
-
-  communeFilter.addEventListener("change", () => {
-    if(serviceFilter.value){
-      fetchFirst();
-    }
-  });
+  serviceFilter.addEventListener("change", fetchFirst);
+  zoneFilter.addEventListener("change", fetchFirst);
+  communeFilter.addEventListener("change", fetchFirst);
   if(sort) sort.addEventListener("change", fetchFirst);
   q.addEventListener("input", scheduleFetch);
   q.addEventListener("change", fetchFirst);

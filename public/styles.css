@@ -310,10 +310,3 @@ ul.list li{
   background:rgba(0,0,0,.05);
   text-decoration:none;
 }
-
-
-/* Mot de passe : œil afficher/masquer */
-.pwWrap{ position:relative; }
-.pwWrap .input{ padding-right:44px; }
-.pwToggle{ position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; cursor:pointer; font-size:18px; line-height:1; opacity:.85; }
-.pwToggle:hover{ opacity:1; }

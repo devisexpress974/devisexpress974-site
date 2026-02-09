@@ -1,262 +1,284 @@
-// mur-demandes.js (v100) — 1 colonne + pagination 10
-document.addEventListener("DOMContentLoaded", async () => {
-  const serviceFilter = document.getElementById("serviceFilter");
-  const zoneFilter = document.getElementById("zoneFilter");
-  const communeFilter = document.getElementById("communeFilter");
-  const communeField = document.getElementById("communeField");
-  const q = document.getElementById("q");
-  const list = document.getElementById("list");
-  const empty = document.getElementById("empty");
-  const countBox = document.getElementById("countBox");
-  const btnReload = document.getElementById("btnReload");
-  const pager = document.getElementById("pager");
-  const moreBtn = document.getElementById("moreBtn");
+// mur-demandes.js (v14)
+document.addEventListener("DOMContentLoaded", () => {
+  const SERVICES_BY_CAT = {
+  "BTP / Rénovation": [
+    "Rénovation intérieure",
+    "Maçonnerie",
+    "Peinture",
+    "Carrelage",
+    "Parquet / sol",
+    "Sol souple (PVC/Lino)",
+    "Plaquiste / plâtre",
+    "Cloisons / isolation",
+    "Faux plafond",
+    "Enduit / ravalement façade",
+    "Démolition",
+    "Terrassement",
+    "VRD / raccordements",
+    "Étanchéité",
+    "Béton / dalle",
+    "Escalier / garde-corps"
+  ],
+  "Toiture / Menuiserie / Fermetures": [
+    "Charpente",
+    "Couverture / toiture",
+    "Gouttières",
+    "Nettoyage toiture",
+    "Zinguerie",
+    "Menuiserie bois",
+    "Menuiserie alu/PVC",
+    "Pose fenêtres/portes",
+    "Volets roulants",
+    "Portail / clôture",
+    "Serrurerie",
+    "Vitrier",
+    "Stores / pergola",
+    "Rideaux métalliques"
+  ],
+  "Électricité / Plomberie / Clim": [
+    "Électricité",
+    "Mise aux normes électrique",
+    "Tableau électrique",
+    "Éclairage",
+    "Plomberie",
+    "Recherche de fuite",
+    "Débouchage",
+    "Chauffe-eau",
+    "Salle de bain",
+    "Climatisation",
+    "Entretien clim",
+    "Ventilation",
+    "Chauffage",
+    "Domotique",
+    "Interphone / visiophone"
+  ],
+  "Extérieur / Jardin / Piscine": [
+    "Jardinage",
+    "Paysagisme",
+    "Débroussaillage",
+    "Élagage",
+    "Abattage",
+    "Arrosage / irrigation",
+    "Terrasse bois",
+    "Terrasse béton",
+    "Allée / pavés",
+    "Mur extérieur / clôture",
+    "Piscine (entretien)",
+    "Piscine (construction)",
+    "Nettoyage façade",
+    "Nettoyage haute pression",
+    "Traitement anti-termites"
+  ],
+  "Maison / Nettoyage": [
+    "Ménage",
+    "Nettoyage fin de chantier",
+    "Nettoyage vitres",
+    "Nettoyage canapé / tapis",
+    "Désinfection",
+    "Lutte nuisibles (pro)",
+    "Débarras",
+    "Montage meubles",
+    "Petits travaux"
+  ],
+  "Déménagement / Transport": [
+    "Déménagement",
+    "Manutention",
+    "Livraison",
+    "Monte-meubles"
+  ],
+  "Auto / Dépannage": [
+    "Mécanique auto",
+    "Carrosserie",
+    "Pare-brise",
+    "Pneus",
+    "Dépannage / remorquage",
+    "Nettoyage auto"
+  ],
+  "Informatique / Digital": [
+    "Dépannage PC",
+    "Installation / Wi‑Fi",
+    "Sauvegarde / sécurité",
+    "Création site web",
+    "Graphisme / logos",
+    "Montage vidéo",
+    "Réseaux sociaux"
+  ],
+  "Événementiel": [
+    "Photographe",
+    "Vidéaste",
+    "DJ",
+    "Traiteur",
+    "Décoration événement",
+    "Location sono/lumière"
+  ],
+  "Cours / Services": [
+    "Soutien scolaire",
+    "Cours de musique",
+    "Coaching",
+    "Traduction",
+    "Aide administrative"
+  ]
+};
+const COMMUNES = [
+    "Saint-Denis","Sainte-Marie","Sainte-Suzanne","Saint-André","Bras-Panon","Saint-Benoît",
+    "Sainte-Rose","Saint-Philippe","Saint-Joseph","Petite-Île","Saint-Pierre","Le Tampon",
+    "Entre-Deux","Saint-Louis","Les Avirons","L’Étang-Salé","Saint-Leu","Trois-Bassins",
+    "Saint-Paul","La Possession","Le Port","Cilaos","Salazie","La Plaine-des-Palmistes"
+  ];
 
-  const COMMUNES_BY_ZONE = {
-    "Nord": ["Saint-Denis","Sainte-Marie","Sainte-Suzanne"],
-    "Est": ["Bras-Panon","La Plaine-des-Palmistes","Salazie","Saint-André","Saint-Benoît","Sainte-Rose"],
-    "Ouest": ["La Possession","Le Port","Saint-Leu","Saint-Paul","Trois-Bassins"],
-    "Sud": ["Cilaos","Entre-Deux","L'Étang-Salé","Le Tampon","Les Avirons","Petite-Île","Saint-Joseph","Saint-Louis","Saint-Philippe","Saint-Pierre"]
-  };
+  const $ = (id) => document.getElementById(id);
+  const q = $("q");
+  const serviceFilter = $("serviceFilter");
+  const communeFilter = $("communeFilter");
+  const btnReload = 0 0"btnReload");
+  const btnReset = 0 0"btnReset");
+  const list = $("list");
+  const empty = $("empty");
+  const countBox = $("countBox");
 
-  const STATE = { items: [], offset: 0, total: 0, limit: 10, loading: false };
+  
+function fillServiceSelectGrouped(sel){
+  sel.innerHTML = "";
+  // Default "Tous"
+  const optAll = document.createElement("option");
+  optAll.value = "";
+  optAll.textContent = "Tous";
+  sel.appendChild(optAll);
 
-  function setCommunesForZone(zone){
-    const isAll = !zone || zone === "Sur toute l'île" || zone === "Toute l'île" || zone === "Toute l’ile";
-    if(isAll){
-      if(communeField) communeField.classList.add("isHidden");
-      communeFilter.innerHTML = '<option value="">Toutes</option>';
-      communeFilter.value = "";
-      communeFilter.disabled = true;
+  const cats = SERVICES_BY_CAT || {};
+  Object.keys(cats).forEach(cat=>{
+    const group = document.createElement("optgroup");
+    group.label = cat;
+    (cats[cat] || []).forEach(s=>{
+      const o = document.createElement("option");
+      o.value = s;
+      o.textContent = s;
+      group.appendChild(o);
+    });
+    sel.appendChild(group);
+  });
+}
+
+
+function norm_(s){
+  s = (s === undefined || s === null) ? "" : String(s);
+  try{ s = s.normalize("NFD").replace(/[\u0300-\u036f]/g,""); }catch(e){}
+  return s.trim().toLowerCase();
+}
+function splitServices_(s){
+  s = (s===undefined||s===null) ? "" : String(s);
+  return s.split(/[,;\/|]+/).map(function(x){return x.trim();}).filter(Boolean);
+}
+
+function fillSelect(select, items){
+    const first = select.querySelector("option");
+    select.innerHTML = "";
+    select.appendChild(first);
+    items.forEach(v=>{
+      const opt = document.createElement("option");
+      opt.value=v; opt.textContent=v;
+      select.appendChild(opt);
+    });
+  }
+
+  function normalize(s){
+    return (s||"").toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu,"");
+  }
+
+  function esc(s){
+    return (s??"").toString()
+      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+
+  let ALL = [];
+
+  function render(items){
+    list.innerHTML = "";
+    countBox.textContent = `${items.length} demande(s)`;
+
+    if(!items.length){
+      empty.style.display = "block";
       return;
     }
-    if(communeField) communeField.classList.remove("isHidden");
-    communeFilter.disabled = false;
+    empty.style.display = "none";
 
-    const list = (COMMUNES_BY_ZONE[zone] || []).slice().sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-    communeFilter.innerHTML = '<option value="">Toutes les communes</option>' + list.map(c=>`<option>${c}</option>`).join("");
-    communeFilter.value = "";
-  }
-
-  function norm(s){ return String(s||"").trim().toLowerCase(); }
-
-  function parseDateMaybe(s){
-    if(!s) return null;
-    // ISO
-    let d = new Date(s);
-    if(!isNaN(d.getTime())) return d;
-    // dd/mm/yyyy
-    const m = String(s).match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?/);
-    if(m){
-      const dd = Number(m[1]), mm = Number(m[2])-1, yy = Number(m[3]);
-      const hh = m[4] ? Number(m[4]) : 0;
-      const mi = m[5] ? Number(m[5]) : 0;
-      d = new Date(yy,mm,dd,hh,mi);
-      if(!isNaN(d.getTime())) return d;
-    }
-    return null;
-  }
-
-  function fmtDate(d){
-    try{
-      return d.toLocaleDateString("fr-FR", { year:"numeric", month:"2-digit", day:"2-digit" });
-    }catch(e){ return ""; }
-  }
-
-  function fmtRel(d){
-    const now = Date.now();
-    const diff = Math.max(0, now - d.getTime());
-    const mins = Math.floor(diff/60000);
-    if(mins < 1) return "à l’instant";
-    if(mins < 60) return `il y a ${mins} min`;
-    const hrs = Math.floor(mins/60);
-    if(hrs < 48) return `il y a ${hrs} h`;
-    const days = Math.floor(hrs/24);
-    if(days < 30) return `il y a ${days} jour${days>1?"s":""}`;
-    const months = Math.floor(days/30);
-    return `il y a ${months} mois`;
-  }
-
-  function escapeHtml(s){
-    return String(s||"").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
-  }
-
-  function short(s, n){
-    const t = String(s||"").trim();
-    if(t.length <= n) return t;
-    return t.slice(0, n-1) + "…";
-  }
-
-  function updateUI(){
-    const shown = STATE.items.length;
-    const total = STATE.total || shown;
-    countBox.textContent = `Affichées : ${shown} / ${total}`;
-
-    if(shown === 0 && !STATE.loading){
-      empty.style.display = "block";
-    }else{
-      empty.style.display = "none";
-    }
-
-    const canMore = shown < total;
-    pager.style.display = canMore ? "flex" : "none";
-    moreBtn.disabled = STATE.loading;
-  }
-
-  function render(){
-    list.innerHTML = "";
-    const items = STATE.items || [];
-
-    items.forEach(d => {
+    items.forEach(d=>{
       const id = d.id || d.DemandeID || d.demandeId || "";
-      const service = d.service || d.Service || "Demande";
-      const commune = d.commune || d.Commune || "";
+      const service = d.service || d.Service || "Service";
+      const commune = d.commune || d.Commune || "Commune";
       const zone = d.zone || d.Zone || "";
       const desc = d.description || d.Description || "";
-      const budget = d.budget || d.Budget || "";
-      const created = parseDateMaybe(d.createdAt || d.Date || d.created || "");
 
-      const metaParts = [];
-      if(zone) metaParts.push(zone);
-      if(commune) metaParts.push(commune);
-
-      const when = created ? `Publié le ${fmtDate(created)} · ${fmtRel(created)}` : "Publié récemment";
-
-      const a = document.createElement("a");
-      a.className = "demandeRow";
-      a.href = `demande-detail.html?id=${encodeURIComponent(id)}`;
-
-      a.innerHTML = `
-        <div class="demandeTop">
+      const card = document.createElement("div");
+      card.className = "itemCard";
+      card.innerHTML = `
+        <div class="itemTop">
           <div>
-            <h3 class="demandeTitle">${escapeHtml(service)}</h3>
-            <div class="demandeMeta">${escapeHtml(metaParts.join(" · "))}</div>
-            <div class="demandeMeta">${escapeHtml(when)}</div>
+            <h3 class="itemTitle">${esc(service)}</h3>
+            <p class="itemMeta">${esc(commune)}${zone ? " • " + esc(zone) : ""}</p>
           </div>
-          <div class="demandePills">
-            ${budget ? `<span class="pill pillAccent">${escapeHtml(String(budget))}</span>` : `<span class="pill pillMuted">Budget non précisé</span>`}
-          </div>
+          <span class="badge">Coordonnées masquées</span>
         </div>
-        <div class="demandeDesc">${escapeHtml(short(desc, 220))}</div>
+        <p class="itemMeta" style="margin-top:10px;">${esc(desc).slice(0, 180)}${desc.length>180 ? "…" : ""}</p>
+        <div class="btnRow" style="margin-top:12px;">
+          <a class="btn" href="demande-detail.html?id=${encodeURIComponent(id)}">Voir détail</a>
+          <a class="btn btnPrimary" href="paiement-ponctuel.html?id=${encodeURIComponent(id)}">Débloquer / Contacter</a>
+        </div>
       `;
-      list.appendChild(a);
+      list.appendChild(card);
     });
-
-    updateUI();
   }
 
-  function currentParams(){
-    const service = serviceFilter.value;
-    const zone = zoneFilter.value;
-    const isAll = !zone || zone === "Sur toute l'île" || zone === "Toute l'île" || zone === "Toute l’ile";
-    const commune = isAll ? "" : (communeFilter.value || "");
-    return {
-      service,
-      zone: isAll ? "" : zone,
-      commune,
-      q: q ? q.value.trim() : ""
-    };
-  }
+  function apply(){
+    const nq = normalize(q.value.trim());
+    const s = serviceFilter.value;
+    const c = communeFilter.value;
 
-  async function fetchFirst(){
-    const p = currentParams();
-    STATE.loading = true;
-    STATE.items = [];
-    STATE.offset = 0;
-    STATE.total = 0;
-    render();
+    let out = ALL.slice();
+    if(s) out = out.filter(d => (d.service||d.Service) === s);
+    if(c) out = out.filter(d => (d.commune||d.Commune) === c);
 
-    const res = await window.DX_API.getAny(
-      ["listDemandesPublic","listDemandes","getDemandesPublic"],
-      { ...p, offset: 0, limit: STATE.limit }
-    );
-
-    const data = res && res.ok ? (res.data || res.items || res.demandes || []) : [];
-    const items = Array.isArray(data) ? data : [];
-    const t = (res && res.total !== undefined && res.total !== null) ? Number(res.total) : null;
-    STATE.total = (isFinite(t) && t >= 0) ? t : items.length;
-
-    STATE.items = items;
-    STATE.offset = items.length;
-    STATE.loading = false;
-
-    render();
-  }
-
-  async function fetchMore(){
-    if(STATE.loading) return;
-    const p = currentParams();
-    STATE.loading = true;
-    updateUI();
-
-    const res = await window.DX_API.getAny(
-      ["listDemandesPublic","listDemandes","getDemandesPublic"],
-      { ...p, offset: STATE.offset, limit: STATE.limit }
-    );
-
-    const data = res && res.ok ? (res.data || res.items || res.demandes || []) : [];
-    const more = Array.isArray(data) ? data : [];
-    const t = (res && res.total !== undefined && res.total !== null) ? Number(res.total) : null;
-    if(isFinite(t) && t >= 0) STATE.total = t;
-
-    STATE.items = STATE.items.concat(more);
-    STATE.offset += more.length;
-    STATE.loading = false;
-
-    render();
-  }
-
-  async function initServices(){
-    try{
-      const res = await fetch("./assets/data/services_devisexpress974.json?v=1", { cache:"no-store" });
-      const rows = await res.json();
-      const cats = new Map();
-      (Array.isArray(rows) ? rows : []).forEach(r=>{
-        const cat = String(r.category || "Autres").trim() || "Autres";
-        const label = String(r.label || "").trim();
-        if(!label) return;
-        if(!cats.has(cat)) cats.set(cat, []);
-        cats.get(cat).push(label);
+    if(nq){
+      out = out.filter(d => {
+        const blob = normalize([
+          d.service||d.Service, d.commune||d.Commune, d.zone||d.Zone, d.description||d.Description
+        ].join(" "));
+        return blob.includes(nq);
       });
-
-      const catNames = Array.from(cats.keys()).sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-      serviceFilter.innerHTML = '<option value="">Tous les métiers</option>';
-      catNames.forEach(cat=>{
-        const labels = cats.get(cat).slice().sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-        const og = document.createElement("optgroup");
-        og.label = cat;
-        labels.forEach(l=>{
-          const opt = document.createElement("option");
-          opt.value = l;
-          opt.textContent = l;
-          og.appendChild(opt);
-        });
-        serviceFilter.appendChild(og);
-      });
-    }catch(e){
-      console.error("services json error", e);
     }
+    render(out);
   }
 
-  // Events
-  btnReload.addEventListener("click", fetchFirst);
-  moreBtn.addEventListener("click", fetchMore);
+  async function load(){
+    countBox.textContent = "Chargement…";
+    const res = await window.DX_API.getAny(
+      ["listDemandesPublic","listDemandes","getDemandesPublic"],
+      {}
+    );
+    const data = res && res.ok ? (res.data || res.items || res.demandes || []) : [];
+    ALL = Array.isArray(data) ? data : [];
+    apply();
+  }
 
-  serviceFilter.addEventListener("change", fetchFirst);
-  zoneFilter.addEventListener("change", () => {
-    setCommunesForZone(zoneFilter.value);
-    fetchFirst();
+  fillServiceSelectGrouped(serviceFilter);
+  fillSelect(communeFilter, COMMUNES);
+
+  btnReload.addEventListener("click", load);
+  if(btnReset){
+    btnReset.addEventListener("click", function(){
+      q.value=""; serviceFilter.value=""; communeFilter.value="";
+      apply();
+    });
+  }
+  // Avoid sticky filters from browser
+  serviceFilter.value="";
+  communeFilter.value="";
+
+  [q, serviceFilter, communeFilter].forEach(el=>{
+    el.addEventListener("input", apply);
+    el.addEventListener("change", apply);
   });
-  communeFilter.addEventListener("change", fetchFirst);
 
-  let tmr = null;
-  q.addEventListener("input", () => {
-    if(tmr) clearTimeout(tmr);
-    tmr = setTimeout(fetchFirst, 250);
-  });
-
-  // init
-  await initServices();
-  setCommunesForZone(zoneFilter.value || "Sur toute l'île");
-  fetchFirst();
+  load();
 });
