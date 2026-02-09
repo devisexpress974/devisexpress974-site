@@ -58,8 +58,8 @@
           <div class="formGrid" style="margin-top:10px;">
             <div class="field" style="grid-column:1/-1;">
               <label for="token">Code / Token <span class="req">*</span></label>
-              <input id="token" class="input" type="text" required placeholder="Colle le code reçu par email" autocomplete="one-time-code">
-              <div class="hint">Si tu as cliqué sur le lien, le code est rempli automatiquement.</div>
+              <input id="token" class="input" type="text" required readonly aria-readonly="true" placeholder="Code chargé depuis le lien email" autocomplete="one-time-code">
+              <div class="hint">Le code provient du lien reçu par email (non modifiable).</div>
             </div>
 
             <div class="field" style="grid-column:1/-1;">
@@ -120,5 +120,6 @@
   (function(){ try{ document.getElementById("y").textContent = new Date().getFullYear(); }catch(e){} })();
 </script>
 
+  <script defer src="./assets/js/pw-toggle.js?v=1"></script>
 </body>
 </html>

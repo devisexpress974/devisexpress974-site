@@ -1,155 +1,108 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>DevisExpress974 — Publier une demande</title>
-<meta content="no-store, max-age=0" http-equiv="Cache-Control"/>
-<meta content="no-cache" http-equiv="Pragma"/>
-<meta content="0" http-equiv="Expires"/>
-<meta content="#ff3b0a" name="theme-color"/>
-<!-- CSS GLOBAL (IMPORTANT : le / au début pour que ça marche sur TOUTES les pages Netlify) -->
-<link href="./styles.css?v=32" rel="stylesheet"/>
-<link href="./assets/css/dx-header.css?v=39" rel="stylesheet"/>
-<!-- Header injecté (DX header) -->
-<!-- Styles spécifiques à la page -->
-<style>
-    .pageWrap{ padding:18px 0 26px; }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mur des demandes — DevisExpress974</title>
 
-    .heroCard{
-      background: linear-gradient(180deg, rgba(255,209,64,.18), rgba(255,59,10,.06));
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="theme-color" content="#ff3b0a" />
 
-    .heroGrid2{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:14px;
-      align-items:stretch;
-    }
-    @media (max-width:980px){ .heroGrid2{ grid-template-columns:1fr; } }
-
-    .heroMini{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:12px;
-    }
-    @media (max-width:980px){ .heroMini{ grid-template-columns:1fr; } }
-
-    .noteBox{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:12px 14px;
-    }
-
-    .tipsBox{
-      background:#fff;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:14px;
-      height:100%;
-    }
-    .tipsTitle{
-      margin:0 0 8px;
-      font-size:16px;
-      font-weight:900;
-      letter-spacing:-.01em;
-    }
-    .tipsList{
-      margin:0;
-      padding-left:18px;
-    }
-    .tipsList li{
-      margin:8px 0;
-      color:var(--muted);
-      font-weight:800;
-      font-size:13px;
-    }
-
-    .formShell{ margin-top:16px; }
-    .formCard{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px; }
-
-    .formRow{
-      display:grid;
-      grid-template-columns:260px 1fr;
-      gap:10px;
-      align-items:center;
-      margin:10px 0;
-    }
-    @media (max-width:980px){ .formRow{ grid-template-columns:1fr; } }
-
-    label{ font-weight:1000; }
-
-    input[type="text"], input[type="email"], textarea, select{
-      width:100%;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      outline:none;
-      font:inherit;
-      background:#fff;
-    }
-    textarea{ min-height:100px; resize:vertical; }
-
-    input[type="file"]{
-      width:100%;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px dashed rgba(0,0,0,.18);
-      background:#fff;
-      cursor:pointer;
-    }
-
-    .help{ color:var(--muted); font-weight:800; font-size:13px; margin:6px 0 0; }
-    .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
-    .errorLine{ display:none; margin-top:10px; font-weight:1000; color:#b00020; }
-  </style>
-<script defer="" src="./assets/js/dx-include-header.js?v=39"></script>
+  <link rel="stylesheet" href="./styles.css?v=60" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=60" />
+  <link rel="stylesheet" href="./assets/css/mur-demandes.css?v=1" />
+  <script defer src="./assets/js/dx-include-header.js?v=60"></script>
 </head>
+
 <body>
-<div id="dx-header-slot"></div>
-<!-- Slot du header injecté -->
-<main class="container pageWrap"><div style="max-width:1100px;margin:24px auto;padding:0 16px;"><h1 style="margin:0 0 10px;font-size:38px;letter-spacing:-.5px;">Mur des demandes</h1><p style="margin:0 0 18px;color:#555;font-weight:600;">Toutes les demandes sont publiées avec coordonnées masquées. Les prestataires peuvent débloquer le contact via les tarifs.</p><div id="murStatus" style="display:none;margin:12px 0;padding:12px 14px;border-radius:12px;background:#f4f7ff;border:1px solid rgba(25,80,255,.15);color:#1a2b5a;font-weight:600;"></div><div id="murFilters" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 16px;"><input id="murSearch" placeholder="Rechercher (service, commune, description)..." style="flex:1;min-width:240px;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);" type="search"/><button id="murRefresh" style="padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:700;cursor:pointer;" type="button">Rafraîchir</button></div><div id="murList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;"></div></div></main>
-<footer class="siteFooter">
-<div class="container footerRow">
-<div class="footLeft">© 2026 DevisExpress974 — Tous droits réservés.</div>
-<nav class="footLinks">
-<a href="./mentions-legales.html">Mentions légales</a>
-<a href="./cgv.html">CGV</a>
-<a href="./politique-politique-confidentialite.html">Politique de confidentialité</a>
-<a href="./cookies.html">Cookies</a>
-<a href="./contact.html">Contact</a>
-</nav>
-</div>
-</footer>
-<!-- Scripts header injecté -->
-<!-- Optionnel : si ton site utilise api.js pour envoyer la demande -->
-<script src="./api.js?v=1"></script>
-<!-- Sécurité : limiter à 3 fichiers -->
-<script>
-    (function(){
-      const input = document.getElementById('pieces');
-      const err = document.getElementById('fileError');
-      if(!input) return;
+  <div id="dx-header-slot"></div>
 
-      function hideErr(){ err.style.display = 'none'; }
+  <main>
+    <div class="container">
+      <section class="card pad">
+        <h1 class="heroTitle">Mur des demandes</h1>
+        <p class="heroSub">Les 10 dernières demandes s’affichent. Clique sur une demande pour voir le détail (coordonnées masquées tant qu’elles ne sont pas débloquées).</p>
 
-      input.addEventListener('click', hideErr);
-      input.addEventListener('change', () => {
-        const files = input.files ? Array.from(input.files) : [];
-        if (files.length > 3) {
-          err.style.display = 'block';
-          input.value = '';
-        } else {
-          hideErr();
-        }
-      });
-    })();
-  </script>
-<div id="unlockModal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:18px;z-index:9999;"><div id="unlockBox" style="width:min(560px,100%);background:#fff;border-radius:16px;padding:16px 16px 14px;box-shadow:0 10px 40px rgba(0,0,0,.25);"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;"><h2 style="margin:0;font-size:20px;">Débloquer le contact</h2><button id="unlockClose" style="border:none;background:transparent;font-size:20px;cursor:pointer;line-height:1;" type="button">✕</button></div><div id="unlockContent"></div></div></div><script defer="True" src="./assets/js/dx-mur-demandes.js?v=48"></script></body>
+        <div class="filtersGrid">
+          <div class="field">
+            <label for="serviceFilter">Métier</label>
+            <div class="selectWrap">
+              <select id="serviceFilter">
+                <option value="">Tous les métiers</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="zoneFilter">Zone</label>
+            <div class="selectWrap">
+              <select id="zoneFilter">
+                <option>Sur toute l'île</option>
+                <option>Nord</option>
+                <option>Sud</option>
+                <option>Est</option>
+                <option>Ouest</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" id="communeField">
+            <label for="communeFilter">Commune</label>
+            <div class="selectWrap">
+              <select id="communeFilter">
+                <option value="">Toutes</option>
+              </select>
+            </div>
+          </div>
+
+          <details class="advBox">
+            <summary>Recherche avancée</summary>
+            <div class="advGrid">
+              <div class="field">
+                <label for="q">Recherche</label>
+                <input id="q" class="input" type="text" placeholder="Ex : fuite, carrelage, portail… (optionnel)" />
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="formActions">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btnPrimary" id="btnReload" type="button">Recharger</button>
+            <a class="btn" href="demande.html">Publier une demande</a>
+            <a class="btn" href="offreurs.html">Voir les offreurs</a>
+          </div>
+          <div class="notice muted" id="countBox">—</div>
+        </div>
+
+        <div id="list" class="listOneCol"></div>
+
+        <div class="empty" id="empty" style="display:none;">Aucune demande ne correspond à tes filtres.</div>
+
+        <div class="pager" id="pager" style="display:none;">
+          <button class="btn" id="moreBtn" type="button">Voir plus</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerInner">
+      <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks" aria-label="Liens légaux">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="cgv.html">CGV</a>
+        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./api.js?v=1"></script>
+  <script src="./mur-demandes.js?v=100"></script>
+  <script>document.getElementById("y").textContent = new Date().getFullYear();</script>
+</body>
 </html>

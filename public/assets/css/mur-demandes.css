@@ -1,0 +1,75 @@
+/* Mur des demandes (1 colonne + pagination) */
+.heroTitle{ margin:0 0 6px 0; font-size:clamp(28px,3.2vw,44px); letter-spacing:-.02em; }
+.heroSub{ margin:0 0 14px 0; color:var(--muted); font-weight:700; }
+
+.filtersGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+@media (max-width: 900px){
+  .filtersGrid{ grid-template-columns: 1fr 1fr; }
+  .advBox{ grid-column: 1 / -1; }
+}
+@media (max-width: 520px){
+  .filtersGrid{ grid-template-columns: 1fr; }
+}
+
+.advBox{
+  grid-column: 1 / -1;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 16px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.6);
+}
+.advBox > summary{
+  cursor: pointer;
+  font-weight: 900;
+  list-style: none;
+}
+.advBox > summary::-webkit-details-marker{ display:none; }
+.advGrid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding-top: 12px;
+}
+
+#communeField.isHidden{ display:none; }
+
+.notice.muted#countBox{ font-weight: 900; }
+
+.listOneCol{ display:flex; flex-direction:column; gap:12px; margin-top: 12px; }
+
+.demandeRow{
+  display:block;
+  text-decoration:none;
+  color:inherit;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 14px;
+  box-shadow: var(--shadow);
+}
+.demandeTop{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.demandeTitle{ margin:0; font-size:18px; font-weight:1000; }
+.demandeMeta{ margin:6px 0 0; color:rgba(0,0,0,0.65); font-weight:800; font-size:13px; }
+.demandeDesc{ margin:10px 0 0; color:rgba(0,0,0,0.78); font-weight:700; line-height:1.35; }
+.demandePills{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.08);
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.pillMuted{ opacity:.75; }
+.pillAccent{ background: rgba(255,59,10,0.10); border-color: rgba(255,59,10,0.25); }
+.pager{ margin-top: 14px; display:flex; justify-content:center; }
+.empty{ margin-top: 12px; font-weight: 900; color: rgba(0,0,0,0.65); }

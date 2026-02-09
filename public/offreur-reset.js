@@ -86,9 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if(tokenFromUrl){
     setMode("confirm");
     tokenEl.value = tokenFromUrl;
+    tokenEl.readOnly = true;
     show("muted", "Choisis un nouveau mot de passe.");
   } else {
     setMode("request");
+    tokenEl.readOnly = true;
   }
 
   // 1) Demande de lien

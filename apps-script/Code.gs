@@ -731,8 +731,17 @@ function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
   var dz = norm_(demandeZone);
   var dc = norm_(demandeCommune);
 
-  // Toute l'île
-  if(oz === norm_("toute l'île") || oz === norm_("toute l ile") || oz === norm_("toute l'île / toute l ile") || oz === norm_("toute l'ile") || oz === norm_("toute l’île")){
+  // Toute l'île côté offreur
+  if(oz === norm_("toute l'île") || oz === norm_("toute l ile") || oz === norm_("toute l'ile") || oz === norm_("toute l’île")){
+    return true;
+  }
+
+  // Si la commune demandée est vide, on filtre par zone si elle est fournie.
+  // (Permet : "toutes les communes d'une zone" sur le mur des demandes, et évite un filtre trop strict.)
+  if(!dc){
+    if(dz){
+      return (!!oz && oz === dz);
+    }
     return true;
   }
 

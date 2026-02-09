@@ -9,8 +9,7 @@
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="./styles.css?v=32" />
   <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
-  <link rel="stylesheet" href="./assets/css/dx-searchable-select.css?v=45" />
-  <link rel="stylesheet" href="./assets/css/offreurs.css?v=49" />
+<link rel="stylesheet" href="./assets/css/offreurs.css?v=49" />
 
   <script defer src="./assets/js/dx-include-header.js?v=39"></script>
 </head>
@@ -22,31 +21,31 @@
       <h1 class="heroTitle" style="font-size:42px;">Les offreurs</h1>
       <p class="heroSub">Trouve un prestataire. La note s’affiche quand des avis existent.</p>
 
-      <div class="filtersGrid">
+            <div class="filtersGrid">
         <div class="field">
-          <label for="q">Recherche</label>
-          <input id="q" class="input" type="text" placeholder="Nom, service, commune, description">
-        </div>
-
-        <div class="field">
-          <label for="serviceFilter">Service</label>
+          <label for="serviceFilter">Métier *</label>
           <div class="selectWrap">
             <select id="serviceFilter">
-              <option value="">Tous</option>
+              <option value="">Choisir un métier…</option>
             </select>
           </div>
+          <div class="hint muted">Sélectionne un métier pour afficher les offreurs.</div>
         </div>
 
         <div class="field">
           <label for="zoneFilter">Zone</label>
           <div class="selectWrap">
             <select id="zoneFilter">
-              <option value="">Sur toute l'île</option>
+              <option>Sur toute l'île</option>
+              <option>Nord</option>
+              <option>Sud</option>
+              <option>Est</option>
+              <option>Ouest</option>
             </select>
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" id="communeField">
           <label for="communeFilter">Commune</label>
           <div class="selectWrap">
             <select id="communeFilter">
@@ -54,17 +53,27 @@
             </select>
           </div>
         </div>
-      </div>
 
-        <div class="field">
-          <label for="sort">Trier</label>
-          <div class="selectWrap">
-            <select id="sort">
-              <option value="note_desc" selected>Note (meilleurs en premier)</option>
-              <option value="alpha_asc">Nom (A → Z)</option>
-            </select>
+        <details class="advBox">
+          <summary>Recherche avancée</summary>
+          <div class="advGrid">
+            <div class="field">
+              <label for="q">Recherche</label>
+              <input id="q" class="input" type="text" placeholder="Nom, description… (optionnel)">
+            </div>
+
+            <div class="field">
+              <label for="sort">Tri</label>
+              <div class="selectWrap">
+                <select id="sort">
+                  <option value="alpha_asc" selected>Nom (A → Z)</option>
+                  <option value="note_desc">Note (meilleurs en premier)</option>
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
+        </details>
+      </div>
 
       <div class="formActions">
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -86,7 +95,7 @@
     <div class="footerLinks" aria-label="Liens légaux">
       <a href="mentions-legales.html">Mentions légales</a>
       <a href="cgv.html">CGV</a>
-      <a href="politique-politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
       <a href="cookies.html">Cookies</a>
       <a href="contact.html">Contact</a>
     </div>
@@ -95,7 +104,6 @@
 <script src="api.js?v=27"></script>
 <script src="auth.js?v=27"></script>
 <script src="main.js?v=27"></script>
-  <script src="./assets/js/dx-searchable-select.js?v=45"></script>
 <script src="offreurs.js?v=49"></script>
 
 </body>
