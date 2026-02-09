@@ -171,14 +171,6 @@
       fillServiceSelect_($("service"), services);       // offreur-register.html
 
       // PATCH22: recherche dans les listes (métier)
-      if (window.DXSearchSelect) {
-        const a = $("typeService");
-        const b = $("service");
-        if (a) window.DXSearchSelect.enhance(a, { placeholder: "Rechercher un métier…" });
-        if (b) window.DXSearchSelect.enhance(b, { placeholder: "Rechercher un métier…" });
-        if (a) window.DXSearchSelect.refresh(a);
-        if (b) window.DXSearchSelect.refresh(b);
-      }
     }
     // Zone/commune
     setupZoneCommune_();
