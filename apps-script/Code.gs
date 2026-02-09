@@ -2135,21 +2135,28 @@ function requestResetOffreur_(e, body){
     bodyTxt += "Si tu n'es pas à l'origine de cette demande, ignore cet email.";
 
     try{
-    MailApp.sendEmail({
-      to: email,
-      subject: "DevisExpress974 — Réinitialisation du mot de passe",
-      body: bodyTxt
-    });
-  }catch(err1){
-    try{
-      GmailApp.sendEmail(email, "DevisExpress974 — Réinitialisation du mot de passe", bodyTxt);
-    }catch(err2){
-      // log minimal pour diagnostic
+      MailApp.sendEmail({
+        to: email,
+        subject: "DevisExpress974 — Réinitialisation du mot de passe",
+        body: bodyTxt
+      });
+    }catch(err1){
       try{
-        var shN = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
-        shN.appendRow([nowIso_(), "", sess && sess.offreurId ? sess.offreurId : "", email, "reset_error", "", "", ""]);
-      }catch(e3){}
+        GmailApp.sendEmail(email, "DevisExpress974 — Réinitialisation du mot de passe", bodyTxt);
+      }catch(err2){
+        // log minimal pour diagnostic
+        try{
+          var shN = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
+          shN.appendRow([nowIso_(), "", "", email, "reset_error", "", String(err2), ""]);
+        }catch(e3){}
+      }
     }
+  }catch(eMail){
+    // log minimal (ne bloque pas la réponse)
+    try{
+      var shN2 = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
+      shN2.appendRow([nowIso_(), "", "", email, "reset_error_outer", "", String(eMail), ""]);
+    }catch(e4){}
   }
 
   return { ok:true };
