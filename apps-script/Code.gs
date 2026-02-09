@@ -2114,27 +2114,26 @@ function requestResetOffreur_(e, body){
   sh.appendRow([nowIso_(), token, email, exp.toISOString()]);
 
   // Email (best effort)
+  var link = "";
+  if(SITE_URL){
+    var base = String(SITE_URL).replace(/\/$/,"");
+    link = base + "/offreur-reset.html?token=" + encodeURIComponent(token);
+  }
+
+  var bodyTxt =
+    "Bonjour,\n\n" +
+    "Voici ton code de réinitialisation (valable 30 min) :\n\n" +
+    token + "\n\n";
+
+  if(link){
+    bodyTxt += "Lien direct :\n" + link + "\n\n";
+  }else{
+    bodyTxt += "Va sur DevisExpress974, page 'Réinitialiser le mot de passe', puis saisis ce code.\n\n";
+  }
+
+  bodyTxt += "Si tu n'es pas à l'origine de cette demande, ignore cet email.";
+
   try{
-    var link = "";
-    if(SITE_URL){
-      var base = String(SITE_URL).replace(/\/$/,"");
-      link = base + "/offreur-reset.html?token=" + encodeURIComponent(token);
-    }
-
-    var bodyTxt =
-      "Bonjour,\n\n" +
-      "Voici ton code de réinitialisation (valable 30 min) :\n\n" +
-      token + "\n\n";
-
-    if(link){
-      bodyTxt += "Lien direct :\n" + link + "\n\n";
-    }else{
-      bodyTxt += "Va sur DevisExpress974, page 'Réinitialiser le mot de passe', puis saisis ce code.\n\n";
-    }
-
-    bodyTxt += "Si tu n'es pas à l'origine de cette demande, ignore cet email.";
-
-    try{
     MailApp.sendEmail({
       to: email,
       subject: "DevisExpress974 — Réinitialisation du mot de passe",
@@ -2147,7 +2146,7 @@ function requestResetOffreur_(e, body){
       // log minimal pour diagnostic
       try{
         var shN = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
-        shN.appendRow([nowIso_(), "", sess && sess.offreurId ? sess.offreurId : "", email, "reset_error", "", "", ""]);
+        shN.appendRow([nowIso_(), "", "", email, "reset_error", String(err2), "", ""]);
       }catch(e3){}
     }
   }
