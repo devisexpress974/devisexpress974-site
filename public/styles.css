@@ -317,3 +317,18 @@ ul.list li{
 .pwWrap .input{ padding-right:44px; }
 .pwToggle{ position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; cursor:pointer; font-size:18px; line-height:1; opacity:.85; }
 .pwToggle:hover{ opacity:1; }
+
+
+/* =========================
+   DX28_PRO Mobile Pass
+   - tap targets >= 44px
+   - prevent iOS input zoom
+   - slightly tighter layout
+   ========================= */
+input, select, textarea { font-size: 16px; }
+.btn, button, .dx-btn, a.button { min-height: 44px; }
+@media (max-width: 600px){
+  .container{ padding-left:14px; padding-right:14px; }
+  .card, .dxCard, .box{ border-radius:16px; }
+  .dxTopbar, .dx-header{ position: sticky; top:0; z-index: 50; backdrop-filter: blur(8px); }
+}
