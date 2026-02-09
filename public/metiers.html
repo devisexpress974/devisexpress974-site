@@ -3,65 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tous les métiers (A→Z) — DevisExpress974</title>
-
-  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  <title>Lexique des métiers (A→Z) — DevisExpress974</title>
   <meta name="theme-color" content="#ff3b0a" />
 
-  <link rel="stylesheet" href="./styles.css?v=40" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=40" />
-  <script defer src="./assets/js/dx-include-header.js?v=40"></script>
+  <link rel="stylesheet" href="./styles.css?v=assumed1" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
+  <script defer src="./assets/js/dx-include-header.js?v=assumed1"></script>
 
-  <!-- (fallback) liste métiers -->
   <script defer src="./services_devisexpress974.js?v=40"></script>
-  <script defer src="./assets/js/dx-metiers.js?v=1"></script>
+  <script defer src="./assets/js/dx-metiers.js?v=2"></script>
 
   <style>
-    .metiersHead{margin:18px 0 14px 0}
-    .metiersTitle{margin:0 0 8px 0;font-size:clamp(24px,3vw,34px);letter-spacing:-.01em}
-    .metiersSub{margin:0;color:var(--muted);font-weight:700}
-    .metiersTools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 10px}
-    .metiersSearch{flex:1;min-width:240px}
-    .metiersSearch input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:700}
-    .metiersCount{color:var(--muted);font-weight:700}
-    .azNav{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
-    .azNav a{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 10px;border-radius:999px;background:#f4f7ff;border:1px solid rgba(25,80,255,.15);color:#1a2b5a;font-weight:800;text-decoration:none}
-    .azNav a:hover{filter:brightness(.98)}
-    .metiersList{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
-    .metierCard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 8px 20px rgba(0,0,0,.06)}
-    .metierLabel{font-weight:900;margin:0 0 6px 0}
-    .metierCat{color:var(--muted);font-weight:800;margin:0 0 10px 0}
-    .metierBtns{display:flex;gap:8px;flex-wrap:wrap}
-    .metierBtns a{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);background:#fff;font-weight:900;text-decoration:none}
-    .metierBtns a.primary{background:var(--accent);border-color:rgba(0,0,0,.05);color:#fff}
-    .azSection{margin:18px 0 6px}
-    .azLetter{font-size:20px;font-weight:1000;margin:0}
-    .azDivider{height:1px;background:rgba(0,0,0,.10);margin:10px 0 12px}
-  </style>
+  .metiersHead{margin:14px 0 10px 0}
+  .metiersTitle{margin:0 0 6px 0;font-size:clamp(22px,2.6vw,30px);letter-spacing:-.01em}
+  .metiersSub{margin:0;color:var(--muted);font-weight:700}
+  .metiersTools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 10px}
+  .metiersSearch{flex:1;min-width:240px}
+  .metiersSearch input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:700}
+  .metiersCount{color:var(--muted);font-weight:800}
+  .azNav{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 10px}
+  .azNav a{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 10px;border-radius:999px;background:#f4f7ff;border:1px solid rgba(25,80,255,.15);color:#1a2b5a;font-weight:900;text-decoration:none}
+  .azSection{margin:14px 0 8px}
+  .azLetter{font-size:18px;font-weight:1000;margin:0}
+  .azDivider{height:1px;background:rgba(0,0,0,.10);margin:8px 0 10px}
+  .metiersCols{column-count:3;column-gap:16px}
+  @media (max-width: 980px){ .metiersCols{column-count:2} }
+  @media (max-width: 640px){ .metiersCols{column-count:1} }
+  .metierItem{break-inside:avoid;padding:2px 0}
+  .metierLink{display:block;padding:3px 8px;border-radius:10px;text-decoration:none;font-weight:850;color:inherit;line-height:1.15}
+  .metierLink:hover{background:rgba(255,59,10,.08)}
+</style>
 </head>
 
 <body>
   <div id="dx-header-slot"></div>
 
   <main class="container pageWrap">
-    <div class="metiersHead">
-      <h1 class="metiersTitle">Tous les métiers (A→Z)</h1>
-      <p class="metiersSub">Clique sur un métier pour voir les demandes filtrées, ou faire une demande directement.</p>
+    <div class="mHead">
+      <h1 class="mTitle">Lexique des métiers (A→Z)</h1>
+      <p class="mSub">Clique sur un métier pour pré-remplir ta demande. (Coordonnées toujours floutées sur le mur.)</p>
     </div>
 
-    <div class="metiersTools">
-      <div class="metiersSearch">
-        <input id="metierSearch" type="search" placeholder="Rechercher un métier (ex: plomberie, carrelage, avocat…)" autocomplete="off" />
-      </div>
-      <div class="metiersCount" id="metierCount">—</div>
+    <div class="mTools">
+      <div class="mSearch"><input id="metierSearch" type="search" placeholder="Rechercher un métier (ex : plomberie, carrelage…)" autocomplete="off" /></div>
+      <div class="mCount" id="metierCount">—</div>
       <a class="dxBtn dxBtnGhost" href="./demande.html">Faire une demande</a>
     </div>
 
     <div class="azNav" id="azNav"></div>
 
     <div id="metiersHost"></div>
+
+    <p class="mHint">Astuce : utilise la recherche pour retrouver rapidement un métier.</p>
   </main>
 
   <footer class="siteFooter">

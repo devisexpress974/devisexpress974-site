@@ -40,6 +40,10 @@ function DX_fillServiceSelect(selectEl, services, placeholder = "Choisir un mét
   }
 
   // PATCH22: rendre la liste "recherchable"
+  if (window.DXSearchSelect) {
+    window.DXSearchSelect.enhance(selectEl, { placeholder: "Rechercher un métier…" });
+    window.DXSearchSelect.refresh(selectEl);
+  }
 }
 
 // Utilitaire pour afficher/cacher "Autre"

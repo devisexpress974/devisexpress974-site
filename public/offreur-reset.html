@@ -7,24 +7,9 @@
   <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="./styles.css?v=32" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
-  <script defer src="./assets/js/dx-include-header.js?v=39"></script>
-
-  <style>
-    .pwWrap{ position:relative; }
-    .pwWrap .input{ padding-right: 44px; }
-    .pwToggle{
-      position:absolute; right:10px; top:50%; transform:translateY(-50%);
-      border:0; background:transparent; cursor:pointer;
-      font-size:18px; line-height:1; padding:6px; opacity:.75;
-    }
-    .pwToggle:hover{ opacity:1; }
-    .pwRules{ margin:8px 0 0 0; padding-left:18px; font-size:.92rem; opacity:.9; }
-    .pwRules li{ margin:3px 0; }
-    .pwRules .ok{ font-weight:600; }
-  </style>
-
+  <link rel="stylesheet" href="./styles.css?v=assumed1" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
+  <script defer src="./assets/js/dx-include-header.js?v=assumed1"></script>
 </head>
 <body>
   <div id="dx-header-slot"></div>
@@ -58,31 +43,18 @@
           <div class="formGrid" style="margin-top:10px;">
             <div class="field" style="grid-column:1/-1;">
               <label for="token">Code / Token <span class="req">*</span></label>
-              <input id="token" class="input" type="text" required readonly aria-readonly="true" placeholder="Code chargé depuis le lien email" autocomplete="one-time-code">
-              <div class="hint">Le code provient du lien reçu par email (non modifiable).</div>
+              <input id="token" class="input" type="text" required placeholder="Colle le code reçu par email" autocomplete="one-time-code">
+              <div class="hint">Si tu as cliqué sur le lien, le code est rempli automatiquement.</div>
             </div>
 
             <div class="field" style="grid-column:1/-1;">
               <label for="password">Nouveau mot de passe <span class="req">*</span></label>
-              <div class="pwWrap">
-              <input id="password" class="input" type="password" required placeholder="8+ caractères, maj/min/chiffre/symbole" autocomplete="new-password">
-              <button type="button" class="pwToggle" data-target="password" aria-label="Afficher/Masquer le mot de passe">👁</button>
-            </div>
-              <ul class="pwRules" id="pwRules">
-                <li data-rule="len">8 caractères minimum</li>
-                <li data-rule="lower">1 minuscule</li>
-                <li data-rule="upper">1 majuscule</li>
-                <li data-rule="digit">1 chiffre</li>
-                <li data-rule="symbol">1 symbole</li>
-              </ul>
+              <input id="password" class="input" type="password" required placeholder="8 caractères minimum" autocomplete="new-password">
             </div>
 
             <div class="field" style="grid-column:1/-1;">
               <label for="password2">Confirmer le mot de passe <span class="req">*</span></label>
-              <div class="pwWrap">
               <input id="password2" class="input" type="password" required placeholder="Retape le mot de passe" autocomplete="new-password">
-              <button type="button" class="pwToggle" data-target="password2" aria-label="Afficher/Masquer le mot de passe">👁</button>
-            </div>
             </div>
           </div>
 
@@ -120,6 +92,5 @@
   (function(){ try{ document.getElementById("y").textContent = new Date().getFullYear(); }catch(e){} })();
 </script>
 
-  <script defer src="./assets/js/pw-toggle.js?v=1"></script>
 </body>
 </html>

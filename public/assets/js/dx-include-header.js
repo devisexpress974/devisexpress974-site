@@ -1,7 +1,8 @@
 // DX INCLUDE HEADER v40
 (function () {
-  const V = "39";
-  const B = "40";
+  // "assumed" : on force un cache-bust cohérent sur tout le site
+  const V = "assumed1";
+  const B = "assumed1";
   const HEADER_PARTIAL = "./partials/header.html?v=" + V + "&b=" + B;
   const CSS_FILE = "./assets/css/dx-header.css?v=" + V + "&b=" + B;
   const JS_FILE = "./assets/js/dx-header.js?v=" + V;

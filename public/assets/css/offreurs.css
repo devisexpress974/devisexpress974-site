@@ -1,46 +1,4 @@
 /* Offreurs UX v49 */
-
-.filtersGrid{
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  align-items: end;
-}
-@media (max-width: 900px){
-  .filtersGrid{ grid-template-columns: 1fr 1fr; }
-  .advBox{ grid-column: 1 / -1; }
-}
-@media (max-width: 520px){
-  .filtersGrid{ grid-template-columns: 1fr; }
-}
-
-.hint.muted{ margin-top: 6px; font-size: 12px; color: rgba(0,0,0,0.6); }
-
-.advBox{
-  grid-column: 1 / -1;
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 16px;
-  padding: 10px 12px;
-  background: rgba(255,255,255,0.6);
-}
-.advBox > summary{
-  cursor: pointer;
-  font-weight: 900;
-  list-style: none;
-}
-.advBox > summary::-webkit-details-marker{ display:none; }
-.advGrid{
-  display:grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 14px;
-  padding-top: 12px;
-}
-@media (max-width: 520px){
-  .advGrid{ grid-template-columns: 1fr; }
-}
-
-#communeField.isHidden{ display:none; }
-
 .notice.muted#countBox{ font-weight: 900; }
 
 .badge{
@@ -69,4 +27,5 @@
   align-items:flex-start;
 }
 @media (max-width: 520px){
-  }
+  .filtersGrid{ grid-template-columns: 1fr; }
+}
