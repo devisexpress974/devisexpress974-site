@@ -408,3 +408,66 @@ ul.list li{
 }
 .pwToggle:focus{ outline:2px solid rgba(255,122,0,.35); outline-offset:2px; }
 .pwToggle[data-state="on"]{ background:rgba(255,122,0,.10); border-color:rgba(255,122,0,.35); }
+
+
+/* === DX Assumed V3 UX: video modal + generic modal (mobile-first) === */
+.dxVideoCard{display:flex;justify-content:center}
+.dxVideoThumb{
+  width:min(720px,100%);
+  aspect-ratio:16/9;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:linear-gradient(135deg, rgba(255,138,42,.18), rgba(255,59,10,.12));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+}
+.dxVideoThumb:focus{outline:2px solid rgba(255,122,0,.35);outline-offset:3px}
+.dxVideoPlay{
+  width:64px;height:64px;border-radius:999px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--orange1),var(--orange2));
+  color:#fff;font-weight:900;font-size:22px;
+  box-shadow:0 10px 22px rgba(0,0,0,.18);
+}
+.dxVideoLabel{font-weight:900;color:var(--ink)}
+@media (max-width:520px){
+  .dxVideoPlay{width:56px;height:56px}
+  .dxVideoLabel{font-size:14px}
+}
+
+.dxModal{display:none;position:fixed;inset:0;z-index:10000}
+.dxModal.isOpen{display:block}
+.dxModal__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.dxModal__panel{
+  position:relative;
+  width:min(920px,92vw);
+  margin:8vh auto 0;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+@media (max-width:520px){
+  .dxModal__panel{margin:10vh auto 0;border-radius:16px}
+}
+.dxModal__close{
+  position:absolute;right:10px;top:10px;
+  width:40px;height:40px;border-radius:999px;
+  border:1px solid var(--border);
+  background:#fff;
+  font-size:24px;line-height:1;
+  cursor:pointer;
+}
+.dxVideoFrameWrap{aspect-ratio:16/9;background:#000}
+.dxVideoFrameWrap iframe{width:100%;height:100%;border:0;display:block}
+
+
+/* metiers modal body */
+.dxMetierModalBody{padding:18px 18px 22px}
+.dxMetierModalTitle{font-weight:1000;font-size:18px;margin:6px 0 14px}
+.dxMetierModalBtns{display:grid;gap:10px}
