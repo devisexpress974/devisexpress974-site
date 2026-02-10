@@ -141,9 +141,16 @@
     await refreshHeader();
   }
 
-document.addEventListener("DOMContentLoaded", () => {
+  // IMPORTANT:
+  // - Certaines pages injectent le header après coup (dx-include-header.js)
+  // - Certaines pages chargent auth.js en bas de page (après DOMContentLoaded)
+  // Si on n'écoute que DOMContentLoaded, initHeader peut ne jamais s'exécuter.
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => initHeader());
+  } else {
+    // DOM déjà prêt
     initHeader();
-  });
+  }
 
   window.DX_AUTH = { login, register, requestReset, confirmReset, logout, whoami, getToken, refreshHeader, initHeader };
 })();

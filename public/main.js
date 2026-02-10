@@ -78,3 +78,30 @@
     setExpanded(false);
   }
 })();
+
+// Password show/hide (eye) — compatible mobile
+(function () {
+  function init(){
+    document.querySelectorAll('[data-pw-toggle="1"]').forEach(function(btn){
+      if (btn.dataset.bound === "1") return;
+      btn.dataset.bound = "1";
+      var targetId = btn.getAttribute('data-target');
+      if (!targetId) return;
+      var input = document.getElementById(targetId);
+      if (!input) return;
+
+      btn.addEventListener('click', function(){
+        var on = (input.type === 'text');
+        input.type = on ? 'password' : 'text';
+        btn.setAttribute('data-state', on ? 'off' : 'on');
+        btn.setAttribute('aria-pressed', on ? 'false' : 'true');
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();

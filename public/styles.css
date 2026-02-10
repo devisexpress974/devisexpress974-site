@@ -252,6 +252,85 @@ table{
   border-radius:14px;
   overflow:hidden;
 }
+
+/* =========================================================
+   ASSUMED UI (mobile-first)
+   - ajoute une couche "site pro" sans casser l’existant
+   ========================================================= */
+
+.dxPageHead{margin:8px 0 14px;}
+.dxPageTitle{margin:0 0 6px;font-size:clamp(24px,3.6vw,38px);letter-spacing:-.02em;line-height:1.05;}
+.dxPageSub{margin:0;color:var(--muted);font-weight:700;max-width: 70ch;}
+
+.dxStatus{margin:12px 0;padding:12px 14px;border-radius:14px;background:#f4f7ff;border:1px solid rgba(25,80,255,.15);color:#1a2b5a;font-weight:800;}
+
+/* HERO */
+.dxHero{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start;}
+@media (max-width:980px){.dxHero{grid-template-columns:1fr;}}
+.dxHero__title{margin:0 0 10px;font-size:clamp(30px,4.2vw,46px);line-height:1.03;letter-spacing:-.02em;}
+.dxHero__accent{color:var(--accent);}
+.dxHero__sub{margin:0 0 14px;color:var(--muted);font-weight:750;max-width: 70ch;}
+.dxHero__cta{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px;}
+.dxHero__proof{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}
+@media (max-width:640px){.dxHero__proof{grid-template-columns:1fr;}}
+
+.dxKpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px;}
+.dxKpi__v{font-weight:900;font-size:18px;letter-spacing:-.01em;}
+.dxKpi__l{color:var(--muted);font-weight:800;font-size:13px;}
+
+.dxHeroCard{background:linear-gradient(180deg, rgba(255,209,64,.18), rgba(255,59,10,.06));border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;}
+.dxHeroCard__t{margin:0 0 10px;font-size:18px;font-weight:900;letter-spacing:-.01em;}
+.dxSteps{margin:0 0 12px;padding-left:18px;}
+.dxSteps li{margin:8px 0;color:var(--muted);font-weight:750;}
+.dxSmall{margin:10px 0 0;color:var(--muted);font-weight:800;font-size:13px;}
+
+.dxBtnXL{padding:14px 16px;font-size:15px;}
+
+.dxSection{margin-top:16px;}
+.dxSection__head{margin:0 0 12px;}
+.dxSection__title{margin:0 0 6px;font-size:20px;font-weight:900;letter-spacing:-.01em;}
+.dxSection__sub{margin:0;color:var(--muted);font-weight:750;}
+.dxSection__foot{margin-top:12px;}
+.dxSection--soft{padding:16px;border:1px solid var(--border);border-radius:var(--radius);background:rgba(255,209,64,.10);}
+
+.dxCards2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:980px){.dxCards2{grid-template-columns:1fr;}}
+
+.dxMiniCard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;}
+.dxMiniCard__t{margin:0 0 10px;font-size:16px;font-weight:900;}
+.dxMiniCard__a{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.dxList{margin:0;padding-left:18px;}
+.dxList li{margin:8px 0;color:var(--muted);font-weight:750;}
+
+/* MUR DES DEMANDES (cards) */
+.dxMurFilters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px;}
+.dxInput{flex:1;min-width:240px;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.15);background:#fff;font-weight:750;}
+
+.dxMurList{display:flex;flex-direction:column;gap:14px;}
+
+.murSection{padding:0;margin:0;}
+.murSectionTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 10px;font-weight:900;}
+.murSectionCount{color:var(--muted);font-weight:900;font-size:12px;}
+
+/* aperçu : grille compacte sur mobile => 1 colonne */
+.murGrid{display:grid;grid-template-columns:1fr;gap:12px;}
+@media (min-width:980px){.murGrid{grid-template-columns:1fr 1fr;}}
+
+.murCard{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 10px 24px rgba(0,0,0,.07);cursor:pointer;transition:transform .12s ease;}
+.murCard:hover{transform:translateY(-1px);} 
+
+.murCardTop{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.murService{font-weight:900;font-size:16px;letter-spacing:-.01em;}
+.murMeta{color:var(--muted);font-weight:800;font-size:13px;}
+.murDesc{color:#111;font-weight:700;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.murCardBottom{display:grid;grid-template-columns:1fr;gap:6px;margin-top:10px;}
+.murSmall{color:var(--muted);font-weight:800;font-size:12px;}
+
+.murMore{display:inline-flex;margin-top:10px;font-weight:900;color:var(--accent);text-decoration:none;}
+.murMore:hover{text-decoration:underline;}
+
+.murLoginBox{background:rgba(255,209,64,.16);border:1px solid rgba(255,59,10,.18);border-radius:16px;padding:14px;}
+
 th, td{
   padding:10px 12px;
   border-bottom:1px solid rgba(0,0,0,.06);
@@ -311,24 +390,21 @@ ul.list li{
   text-decoration:none;
 }
 
-
-/* Mot de passe : œil afficher/masquer */
+/* Password toggle (eye) */
 .pwWrap{ position:relative; }
-.pwWrap .input{ padding-right:44px; }
-.pwToggle{ position:absolute; right:10px; top:50%; transform:translateY(-50%); border:0; background:transparent; cursor:pointer; font-size:18px; line-height:1; opacity:.85; }
-.pwToggle:hover{ opacity:1; }
-
-
-/* =========================
-   DX28_PRO Mobile Pass
-   - tap targets >= 44px
-   - prevent iOS input zoom
-   - slightly tighter layout
-   ========================= */
-input, select, textarea { font-size: 16px; }
-.btn, button, .dx-btn, a.button { min-height: 44px; }
-@media (max-width: 600px){
-  .container{ padding-left:14px; padding-right:14px; }
-  .card, .dxCard, .box{ border-radius:16px; }
-  .dxTopbar, .dx-header{ position: sticky; top:0; z-index: 50; backdrop-filter: blur(8px); }
+.pwWrap .input{ padding-right:52px; }
+.pwToggle{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:10px;
+  padding:6px 10px;
+  font-weight:900;
+  cursor:pointer;
+  line-height:1;
 }
+.pwToggle:focus{ outline:2px solid rgba(255,122,0,.35); outline-offset:2px; }
+.pwToggle[data-state="on"]{ background:rgba(255,122,0,.10); border-color:rgba(255,122,0,.35); }

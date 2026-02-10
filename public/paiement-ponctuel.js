@@ -5,15 +5,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const msg = document.getElementById("msg");
   const params = new URLSearchParams(location.search);
-  const nextRaw = String(params.get("next") || "").trim();
-  const safeNext = (n) => {
-    n = String(n||"").trim();
-    if(!n) return "";
-    if(/^https?:/i.test(n) || n.includes('://')) return "";
-    return n;
-  };
-  const next = safeNext(nextRaw);
-
 
   const btnUnlock = document.getElementById("btnPaid") || document.getElementById("btnUnlock");
   const id = (params.get("id") || params.get("demandeId") || "").trim();
@@ -130,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
             var res2 = await window.DX_API.post("confirmPayPalPayment", { tx: cleanTx, product: "ponctuel", demandeId: id, force: true });
             if(res2 && res2.ok){
               show("ok", "Paiement confirmé (manuel).");
-              setTimeout(function(){ location.href = (next || ("mur-demandes.html?open=" + encodeURIComponent(id) + "&paid=1")); }, 800);
+              setTimeout(function(){ location.href = "demande-detail.html?id=" + encodeURIComponent(id) + "&paid=1"; }, 800);
               return;
             }
             show("err", (res2 && (res2.error || res2.message)) ? (res2.error || res2.message) : "Confirmation manuelle impossible.");

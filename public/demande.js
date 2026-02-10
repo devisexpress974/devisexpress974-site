@@ -202,7 +202,7 @@ const ZONES = ["Sur toute l'île","Nord","Sud","Est","Ouest"];
 
   // -------- Pièces jointes (max 3) --------
   const ATT_MAX_FILES = 3;
-  const ATT_MAX_BYTES = 5 * 1024 * 1024; // 5 Mo max / fichier
+  const ATT_MAX_BYTES = 1500 * 1024; // 1,5 Mo conseillé
 
   function fileToBase64_(file){
     return new Promise((resolve, reject) => {
@@ -227,7 +227,7 @@ const ZONES = ["Sur toute l'île","Nord","Sud","Est","Ouest"];
       // validations légères
       for(const f of kept){
         if(ATT_MAX_BYTES && f.size > ATT_MAX_BYTES){
-          throw new Error("Fichier trop volumineux (5 Mo max) : " + (f.name || "fichier"));
+          throw new Error("Fichier trop volumineux (1,5 Mo max conseillé) : " + (f.name || "fichier"));
         }
       }
 
@@ -268,8 +268,8 @@ const ZONES = ["Sur toute l'île","Nord","Sud","Est","Ouest"];
     if(!isEmail(payload.email)){
       return show("err", "Email invalide.");
     }
-    if(payload.description.length < 50){
-      return show("err", "Décris un peu plus ton besoin (au moins 50 caractères).");
+    if(payload.description.length < 12){
+      return show("err", "Décris un peu plus ton besoin (au moins 12 caractères).");
     }
 
     // pièces jointes (optionnel)

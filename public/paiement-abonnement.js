@@ -90,7 +90,7 @@
         return;
       }
     }
-    window.location.href = (next || "offreur-abonnement.html?abo=1");
+    window.location.href = "offreur-abonnement.html?abo=1";
   }
 
   document.addEventListener("DOMContentLoaded", function(){
