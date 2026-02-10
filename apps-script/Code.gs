@@ -2103,7 +2103,7 @@ function requestResetOffreur_(e, body){
     if(String(rows[i].Email||"").trim().toLowerCase() === email){ exists = true; break; }
   }
   if(!exists){
-  }catch(e){}
+
     return { ok:true };
   }
 
@@ -2152,7 +2152,7 @@ function requestResetOffreur_(e, body){
       }catch(e3){}
     }
   }
-
+  }catch(e){}
   return { ok:true };
 }
 
