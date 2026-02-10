@@ -35,9 +35,9 @@
   // Mapping simple (ajustable si tu veux) — micro-régions 974
   const ZONES = {
     "Nord": ["Saint-Denis", "Sainte-Marie", "Sainte-Suzanne"],
-    "Est": ["Saint-André", "Bras-Panon", "Saint-Benoît", "Sainte-Rose", "La Plaine-des-Palmistes", "Salazie"],
-    "Ouest": ["Le Port", "La Possession", "Saint-Paul", "Trois-Bassins", "Saint-Leu"],
-    "Sud": ["Les Avirons", "Saint-Louis", "L'Étang-Salé", "Saint-Pierre", "Le Tampon", "Entre-Deux", "Saint-Joseph", "Petite-Île", "Saint-Philippe", "Cilaos"]
+    "Est": ["Bras-Panon", "La Plaine-des-Palmistes", "Salazie", "Saint-André", "Saint-Benoît", "Sainte-Rose"],
+    "Ouest": ["La Possession", "Le Port", "Saint-Leu", "Saint-Paul", "Trois-Bassins"],
+    "Sud": ["Cilaos", "Entre-Deux", "L'Étang-Salé", "Le Tampon", "Les Avirons", "Petite-Île", "Saint-Joseph", "Saint-Louis", "Saint-Philippe", "Saint-Pierre"]
   };
 
   function normalizeZone(v) {
@@ -64,7 +64,6 @@
     }
 
     // PATCH22: refresh du mode "recherche" après re-remplissage
-    if (window.DXSearchSelect) window.DXSearchSelect.refresh(selectEl);
   }
 
   function getListForZone(zoneValue) {
@@ -82,18 +81,28 @@
     if (!zoneEl || !communeEl) return;
 
     // 1) remplissage initial
-    buildOptions(communeEl, getListForZone(zoneEl.value), communeEl.value);
-
-    // PATCH22: recherche dans les communes (optionnel)
-    if (window.DXSearchSelect) {
-      window.DXSearchSelect.enhance(communeEl, { placeholder: "Rechercher une commune…" });
-      window.DXSearchSelect.refresh(communeEl);
+    function applyCommuneVisibility(){
+      const z = normalizeZone(zoneEl.value);
+      const isAll = (z === "Sur toute l\'île" || z === "Toute l\'île");
+      const row = communeEl.closest(".formRow") || communeEl.closest(".field") || communeEl.parentElement;
+      if(isAll){
+        // Commune fixée à "Toute l'île" (non modifiable)
+        communeEl.innerHTML = '<option value="Toute l\'île">Toute l\'île</option>';
+        communeEl.value = "Toute l\'île";
+        communeEl.disabled = true;
+        if(row) row.style.display = "";
+      }else{
+        communeEl.disabled = false;
+        buildOptions(communeEl, getListForZone(zoneEl.value), communeEl.value);
+        if(row) row.style.display = "";
+      }
     }
 
+    applyCommuneVisibility();
     // 2) mise à jour quand la zone change
     zoneEl.addEventListener("change", function () {
       const keep = communeEl.value; // si l'ancien choix est encore possible, on le garde
-      buildOptions(communeEl, getListForZone(zoneEl.value), keep);
+      applyCommuneVisibility();
     });
   });
 })();

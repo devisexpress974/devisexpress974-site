@@ -1,11 +1,24 @@
-# Pretty URLs
+# DX28_PRO _redirects (fusion A+B)
+# Base UI: RECLONE 5 + Correctifs fonctionnels: CED1
+
+# (optionnel) règles de redirection
+# Pretty URLs (sécurise le chargement des scripts/assets)
+# Alias liens historiques
+
+/offreur-reset            /offreur-reset.html            200
+/offreur-login            /offreur-login.html            200
+/offreur-register         /offreur-register.html         200
+/offreur-compte           /offreur-compte.html           200
+/offreur-abonnement       /offreur-abonnement.html       200
+/paiement-pack            /paiement-pack.html            200
+/paiement-abonnement      /paiement-abonnement.html      200
+/paypal-return            /paypal-return.html            200
+/paypal-cancel            /paypal-cancel.html            200
+/cvg.html                 /cgv.html                      301
+/confidentialite.html     /politique-confidentialite.html 301
 /mur-demandes      /mur-demandes.html      200
 /offreurs          /offreurs.html          200
 /metiers           /metiers.html           200
 /paiement-ponctuel /paiement-ponctuel.html 200
-/paiement-pack     /paiement-pack.html     200
-/paiement-abonnement /paiement-abonnement.html 200
-/paypal-return     /paypal-return.html     200
-/paypal-cancel     /paypal-cancel.html     200
 /mentions-legales  /mentions-legales.html  200
 /politique-confidentialite /politique-confidentialite.html 200

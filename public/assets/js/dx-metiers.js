@@ -1,8 +1,9 @@
-// assets/js/dx-metiers.js (v2)
-// Lexique métiers (A→Z) — compact, clic métier => pré-remplit la demande
+// assets/js/dx-metiers.js
+// Page "Tous les métiers (A→Z)" — compatible avec services_devisexpress974.json ou window.DX_SERVICES
 (() => {
   "use strict";
-  const $ = (id) => document.getElementById(id);
+
+  function $(id){ return document.getElementById(id); }
 
   function norm(s){
     return (s || "")
@@ -15,24 +16,25 @@
 
   function firstLetter(label){
     const n = norm(label);
-    for(let i=0;i<n.length;i++){
-      const ch = n[i];
-      if(/[a-z0-9]/i.test(ch)) return ch.toUpperCase();
-    }
-    return "AUTRES"; // plus de '#'
+    const m = n.match(/[a-z0-9]/i);
+    return m ? m[0].toUpperCase() : "#";
   }
 
   async function loadServices(){
+    // 1) JSON (Netlify / serveur)
     try{
       const res = await fetch("./services_devisexpress974.json", { cache: "no-store" });
       if(res.ok){
         const data = await res.json();
         if(Array.isArray(data) && data.length) return data;
       }
-    }catch(e){}
-    if(Array.isArray(window.DX_SERVICES) && window.DX_SERVICES.length){
+    }catch(e){ /* ignore */ }
+
+    // 2) fallback JS
+    if (Array.isArray(window.DX_SERVICES) && window.DX_SERVICES.length){
       return window.DX_SERVICES;
     }
+
     return [];
   }
 
@@ -53,10 +55,8 @@
     if(!host) return;
 
     const groups = new Map();
-    const others = [];
     items.forEach(it => {
       const L = firstLetter(it.label || it.name || "");
-      if(!L){ others.push(it); return; }
       if(!groups.has(L)) groups.set(L, []);
       groups.get(L).push(it);
     });
@@ -66,51 +66,69 @@
 
     host.innerHTML = "";
 
-    function renderSection(title, arr){
+    letters.forEach(L => {
       const sec = document.createElement("section");
       sec.className = "azSection";
-      sec.id = "az-" + title;
+      sec.id = "az-" + L;
 
       const h = document.createElement("h2");
       h.className = "azLetter";
-      h.textContent = title;
+      h.textContent = L;
       sec.appendChild(h);
 
       const div = document.createElement("div");
       div.className = "azDivider";
       sec.appendChild(div);
 
-      const ul = document.createElement("div");
-      ul.className = "metiersCols";
+      const list = document.createElement("div");
+      list.className = "metiersList";
 
-      const sorted = arr.slice().sort((a,b)=>String(a.label).localeCompare(String(b.label),"fr"));
-      sorted.forEach(it => {
+      const arr = groups.get(L).slice().sort((a,b)=>String(a.label).localeCompare(String(b.label),"fr"));
+      arr.forEach(it => {
         const label = String(it.label || "").trim();
-        const item = document.createElement("div");
-        item.className = "metierItem";
+        const cat = String(it.category || "Autres").trim();
 
-        const a = document.createElement("a");
-        a.className = "metierLink";
-        a.href = "./demande.html?service=" + encodeURIComponent(label);
-        a.textContent = label;
-        item.appendChild(a);
-        ul.appendChild(item);
+        const card = document.createElement("div");
+        card.className = "metierCard";
+
+        const t = document.createElement("p");
+        t.className = "metierLabel";
+        t.textContent = label || "—";
+        card.appendChild(t);
+
+        const c = document.createElement("p");
+        c.className = "metierCat";
+        c.textContent = cat;
+        card.appendChild(c);
+
+        const btns = document.createElement("div");
+        btns.className = "metierBtns";
+
+        const a1 = document.createElement("a");
+        a1.className = "primary";
+        a1.href = "./mur-demandes.html?service=" + encodeURIComponent(label);
+        a1.textContent = "Voir les demandes";
+        btns.appendChild(a1);
+
+        const a2 = document.createElement("a");
+        a2.href = "./demande.html?service=" + encodeURIComponent(label);
+        a2.textContent = "Faire une demande";
+        btns.appendChild(a2);
+
+        card.appendChild(btns);
+        list.appendChild(card);
       });
 
-      sec.appendChild(ul);
+      sec.appendChild(list);
       host.appendChild(sec);
-    }
-
-    letters.forEach(L => renderSection(L, groups.get(L) || []));
-
-    if(others.length){
-      renderSection("Autres", others);
-    }
+    });
   }
 
   function applySearch(all, q){
     const nq = norm(q);
     if(!nq) return all;
+
+    // recherche simple: label + category + service_id
     return all.filter(it => {
       const label = norm(it.label);
       const cat = norm(it.category);
@@ -128,6 +146,7 @@
     if(input && q0) input.value = q0;
 
     const all = await loadServices();
+    // sécurité: normaliser structure
     const clean = (all || []).map(s => ({
       service_id: s.service_id || "",
       label: s.label || s.name || "",
@@ -142,7 +161,7 @@
     }
 
     if(input){
-      input.addEventListener("input", refresh);
+      input.addEventListener("input", () => refresh());
       input.addEventListener("keydown", (e) => {
         if(e.key === "Escape"){
           input.value = "";

@@ -5,6 +5,15 @@
 document.addEventListener("DOMContentLoaded", () => {
   const msg = document.getElementById("msg");
   const params = new URLSearchParams(location.search);
+  const nextRaw = String(params.get("next") || "").trim();
+  const safeNext = (n) => {
+    n = String(n||"").trim();
+    if(!n) return "";
+    if(/^https?:/i.test(n) || n.includes('://')) return "";
+    return n;
+  };
+  const next = safeNext(nextRaw);
+
 
   const id = (params.get("id") || params.get("demandeId") || "").trim();
   const txFromUrl = (params.get("tx") || params.get("txn_id") || "").trim();

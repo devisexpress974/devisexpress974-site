@@ -1,142 +1,209 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DevisExpress974 — Publie 1 demande, reçois plusieurs propositions</title>
+  <title>DevisExpress974 — Une seule demande, plusieurs devis</title>
 
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="theme-color" content="#ff3b0a" />
-  <meta name="description" content="Décris ton besoin. Ta demande apparaît (coordonnées masquées). Les professionnels te contactent, tu choisis." />
 
-  <link rel="stylesheet" href="./styles.css?v=assumed1" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
-  <script defer src="./assets/js/dx-include-header.js?v=assumed1"></script>
+  <!-- ton CSS principal -->
+  <link rel="stylesheet" href="./styles.css?v=32" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=39" />
+
+  <!-- header "image 3" -->
+
+  <script defer src="./assets/js/dx-include-header.js?v=39"></script>
+  <script defer src="./assets/js/dx-metiers-index.js?v=1"></script>
 </head>
 
 <body>
   <div id="dx-header-slot"></div>
+<!-- header injecté -->
+<main>
+    <div class="container">
 
-  <main class="container pageWrap">
+      <section class="card pad">
+        <div class="heroGrid">
+          <div>
+            <h1 class="heroTitle">Une seule demande.<br>Plusieurs prestataires. Tu choisis.</h1>
 
-    <!-- HERO (mobile-first) -->
-    <section class="dxHero">
-      <div class="dxHero__left">
-        <h1 class="dxHero__title">Une seule demande.<br>Plusieurs professionnels te répondent.<br><span class="dxHero__accent">Tu choisis.</span></h1>
-        <p class="dxHero__sub">Gratuit pour le demandeur. Ta demande est visible sur le mur, avec coordonnées masquées.</p>
+            <p class="heroSub">
+              Dépose ta demande en 2 minutes, sur toute l'île. Elle apparaît sur le mur (sans coordonnées).
+              Les prestataires débloquent selon leur formule et te contactent directement.
+            </p>
 
-        <div class="dxHero__cta">
-          <a class="dxBtn dxBtnPrimary dxBtnXL" href="./demande.html">Publier ma demande</a>
-          <a class="dxBtn dxBtnGhost dxBtnXL" href="./professionnels.html">Je suis professionnel</a>
-        </div>
+            <div class="btnRow">
+              <a class="btn btnPrimary" href="demande.html">Déposer une demande</a>
+              <a class="btn" href="mur-demandes.html">Voir le mur</a>
+              <a class="btn" href="offreur-register.html">Devenir offreur</a>
+            </div>
 
-        <div class="dxHero__proof">
-          <div class="dxKpi">
-            <div class="dxKpi__v">0 €</div>
-            <div class="dxKpi__l">Pour publier</div>
+            <div class="statsRow" aria-label="Informations clés">
+              <div class="statBlock">
+                <div class="statValue">1 demande</div>
+                <div class="statLabel">Tu publies une seule fois</div>
+              </div>
+              <div class="statBlock">
+                <div class="statValue">Plusieurs devis</div>
+                <div class="statLabel">Les offreurs te contactent</div>
+              </div>
+              <div class="statBlock">
+                <div class="statValue">0 €</div>
+                <div class="statLabel">Pour le demandeur</div>
+              </div>
+            </div>
           </div>
-          <div class="dxKpi">
-            <div class="dxKpi__v">2 min</div>
-            <div class="dxKpi__l">Pour déposer</div>
-          </div>
-          <div class="dxKpi">
-            <div class="dxKpi__v">974</div>
-            <div class="dxKpi__l">Partout sur l’île</div>
-          </div>
-        </div>
-      </div>
 
-      <div class="dxHero__right" aria-label="Résumé">
-        <div class="dxHeroCard">
-          <h2 class="dxHeroCard__t">Comment ça marche ?</h2>
-          <ol class="dxSteps">
-            <li><strong>Tu décris</strong> ton besoin (métier, commune, détails, photos optionnelles).</li>
-            <li><strong>Les pros</strong> intéressés débloquent le contact selon leur formule.</li>
-            <li><strong>Tu choisis</strong> et tu peux laisser une note après la prestation.</li>
-          </ol>
-          <div class="dxHeroCard__actions">
-            <a class="dxBtn dxBtnPrimary" href="./demande.html">Commencer</a>
-            <a class="dxBtn dxBtnGhost" href="./mur-demandes.html">Voir le mur</a>
-          </div>
-          <p class="dxSmall">⚠️ Les coordonnées restent masquées tant qu’un professionnel ne les débloque pas.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- PREUVE : aperçu du mur (sans tout afficher) -->
-    <section class="dxSection">
-      <div class="dxSection__head">
-        <h2 class="dxSection__title">Dernières demandes publiées</h2>
-        <p class="dxSection__sub">Un aperçu public (coordonnées masquées). Pour voir plus : connexion pro.</p>
-      </div>
-
-      <div id="murStatus" class="dxStatus" style="display:none;"></div>
-      <div id="murFilters" class="dxMurFilters">
-        <input id="murSearch" class="dxInput" type="search" placeholder="Rechercher (service, commune, description)…" />
-        <button id="murRefresh" class="dxBtn dxBtnGhost" type="button">Rafraîchir</button>
-      </div>
-      <div id="murList" class="dxMurList"></div>
-
-      <div class="dxSection__foot">
-        <a class="dxBtn dxBtnGhost" href="./mur-demandes.html">Ouvrir le mur des demandes</a>
-      </div>
-    </section>
-
-    <!-- PRO -->
-    <section class="dxSection dxSection--soft">
-      <div class="dxSection__head">
-        <h2 class="dxSection__title">Professionnel ? Reçois des demandes ciblées</h2>
-        <p class="dxSection__sub">Crée un compte gratuitement. L’abonnement te donne accès à toutes les demandes de ton domaine + e-mails automatiques (selon ton secteur).</p>
-      </div>
-      <div class="dxCards2">
-        <div class="dxMiniCard">
-          <h3 class="dxMiniCard__t">Compte pro</h3>
-          <ul class="dxList">
-            <li>Profil modifiable (téléphone, SIREN, description…)</li>
-            <li>Choix des zones/villes pour les e-mails</li>
-            <li>Affichage optionnel de la note sur l’annuaire</li>
-          </ul>
-          <div class="dxMiniCard__a">
-            <a class="dxBtn dxBtnPrimary" href="./offreur-register.html">Créer un compte</a>
-            <a class="dxBtn dxBtnGhost" href="./offreur-login.html">Se connecter</a>
+          <div class="videoBox" aria-label="Vidéo de présentation">
+            <div class="videoWrap">
+              <video id="heroVideo" controls muted playsinline preload="metadata">
+                <source src="./video.mp4" type="video/mp4">
+                Votre navigateur ne supporte pas la vidéo.
+              </video>
+              <button id="videoPlayBtn" class="videoPlayBtn" type="button" aria-label="Lire la vidéo">▶</button>
+            </div>
+            <div id="videoMsg" class="videoMsg" style="display:none;"></div>
           </div>
         </div>
 
-        <div class="dxMiniCard">
-          <h3 class="dxMiniCard__t">Débloquer un contact</h3>
-          <p class="dxSmall" style="margin:0 0 10px;">Quand une demande t’intéresse, tu peux débloquer le contact via les offres. (Le demandeur ne paie rien.)</p>
-          <div class="dxMiniCard__a">
-            <a class="dxBtn dxBtnGhost" href="./info-tarifs.html">Voir les offres</a>
-            <a class="dxBtn dxBtnGhost" href="./offreurs.html">Voir l’annuaire</a>
+        <div class="card pad" style="margin-top:14px;">
+          <h2 class="sectionTitle">Trouver un métier</h2>
+          <p class="small" style="margin-top:6px;">Recherche un métier, puis va sur la liste A→Z ou sur le mur filtré.</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px;">
+            <input id="indexMetierSearch" class="input" type="search" list="dxMetiersDatalist" placeholder="Ex: plomberie, carrelage, électricité…" style="flex:1; min-width:240px; padding:12px 14px; border-radius:12px; border:1px solid rgba(0,0,0,.15); background:#fff; font-weight:800;" />
+            <datalist id="dxMetiersDatalist"></datalist>
+            <a id="btnMetierGo" class="btn btnPrimary" href="./metiers.html">Rechercher</a>
+            <a class="btn" href="./metiers.html">Tous les métiers (A→Z)</a>
           </div>
         </div>
-      </div>
-    </section>
 
+      </section>
+
+      <section class="card pad" style="margin-top:16px;">
+        <h2 class="sectionTitle">Quel service cherches-tu ?</h2>
+        <p class="muted">Choisis une catégorie : tu verras les offreurs correspondants (coordonnées masquées).</p>
+
+        <div class="btnRow" style="margin-top:10px;">
+          <a class="btn" href="offreurs.html?service=B%C3%A2timent%20%2F%20Travaux">Bâtiment / Travaux</a>
+          <a class="btn" href="offreurs.html?service=Plomberie">Plomberie</a>
+          <a class="btn" href="offreurs.html?service=%C3%89lectricit%C3%A9">Électricité</a>
+          <a class="btn" href="offreurs.html?service=Jardinage">Jardinage</a>
+          <a class="btn" href="offreurs.html?service=M%C3%A9nage%20%2F%20Nettoyage">Ménage / Nettoyage</a>
+          <a class="btn" href="offreurs.html?service=Informatique">Informatique</a>
+          <a class="btn" href="offreurs.html?service=Beaut%C3%A9%20%2F%20Coiffure%20%2F%20Esth%C3%A9tique">Beauté / Coiffure / Esthétique</a>
+          <a class="btn" href="offreurs.html?service=Coaching%20%2F%20Formation">Coaching / Formation</a>
+          <a class="btn" href="offreurs.html?service=Auto%20%2F%20Moto%20-%20R%C3%A9paration">Auto / Moto - Réparation</a>
+          <a class="btn" href="offreurs.html?service=Auto%20%2F%20Moto%20-%20Vente">Auto / Moto - Vente</a>
+          <a class="btn" href="offreurs.html?service=D%C3%A9m%C3%A9nagement">Déménagement</a>
+          <a class="btn" href="offreurs.html?service=Services%20%C3%A0%20la%20personne">Services à la personne</a>
+          <a class="btn" href="offreurs.html?service=Restauration%20%2F%20Traiteur">Restauration / Traiteur</a>
+          <a class="btn" href="offreurs.html?service=%C3%89v%C3%A9nementiel">Événementiel</a>
+          <a class="btn" href="offreurs.html?service=Location%20de%20mat%C3%A9riel">Location de matériel</a>
+          <a class="btn" href="offreurs.html?service=Autre">Autre</a>
+        </div>
+
+        <div class="noteBox" style="margin-top:12px;">
+          <strong>Astuce :</strong> si tu ne trouves pas ta catégorie, choisis <em>Autre</em> et précise ton besoin dans la description.
+        </div>
+      </section>
+
+      <section class="card pad" style="margin-top:16px;">
+        <h2 class="sectionTitle">Comment ça marche ?</h2>
+
+        <div class="statsRow" style="margin-top:12px;">
+          <div class="statBlock">
+            <div class="statValue">1</div>
+            <div class="statLabel"><strong>Tu publies ta demande</strong><br>Service, commune, description, budget, photos (option).</div>
+          </div>
+          <div class="statBlock">
+            <div class="statValue">2</div>
+            <div class="statLabel"><strong>Les pros te répondent</strong><br>Les offreurs ciblés débloquent selon leur formule.</div>
+          </div>
+          <div class="statBlock">
+            <div class="statValue">3</div>
+            <div class="statLabel"><strong>Tu choisis</strong><br>Après la prestation, tu peux laisser une note/avis.</div>
+          </div>
+        </div>
+
+        <div class="btnRow" style="margin-top:14px;">
+          <a class="btn btnPrimary" href="demande.html">Faire une demande</a>
+          <a class="btn" href="offreurs.html">Voir les offreurs</a>
+          <a class="btn" href="mur-demandes.html">Voir le mur</a>
+        </div>
+      </section>
+
+      <section class="card pad" style="margin-top:16px;">
+        <h2 class="sectionTitle">Infos &amp; Tarifs</h2>
+
+        <div class="heroGrid" style="grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="card pad" style="box-shadow:none;">
+            <h3 style="margin:0 0 10px;">Demandeur</h3>
+            <div class="statValue" style="margin:0 0 8px;">0 €</div>
+            <ul class="list">
+              <li>Publication illimitée de demandes</li>
+              <li>Réception d'offres privées</li>
+              <li>Notation des pros après prestation</li>
+            </ul>
+          </div>
+
+          <div class="card pad" style="box-shadow:none;">
+            <h3 style="margin:0 0 10px;">Offreur</h3>
+            <div class="statValue" style="margin:0 0 8px;">0 € le 1er mois</div>
+            <div class="muted" style="margin:-6px 0 10px;">puis 4,99 €/mois (sans engagement)</div>
+            <ul class="list">
+              <li>Réception automatique des demandes ciblées</li>
+              <li>Accès à un profil modifiable</li>
+              <li>Option ponctuelle à 0,99 € pour débloquer une demande</li>
+            </ul>
+
+            <div class="btnRow" style="margin-top:12px;">
+              <a class="btn btnPrimary" href="paiement-abonnement.html">S'abonner</a>
+              <a class="btn" href="paiement-ponctuel.html">0,99 € ponctuel</a>
+              <a class="btn" href="paiement-pack.html">Pack 10 jours</a>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted" style="margin-top:12px;">
+          Les coordonnées des demandes restent masquées sur le mur. Les offreurs les débloquent uniquement après abonnement ou paiement ponctuel.
+        </p>
+      </section>
+
+    </div>
   </main>
 
   <footer class="siteFooter">
     <div class="container footerRow">
-      <div class="footLeft">© <span id="year"></span> DevisExpress974 — Tous droits réservés.</div>
-      <nav class="footLinks">
-        <a href="./mentions-legales.html">Mentions légales</a>
-        <a href="./cgv.html">CGV</a>
-        <a href="./politique-confidentialite.html">Confidentialité</a>
-        <a href="./cookies.html">Cookies</a>
-        <a href="./contact.html">Contact</a>
-      </nav>
+      <div class="footLeft">
+        <span>© <span id="year"></span> DevisExpress974 — Tous droits réservés.</span>
+      </div>
+      <div class="footLinks">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="cgv.html">CGV</a>
+        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="contact.html">Contact</a>
+      </div>
     </div>
   </footer>
 
-  <script src="./api.js?v=assumed1"></script>
-  <script src="./auth.js?v=assumed1"></script>
-  <script>
-    (function(){
-      var y = document.getElementById('year');
-      if(y) y.textContent = new Date().getFullYear();
-    })();
-  </script>
+  <!-- Header injecté -->
+<!-- tes scripts -->
+  <script src="./api.js?v=29"></script>
+  <script src="./auth.js?v=29"></script>
+  <script src="./main.js?v=29"></script>
+  <script src="./video-helper.js?v=29"></script>
 
-  <!-- Aperçu mur des demandes (même script que mur-demandes.html) -->
-  <script defer src="./assets/js/dx-mur-demandes.js?v=assumed1"></script>
+  <script>
+  (function(){
+    var y = document.getElementById("year");
+    if (y) y.textContent = new Date().getFullYear();
+  })();
+  </script>
 </body>
 </html>
+
