@@ -2114,7 +2114,7 @@ function requestResetOffreur_(e, body){
   sh.appendRow([nowIso_(), token, email, exp.toISOString()]);
 
   // Email (best effort)
-  try{
+  // Email (best effort)
     var link = "";
     if(SITE_URL){
       var base = String(SITE_URL).replace(/\/$/,"");
