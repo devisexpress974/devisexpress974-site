@@ -6,7 +6,7 @@
   <title>DevisExpress974 — Publie 1 demande, reçois plusieurs propositions</title>
 
   <meta name="theme-color" content="#ff3b0a" />
-  <meta name="description" content="Décris ton besoin. Ta demande apparaît (coordonnées masquées). Des particuliers ou pros te contactent, tu choisis." />
+  <meta name="description" content="Décris ton besoin. Ta demande apparaît (coordonnées masquées). Les professionnels te contactent, tu choisis." />
 
   <link rel="stylesheet" href="./styles.css?v=assumed1" />
   <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
@@ -21,12 +21,12 @@
     <!-- HERO (mobile-first) -->
     <section class="dxHero">
       <div class="dxHero__left">
-        <h1 class="dxHero__title">Une seule demande.<br>Particuliers ou pros te répondent.<br><span class="dxHero__accent">Tu choisis.</span></h1>
+        <h1 class="dxHero__title">Une seule demande.<br>Plusieurs professionnels te répondent.<br><span class="dxHero__accent">Tu choisis.</span></h1>
         <p class="dxHero__sub">Gratuit pour le demandeur. Ta demande est visible sur le mur, avec coordonnées masquées.</p>
 
         <div class="dxHero__cta">
           <a class="dxBtn dxBtnPrimary dxBtnXL" href="./demande.html">Publier ma demande</a>
-          <a class="dxBtn dxBtnGhost dxBtnXL" href="./offreur-login.html">Je propose mes services</a>
+          <a class="dxBtn dxBtnGhost dxBtnXL" href="./professionnels.html">Je suis professionnel</a>
         </div>
 
         <div class="dxHero__proof">
@@ -61,31 +61,27 @@
         </div>
       </div>
     </section>
-    <!-- VIDEO (au clic) -->
-    <section class="dxSection dxSection--soft">
+
+    <!-- PREUVE : aperçu du mur (sans tout afficher) -->
+    <section class="dxSection">
       <div class="dxSection__head">
-        <h2 class="dxSection__title">Voir comment ça marche</h2>
+        <h2 class="dxSection__title">Dernières demandes publiées</h2>
+        <p class="dxSection__sub">Un aperçu public (coordonnées masquées). Pour voir plus : connexion pro.</p>
       </div>
-      <div class="dxVideoCard">
-        <button class="dxVideoThumb" type="button" id="dxOpenVideo" aria-label="Lire la vidéo">
-          <span class="dxVideoPlay" aria-hidden="true">▶</span>
-          <span class="dxVideoLabel">Lancer la vidéo</span>
-        </button>
+
+      <div id="murStatus" class="dxStatus" style="display:none;"></div>
+      <div id="murFilters" class="dxMurFilters">
+        <input id="murSearch" class="dxInput" type="search" placeholder="Rechercher (service, commune, description)…" />
+        <button id="murRefresh" class="dxBtn dxBtnGhost" type="button">Rafraîchir</button>
+      </div>
+      <div id="murList" class="dxMurList"></div>
+
+      <div class="dxSection__foot">
+        <a class="dxBtn dxBtnGhost" href="./mur-demandes.html">Ouvrir le mur des demandes</a>
       </div>
     </section>
 
-    <!-- MODAL VIDEO -->
-    <div class="dxModal" id="dxVideoModal" aria-hidden="true">
-      <div class="dxModal__backdrop" data-close="1"></div>
-      <div class="dxModal__panel" role="dialog" aria-modal="true" aria-label="Vidéo de présentation">
-        <button class="dxModal__close" type="button" data-close="1" aria-label="Fermer">×</button>
-        <div class="dxVideoFrameWrap">
-          <iframe id="dxVideoFrame" title="DevisExpress974" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-      </div>
-    </div>
-
-<!-- PRO -->
+    <!-- PRO -->
     <section class="dxSection dxSection--soft">
       <div class="dxSection__head">
         <h2 class="dxSection__title">Professionnel ? Reçois des demandes ciblées</h2>
@@ -142,31 +138,5 @@
 
   <!-- Aperçu mur des demandes (même script que mur-demandes.html) -->
   <script defer src="./assets/js/dx-mur-demandes.js?v=assumed1"></script>
-
-  <script>
-  (function(){
-    const btn = document.getElementById('dxOpenVideo');
-    const modal = document.getElementById('dxVideoModal');
-    const frame = document.getElementById('dxVideoFrame');
-    const VIDEO_URL = "https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1"; // remplace par ta vidéo
-    function open(){
-      if(frame && !frame.src) frame.src = VIDEO_URL;
-      modal?.classList.add('isOpen');
-      modal?.setAttribute('aria-hidden','false');
-    }
-    function close(){
-      modal?.classList.remove('isOpen');
-      modal?.setAttribute('aria-hidden','true');
-      if(frame){ frame.src = ""; } // stop vidéo
-    }
-    btn?.addEventListener('click', open);
-    modal?.addEventListener('click', (e)=>{
-      const t = e.target;
-      if(t && t.getAttribute && t.getAttribute('data-close')==='1') close();
-    });
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal?.classList.contains('isOpen')) close();});
-  })();
-  </script>
-
 </body>
 </html>

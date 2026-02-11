@@ -9,10 +9,9 @@
   <link rel="stylesheet" href="./styles.css?v=assumed1" />
   <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
   <script defer src="./assets/js/dx-include-header.js?v=assumed1"></script>
-  <script defer src="./api.js?v=assumed1"></script>
 
   <script defer src="./services_devisexpress974.js?v=40"></script>
-  <script defer src="./assets/js/dx-metiers.js?v=3"></script>
+  <script defer src="./assets/js/dx-metiers.js?v=2"></script>
 
   <style>
   .metiersHead{margin:14px 0 10px 0}
@@ -33,39 +32,7 @@
   .metierItem{break-inside:avoid;padding:2px 0}
   .metierLink{display:block;padding:3px 8px;border-radius:10px;text-decoration:none;font-weight:850;color:inherit;line-height:1.15}
   .metierLink:hover{background:rgba(255,59,10,.08)}
-
-  /* v3 list */
-  .metierSection{margin:14px 0}
-  .metierLetter{margin:10px 0 8px 0;font-size:18px;font-weight:1000}
-  .metierGrid{display:grid;grid-template-columns:1fr;gap:8px}
-  .metierItemBtn{
-    display:flex;align-items:center;justify-content:space-between;
-    width:100%;
-    padding:12px 12px;
-    border-radius:14px;
-    border:1px solid rgba(0,0,0,.12);
-    background:#fff;
-    cursor:pointer;
-    font-weight:900;
-    text-align:left;
-  }
-  .metierItemBtn:focus{outline:2px solid rgba(255,122,0,.35);outline-offset:2px}
-  .metierLabel{color:var(--ink)}
-  .metierCountPill{
-    font-weight:1000;
-    font-size:12px;
-    padding:6px 10px;
-    border-radius:999px;
-    background:rgba(255,122,0,.10);
-    border:1px solid rgba(255,122,0,.25);
-    color:var(--ink2);
-    white-space:nowrap;
-  }
-  @media (min-width:720px){
-    .metierGrid{grid-template-columns:1fr 1fr}
-  }
-
-  </style>
+</style>
 </head>
 
 <body>
@@ -102,22 +69,5 @@
       </nav>
     </div>
   </footer>
-
-  <!-- MODAL ACTION METIER (3 choix) -->
-  <div class="dxModal" id="dxMetierModal" aria-hidden="true">
-    <div class="dxModal__backdrop" data-close="1"></div>
-    <div class="dxModal__panel" role="dialog" aria-modal="true" aria-label="Choisir une action">
-      <button class="dxModal__close" type="button" data-close="1" aria-label="Fermer">×</button>
-      <div class="dxMetierModalBody">
-        <div class="dxMetierModalTitle" id="dxMetierTitle"></div>
-        <div class="dxMetierModalBtns">
-          <a class="dxBtn dxBtnPrimary dxBtnXL" id="dxMetierDoDemande" href="#">Faire une demande</a>
-          <a class="dxBtn dxBtnGhost dxBtnXL" id="dxMetierDoOffer" href="#">Proposer ce service</a>
-          <a class="dxBtn dxBtnGhost dxBtnXL" id="dxMetierDoView" href="#">Voir les offreurs</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </body>
 </html>

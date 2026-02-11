@@ -9,3 +9,9 @@
 /paypal-cancel     /paypal-cancel.html     200
 /mentions-legales  /mentions-legales.html  200
 /politique-confidentialite /politique-confidentialite.html 200
+
+# Legacy aliases
+/cvg                /cgv.html                       301
+/cvg.html            /cgv.html                       301
+/confidentialite     /politique-confidentialite.html 301
+/confidentialite.html /politique-confidentialite.html 301

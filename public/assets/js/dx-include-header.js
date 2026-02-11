@@ -1,10 +1,11 @@
 // DX INCLUDE HEADER v40
 (function () {
   // "assumed" : on force un cache-bust cohérent sur tout le site
-  const V = "assumed1";
-  const B = "assumed1";
+  const V = "v5";
+  const B = "v5";
   const HEADER_PARTIAL = "./partials/header.html?v=" + V + "&b=" + B;
   const CSS_FILE = "./assets/css/dx-header.css?v=" + V + "&b=" + B;
+  const THEME_CSS = "./assets/css/dx-theme.css?v=" + V + "&b=" + B;
   const JS_FILE = "./assets/js/dx-header.js?v=" + V;
 
   function ensureMount() {
@@ -33,6 +34,14 @@
     link.rel = "stylesheet";
     link.href = CSS_FILE;
     document.head.appendChild(link);
+      // Theme
+      if(!document.querySelector('link[data-dx-theme]')){
+        const t = document.createElement("link");
+        t.rel = "stylesheet";
+        t.href = THEME_CSS;
+        t.setAttribute("data-dx-theme","1");
+        document.head.appendChild(t);
+      }
   }
 
   function ensureScript() {

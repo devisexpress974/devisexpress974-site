@@ -400,8 +400,24 @@ function doPost(e){
   return route_(action, e, body);
 }
 
+
+// --- SECURITY (v5) ---
+// Set Script Property DX_SECRET (Apps Script -> Project Settings -> Script properties)
+// Netlify function gas.js will inject dx_secret automatically from Netlify env DX_SECRET.
+function requireSecret_(body){
+  var props = PropertiesService.getScriptProperties();
+  var expected = String(props.getProperty("DX_SECRET") || "").trim();
+  if(!expected) throw new Error("DX_SECRET not configured");
+  var got = body && String(body.dx_secret || "").trim();
+  if(got !== expected) throw new Error("UNAUTHORIZED");
+}
+function isSensitiveAction_(action){
+  return ["confirmPayPalPayment","cancelAbonnement","activatePack","activateAbonnement","grantAccess"].indexOf(String(action||"")) >= 0;
+}
+
 function route_(action, e, body){
   try{
+    if(isSensitiveAction_(action)) requireSecret_(body);
     switch(action){
       case "ping":
         return json_({ ok:true, version: VERSION, time: nowIso_() });
@@ -2103,7 +2119,6 @@ function requestResetOffreur_(e, body){
     if(String(rows[i].Email||"").trim().toLowerCase() === email){ exists = true; break; }
   }
   if(!exists){
-
     return { ok:true };
   }
 
@@ -2136,23 +2151,30 @@ function requestResetOffreur_(e, body){
     bodyTxt += "Si tu n'es pas à l'origine de cette demande, ignore cet email.";
 
     try{
-    MailApp.sendEmail({
-      to: email,
-      subject: "DevisExpress974 — Réinitialisation du mot de passe",
-      body: bodyTxt
-    });
-  }catch(err1){
-    try{
-      GmailApp.sendEmail(email, "DevisExpress974 — Réinitialisation du mot de passe", bodyTxt);
-    }catch(err2){
-      // log minimal pour diagnostic
+      MailApp.sendEmail({
+        to: email,
+        subject: "DevisExpress974 — Réinitialisation du mot de passe",
+        body: bodyTxt
+      });
+    }catch(err1){
       try{
-        var shN = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
-        shN.appendRow([nowIso_(), "", sess && sess.offreurId ? sess.offreurId : "", email, "reset_error", "", "", ""]);
-      }catch(e3){}
+        GmailApp.sendEmail(email, "DevisExpress974 — Réinitialisation du mot de passe", bodyTxt);
+      }catch(err2){
+        // log minimal pour diagnostic
+        try{
+          var shN = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
+          shN.appendRow([nowIso_(), "", "", email, "reset_error", "", String(err2), ""]);
+        }catch(e3){}
+      }
     }
+  }catch(eMail){
+    // log minimal (ne bloque pas la réponse)
+    try{
+      var shN2 = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
+      shN2.appendRow([nowIso_(), "", "", email, "reset_error_outer", "", String(eMail), ""]);
+    }catch(e4){}
   }
-  }catch(e){}
+
   return { ok:true };
 }
 
