@@ -1,8 +1,12 @@
+
+function ensureFetch() {
+  if (typeof fetch !== "function") {
+    throw new Error("Global fetch is not available in this runtime. Please set Netlify Node version to 18+.");
+  }
+}
+
 // gas.js — DX proxy to Google Apps Script (GAS) — v5
 // Security: CORS restricted + basic rate-limit + optional DX_SECRET injection for sensitive actions
-
-const fetch = require("node-fetch");
-
 const RATE_WINDOW_MS = 60_000; // 1 min
 const RATE_MAX = parseInt(process.env.DX_RATE_MAX || "120", 10); // per IP per window
 const buckets = new Map();
@@ -41,6 +45,7 @@ function getAllowedOrigin(event){
 }
 
 exports.handler = async (event) => {
+  ensureFetch();
   const gasUrl = process.env.GAS_URL;
   if (!gasUrl){
     return {

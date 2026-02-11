@@ -1,11 +1,15 @@
+
+function ensureFetch() {
+  if (typeof fetch !== "function") {
+    throw new Error("Global fetch is not available in this runtime. Please set Netlify Node version to 18+.");
+  }
+}
+
 // paypal-verify.js — v5 (OPTIONAL, but recommended for production)
 // Verifies PayPal order or subscription server-side.
 // Env required: PAYPAL_CLIENT_ID, PAYPAL_SECRET
 // Usage (POST JSON):
 // { kind: "order", id: "<ORDER_ID>" }  OR  { kind: "subscription", id: "<SUBSCRIPTION_ID>" }
-
-const fetch = require("node-fetch");
-
 async function getAccessToken(){
   const id = process.env.PAYPAL_CLIENT_ID;
   const secret = process.env.PAYPAL_SECRET;
@@ -26,6 +30,7 @@ async function getAccessToken(){
 }
 
 exports.handler = async (event) => {
+  ensureFetch();
   if(event.httpMethod === "OPTIONS") return { statusCode: 204, body: "" };
   if(event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
 
