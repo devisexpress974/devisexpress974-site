@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Nettoyage vitres",
     "Nettoyage canapé / tapis",
     "Désinfection",
-    "Lutte nuisibles (entreprise)",
+    "Lutte nuisibles (pro)",
     "Débarras",
     "Montage meubles",
     "Petits travaux"

@@ -1,79 +1,122 @@
-// netlify/functions/gas.js (v23)
-// Proxy Netlify -> Google Apps Script WebApp
-// ✅ Ne dépend PAS d'une variable d'environnement : fallback intégré
-// (Tu peux quand même définir GAS_URL dans Netlify, ça prendra priorité)
 
-export async function handler(event) {
-  const cors = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-  };
-
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers: cors, body: "" };
-  }
-
-  const GAS_URL =
-    process.env.GAS_URL ||
-    process.env.GAS_WEBAPP_URL ||
-    "https://script.google.com/macros/s/AKfycbwb4qKG6EDlHborHOJgtVTkD-2ujfbmhqqOwgnNMTfFqUtkXek-YiZ1CBNnvYJOhXQm/exec";
-
-  if (!GAS_URL) {
-    return {
-      statusCode: 500,
-      headers: { ...cors, "Content-Type": "application/json" },
-      body: JSON.stringify({ ok: false, error: "GAS_URL manquant" }),
-    };
-  }
-
-  try {
-    const target = new URL(GAS_URL);
-
-    // Forward query params (GET calls: action=..., token=..., etc.)
-    const qs = event.queryStringParameters || {};
-    for (const [k, v] of Object.entries(qs)) {
-      if (v !== undefined && v !== null) target.searchParams.set(k, String(v));
-    }
-
-    const method = (event.httpMethod || "GET").toUpperCase();
-    const opts = {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    if (method !== "GET" && method !== "HEAD") {
-      // event.body is already a string when coming from browser fetch
-      opts.body = event.body || "";
-    }
-
-    const resp = await fetch(target.toString(), opts);
-    const text = await resp.text();
-
-    // Try to normalize JSON output
-    let body = text;
-    let contentType = resp.headers.get("content-type") || "text/plain; charset=utf-8";
-
-    try {
-      const j = JSON.parse(text);
-      body = JSON.stringify(j);
-      contentType = "application/json";
-    } catch (e) {
-      // keep raw
-    }
-
-    return {
-      statusCode: resp.status,
-      headers: { ...cors, "Content-Type": contentType },
-      body,
-    };
-  } catch (e) {
-    return {
-      statusCode: 500,
-      headers: { ...cors, "Content-Type": "application/json" },
-      body: JSON.stringify({ ok: false, error: String(e?.message || e) }),
-    };
+function ensureFetch() {
+  if (typeof fetch !== "function") {
+    throw new Error("Global fetch is not available in this runtime. Please set Netlify Node version to 18+.");
   }
 }
+
+// gas.js — DX proxy to Google Apps Script (GAS) — v5
+// Security: CORS restricted + basic rate-limit + optional DX_SECRET injection for sensitive actions
+const RATE_WINDOW_MS = 60_000; // 1 min
+const RATE_MAX = parseInt(process.env.DX_RATE_MAX || "120", 10); // per IP per window
+const buckets = new Map();
+
+function now(){ return Date.now(); }
+
+function getIp(event){
+  return (
+    (event.headers && (event.headers["x-nf-client-connection-ip"] || event.headers["x-forwarded-for"])) ||
+    "unknown"
+  ).split(",")[0].trim();
+}
+
+function allowRequest(ip){
+  const t = now();
+  const b = buckets.get(ip) || { t0: t, n: 0 };
+  if (t - b.t0 > RATE_WINDOW_MS){
+    b.t0 = t; b.n = 0;
+  }
+  b.n += 1;
+  buckets.set(ip, b);
+  return b.n <= RATE_MAX;
+}
+
+function getAllowedOrigin(event){
+  // Allow only same-origin: Netlify provides URL/DEPLOY_PRIME_URL
+  const allowed = new Set(
+    [process.env.URL, process.env.DEPLOY_PRIME_URL, process.env.DEPLOY_URL]
+      .filter(Boolean)
+      .map(u => String(u).replace(/\/$/, ""))
+  );
+  const origin = (event.headers && (event.headers.origin || event.headers.Origin)) ? String(event.headers.origin || event.headers.Origin) : "";
+  const norm = origin.replace(/\/$/, "");
+  if (allowed.has(norm)) return origin;
+  return "";
+}
+
+exports.handler = async (event) => {
+  ensureFetch();
+  const gasUrl = process.env.GAS_URL;
+  if (!gasUrl){
+    return {
+      statusCode: 500,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ok:false, error:"GAS_URL environment variable is missing (Netlify)."} ),
+    };
+  }
+
+  const ip = getIp(event);
+  if (!allowRequest(ip)){
+    return {
+      statusCode: 429,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ok:false, error:"Rate limit exceeded. Please retry later." }),
+    };
+  }
+
+  const allowedOrigin = getAllowedOrigin(event);
+
+  // CORS preflight
+  if (event.httpMethod === "OPTIONS"){
+    return {
+      statusCode: 204,
+      headers: {
+        "access-control-allow-origin": allowedOrigin || "null",
+        "access-control-allow-methods": "POST, OPTIONS",
+        "access-control-allow-headers": "content-type",
+        "access-control-max-age": "86400",
+      },
+      body: "",
+    };
+  }
+
+  if (event.httpMethod !== "POST"){
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
+
+  let payload = {};
+  try{
+    payload = event.body ? JSON.parse(event.body) : {};
+  }catch(e){
+    return { statusCode: 400, body: JSON.stringify({ ok:false, error:"Invalid JSON body" }) };
+  }
+
+  // Optional secret injection (never expose secret to client)
+  if (process.env.DX_SECRET){
+    payload.dx_secret = process.env.DX_SECRET;
+  }
+
+  try{
+    const res = await fetch(gasUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const text = await res.text();
+    return {
+      statusCode: res.status,
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "access-control-allow-origin": allowedOrigin || "null",
+      },
+      body: text,
+    };
+  }catch(err){
+    return {
+      statusCode: 502,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ok:false, error:"Proxy error", detail:String(err && err.message || err) }),
+    };
+  }
+};

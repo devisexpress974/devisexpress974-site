@@ -1,4 +1,4 @@
-// offreur-register.js (PATCH19) — Ajout statut entreprise/Particulier + SIREN/SIRET + serviceAutre (safe)
+// offreur-register.js (PATCH19) — Ajout statut Pro/Particulier + SIREN/SIRET + serviceAutre (safe)
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("regForm");
   const msg = document.getElementById("msg");
@@ -129,7 +129,7 @@ if (!form || !btn) {
       email: (document.getElementById("email")?.value || "").trim(),
       tel: cleanPhone(document.getElementById("tel")?.value || ""),
       password: document.getElementById("password")?.value || "",
-      typeOffreur: (document.getElementById("typeOffreur")?.value || "").trim(), // entreprise | PARTICULIER
+      typeOffreur: (document.getElementById("typeOffreur")?.value || "").trim(), // PRO | PARTICULIER
       siren: cleanSiren(document.getElementById("siren")?.value || ""),
       service,
       serviceAutre,

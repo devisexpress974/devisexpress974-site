@@ -477,37 +477,37 @@
   {
     "service_id": "marketing",
     "label": "Marketing / pub",
-    "category": "Services entreprise"
+    "category": "Services pro"
   },
   {
     "service_id": "community_manager",
     "label": "Community management",
-    "category": "Services entreprise"
+    "category": "Services pro"
   },
   {
     "service_id": "secretariat",
     "label": "Secrétariat / assistance",
-    "category": "Services entreprise"
+    "category": "Services pro"
   },
   {
     "service_id": "comptabilite",
-    "label": "Comptabilité (entreprise)",
-    "category": "Services entreprise"
+    "label": "Comptabilité (pro)",
+    "category": "Services pro"
   },
   {
     "service_id": "juridique",
-    "label": "Juridique (entreprise)",
-    "category": "Services entreprise"
+    "label": "Juridique (pro)",
+    "category": "Services pro"
   },
   {
     "service_id": "diagnostic_immo",
     "label": "Diagnostic immobilier",
-    "category": "Services entreprise"
+    "category": "Services pro"
   },
   {
     "service_id": "immobilier",
     "label": "Immobilier (agent)",
-    "category": "Services entreprise"
+    "category": "Services pro"
   },
   {
     "service_id": "architecte",
@@ -651,7 +651,7 @@
   },
   {
     "service_id": "formation_pro",
-    "label": "Formation entreprise",
+    "label": "Formation pro",
     "category": "Cours & coaching"
   },
   {
@@ -792,7 +792,7 @@
   {
     "service_id": "traduction",
     "label": "Traduction",
-    "category": "Services entreprise"
+    "category": "Services pro"
   },
   {
     "service_id": "garde_animaux",

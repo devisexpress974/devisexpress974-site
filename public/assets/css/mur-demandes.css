@@ -374,28 +374,3 @@
   font-size: 12px;
 }
 
-
-
-
-/* Facebook-like inline toggle */
-.dxInlineMore,
-.dxInlineLess{
-  border: none;
-  background: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: var(--accent);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.dxInlineMore{ font-weight: 900; }
-.dxInlineLess{ font-weight: 900; }
-
-.dxInlineLessWrap{
-  margin-top: 10px;
-}
-
-/* If legacy action area exists, keep it hidden */
-.dxPostActions{ display:none !important; }

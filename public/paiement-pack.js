@@ -3,6 +3,16 @@
 // - Si PayPal renvoie ?tx=..., on confirme automatiquement (sans prompt) tout en gardant le bouton "J’ai payé"
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  function dxShowNotice(text){
+    try{
+      var el = document.getElementById("dx-paypal-notice");
+      if(!el) return;
+      el.innerHTML = "<strong>Info :</strong> " + String(text || "");
+      el.style.display = "block";
+    }catch(_){}
+  }
+
   const msg = document.getElementById("msg");
   const params = new URLSearchParams(location.search);
 
