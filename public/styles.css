@@ -408,3 +408,18 @@ ul.list li{
 }
 .pwToggle:focus{ outline:2px solid rgba(255,122,0,.35); outline-offset:2px; }
 .pwToggle[data-state="on"]{ background:rgba(255,122,0,.10); border-color:rgba(255,122,0,.35); }
+
+
+/* DX Metiers modal */
+.dxModal{position:fixed;inset:0;display:none;z-index:9999}
+.dxModal.is-open{display:block}
+.dxModalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.dxModalCard{position:relative;max-width:520px;margin:10vh auto;background:#111;color:#fff;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.dxModalTitle{margin:0 0 6px;font-size:22px}
+.dxModalSub{margin:0 0 14px;color:rgba(255,255,255,.75)}
+.dxModalActions{display:grid;gap:10px}
+.dxModalClose{position:absolute;top:10px;right:12px;background:transparent;border:0;color:#fff;font-size:26px;cursor:pointer}
+.dxModalHint{margin:12px 0 0;color:rgba(255,255,255,.7);font-size:13px}
+body.dxModalOpen{overflow:hidden}
+.dxBtn{display:inline-block;text-align:center;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);color:#fff;text-decoration:none}
+.dxBtnPrimary{background:#ff3b0a;border-color:#ff3b0a;color:#111;font-weight:700}

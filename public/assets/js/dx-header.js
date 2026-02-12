@@ -15,7 +15,50 @@
     });
   }
 
-  function init(rootDoc) {
+  
+function renderAuthState(header){
+  const loginCta = header.querySelector("#loginCta");
+  const accountLink = header.querySelector("#accountLink");
+  const logoutBtn = header.querySelector("#logoutBtn");
+  const badge = header.querySelector("#dxAuthBadge");
+  let token = "";
+  try{ token = localStorage.getItem("dx_token") || ""; }catch(e){}
+  const isAuthed = !!token;
+
+  function setAuthedUI(on){
+    if(loginCta) loginCta.style.display = on ? "none" : "";
+    if(accountLink) accountLink.style.display = on ? "" : "none";
+    if(logoutBtn) logoutBtn.style.display = on ? "" : "none";
+    if(badge) badge.style.display = on ? "inline-flex" : "none";
+  }
+
+  setAuthedUI(isAuthed);
+
+  if(logoutBtn){
+    logoutBtn.addEventListener("click", () => {
+      try{ localStorage.removeItem("dx_token"); }catch(e){}
+      setAuthedUI(false);
+      try{ window.location.href = "./offreur-login.html"; }catch(e){}
+    });
+  }
+
+  // Optionnel : vérifie le token côté serveur si api.js/auth.js présents
+  if(isAuthed && window.DX_AUTH && typeof window.DX_AUTH.whoami === "function"){
+    window.DX_AUTH.whoami().then(res => {
+      if(!res || !res.ok){
+        try{ localStorage.removeItem("dx_token"); }catch(e){}
+        setAuthedUI(false);
+      } else {
+        // affiche le prénom/nom si dispo
+        if(badge && (res.nom || res.name)){
+          badge.textContent = "Connecté : " + (res.nom || res.name);
+        }
+      }
+    }).catch(()=>{});
+  }
+}
+
+function init(rootDoc) {
     const header = rootDoc.querySelector(".dxTopbar[data-dx-header]");
     if (!header) return;
 
@@ -35,6 +78,9 @@
     if (panel) panel.hidden = true;
 
     setActiveLinks(rootDoc);
+
+    renderAuthState(header);
+
 
     function openMenu() {
       header.classList.add("dx-open");

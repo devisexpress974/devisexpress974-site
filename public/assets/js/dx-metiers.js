@@ -1,188 +1,171 @@
-// assets/js/dx-metiers.js (v9)
-// Lexique métiers (A→Z) — clic métier => popup (Demande / Voir demandes / Devenir offreur)
+// assets/js/dx-metiers.js (v3)
+// Lexique métiers (A→Z)
+// - affiche index A→Z + métiers triés
+// - clic sur un métier => popup 3 actions : Faire une demande / Voir les demandes / Devenir offreur
 (() => {
   "use strict";
-
   const $ = (id) => document.getElementById(id);
 
-  function norm(s){
-    return (s || "")
-      .toString()
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9 ]+/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
+  function norm(s){ return String(s||"").trim(); }
+
+  function byAlpha(a,b){
+    a = norm(a).toLowerCase(); b = norm(b).toLowerCase();
+    return a < b ? -1 : a > b ? 1 : 0;
   }
 
-  function firstLetter(label){
-    const n = norm(label);
-    for(let i=0;i<n.length;i++){
-      const ch = n[i];
-      if(/[a-z0-9]/i.test(ch)) return ch.toUpperCase();
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  }
+
+  function loadLexique(){
+    // Source unique
+    // 1) essaye window.SERVICES_BY_CAT (si présent)
+    // 2) sinon charge lexique-metiers.json
+    if (window.SERVICES_BY_CAT && typeof window.SERVICES_BY_CAT === "object") {
+      return Promise.resolve(window.SERVICES_BY_CAT);
     }
-    return "AUTRES";
+    return fetch("./lexique-metiers.json?v=1", { cache: "no-store" })
+      .then(r => r.json());
   }
 
-  async function loadLexique(){
-    // Prefer lexique-metiers.json (categories + jobs + synonyms)
-    try{
-      const res = await fetch("./assets/data/lexique-metiers.json", { cache: "no-store" });
-      if(res.ok){
-        const data = await res.json();
-        if(data && Array.isArray(data.categories)) return data;
-      }
-    }catch(e){}
-    return { categories: [] };
-  }
-
-  function flattenJobs(lexique){
-    const jobs = [];
-    const seen = new Set();
-    (lexique.categories || []).forEach(cat => {
-      const catLabel = cat.label || "";
-      const arr = cat.jobs || cat.metiers || [];
-      arr.forEach(j => {
-        const label = (j && j.label) ? String(j.label) : "";
-        if(!label) return;
-        const key = norm(label);
-        if(!key || seen.has(key)) return;
-        seen.add(key);
-        jobs.push({ label, key, cat: catLabel });
+  function flattenLexique(lex){
+    // lex = { "Catégorie": ["Métier", ...], ... } OU { categories:[{name, jobs:[]}] }
+    const out = [];
+    if (Array.isArray(lex.categories)) {
+      lex.categories.forEach(cat=>{
+        const cname = cat.name || cat.title || "Autres";
+        const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
+        jobs.forEach(j=> out.push({ cat: cname, job: j }));
       });
+      return out;
+    }
+    Object.keys(lex||{}).forEach(cat=>{
+      const jobs = Array.isArray(lex[cat]) ? lex[cat] : [];
+      jobs.forEach(j=> out.push({ cat, job: j }));
     });
-    jobs.sort((a,b) => a.label.localeCompare(b.label, "fr", { sensitivity:"base" }));
-    return jobs;
+    return out;
   }
 
-  function buildAzNav(letters){
-    const host = $("azNav");
-    if(!host) return;
-    host.innerHTML = "";
-    letters.forEach(L => {
-      const a = document.createElement("a");
-      a.href = "#L_" + encodeURIComponent(L);
-      a.className = "azItem";
-      a.textContent = L;
-      host.appendChild(a);
+  function buildIndex(items){
+    const letters = {};
+    items.forEach(it=>{
+      const L = norm(it.job).charAt(0).toUpperCase();
+      if(!letters[L]) letters[L]=true;
+    });
+    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").filter(L=>letters[L]);
+    const wrap = $("dxAlpha");
+    if(!wrap) return;
+    wrap.innerHTML = alpha.map(L=>`<button class="dxAlphaBtn" data-letter="${L}">${L}</button>`).join("");
+    wrap.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-letter]");
+      if(!btn) return;
+      const L = btn.getAttribute("data-letter");
+      const target = document.querySelector(`[data-letter-anchor="${L}"]`);
+      if(target) target.scrollIntoView({ behavior:"smooth", block:"start" });
     });
   }
 
-  function openModal(serviceLabel){
-    const modal = $("metierModal");
-    const title = $("metierModalTitle");
-    const btnDemande = $("metierBtnDemande");
-    const btnMur = $("metierBtnMur");
-    const btnOffreur = $("metierBtnOffreur");
+  function render(items){
+    const list = $("dxList");
+    if(!list) return;
 
-    if(!modal || !title || !btnDemande || !btnMur || !btnOffreur) return;
+    // Tri A→Z global, puis groupe par lettre
+    const sorted = items.slice().sort((a,b)=>byAlpha(a.job,b.job));
+    buildIndex(sorted);
 
-    title.textContent = serviceLabel;
-
-    const q = encodeURIComponent(serviceLabel);
-    btnDemande.href = "./demande.html?service=" + q;
-    btnMur.href = "./mur-demandes.html?service=" + q;
-    btnOffreur.href = "./offreur-register.html?service=" + q;
-
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
-  }
-
-  function closeModal(){
-    const modal = $("metierModal");
-    if(!modal) return;
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-  }
-
-  function wireModal(){
-    const modal = $("metierModal");
-    if(!modal) return;
-
-    modal.addEventListener("click", (e) => {
-      const t = e.target;
-      if(t && (t.id === "metierModal" || t.closest(".dxModalClose"))) closeModal();
+    let html = "";
+    let currentL = "";
+    sorted.forEach(it=>{
+      const L = norm(it.job).charAt(0).toUpperCase();
+      if(L !== currentL){
+        currentL = L;
+        html += `<h2 class="dxLetter" data-letter-anchor="${L}">${L}</h2>`;
+      }
+      html += `
+        <button class="dxJob" type="button"
+          data-job="${escapeHtml(it.job)}"
+          data-cat="${escapeHtml(it.cat)}">
+          <span class="dxJobName">${escapeHtml(it.job)}</span>
+          <span class="dxJobCat">${escapeHtml(it.cat)}</span>
+        </button>`;
     });
+    list.innerHTML = html;
+  }
 
-    document.addEventListener("keydown", (e) => {
+  function ensureModal(){
+    if(document.getElementById("dxJobModal")) return;
+    const modal = document.createElement("div");
+    modal.id = "dxJobModal";
+    modal.className = "dxModal";
+    modal.innerHTML = `
+      <div class="dxModalBackdrop" data-close></div>
+      <div class="dxModalCard" role="dialog" aria-modal="true" aria-label="Choisir une action">
+        <button class="dxModalClose" type="button" aria-label="Fermer" data-close>×</button>
+        <h3 class="dxModalTitle" id="dxModalTitle"></h3>
+        <p class="dxModalSub" id="dxModalSub"></p>
+        <div class="dxModalActions">
+          <a class="dxBtn dxBtnPrimary" id="dxActDemande" href="#">Faire une demande</a>
+          <a class="dxBtn" id="dxActMur" href="#">Voir les demandes</a>
+          <a class="dxBtn" id="dxActOffreur" href="#">Devenir offreur</a>
+        </div>
+        <p class="dxModalHint">Astuce : le métier sera pré-sélectionné automatiquement.</p>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.addEventListener("click", (e)=>{
+      if(e.target && e.target.closest("[data-close]")) closeModal();
+    });
+    document.addEventListener("keydown", (e)=>{
       if(e.key === "Escape") closeModal();
     });
   }
 
-  function renderList(jobs){
-    const host = $("metiersList");
-    if(!host) return;
+  function openModal(job, cat){
+    ensureModal();
+    const modal = document.getElementById("dxJobModal");
+    const title = document.getElementById("dxModalTitle");
+    const sub = document.getElementById("dxModalSub");
+    title.textContent = job;
+    sub.textContent = cat ? `Catégorie : ${cat}` : "";
 
-    // group by first letter
-    const groups = {};
-    jobs.forEach(j => {
-      const L = firstLetter(j.label);
-      (groups[L] ||= []).push(j);
-    });
+    // routes
+    const q = encodeURIComponent(job);
+    document.getElementById("dxActDemande").href = `./demande.html?service=${q}`;
+    document.getElementById("dxActMur").href = `./mur-demandes.html?service=${q}`;
+    document.getElementById("dxActOffreur").href = `./register-offreur.html?service=${q}`;
 
-    const letters = Object.keys(groups).sort((a,b)=> a.localeCompare(b, "fr", { sensitivity:"base" }));
-    buildAzNav(letters);
+    modal.classList.add("is-open");
+    document.body.classList.add("dxModalOpen");
+  }
 
-    host.innerHTML = "";
-    letters.forEach(L => {
-      const section = document.createElement("section");
-      section.className = "letterBlock";
-      section.id = "L_" + L;
+  function closeModal(){
+    const modal = document.getElementById("dxJobModal");
+    if(!modal) return;
+    modal.classList.remove("is-open");
+    document.body.classList.remove("dxModalOpen");
+  }
 
-      const h = document.createElement("h2");
-      h.className = "letterTitle";
-      h.textContent = L;
-      section.appendChild(h);
+  document.addEventListener("DOMContentLoaded", async () => {
+    try{
+      const lex = await loadLexique();
+      const items = flattenLexique(lex);
+      render(items);
 
-      const grid = document.createElement("div");
-      grid.className = "metiersGrid";
-
-      groups[L].forEach(j => {
-        const a = document.createElement("a");
-        a.href = "./demande.html?service=" + encodeURIComponent(j.label);
-        a.className = "metierLink";
-        a.textContent = j.label;
-        a.title = (j.cat ? (j.cat + " • ") : "") + j.label;
-        a.addEventListener("click", (ev) => {
-          ev.preventDefault();
-          openModal(j.label);
+      const list = $("dxList");
+      if(list){
+        list.addEventListener("click", (e)=>{
+          const btn = e.target.closest("button.dxJob");
+          if(!btn) return;
+          const job = btn.getAttribute("data-job") || "";
+          const cat = btn.getAttribute("data-cat") || "";
+          openModal(job, cat);
         });
-        grid.appendChild(a);
-      });
-
-      section.appendChild(grid);
-      host.appendChild(section);
-    });
-  }
-
-  async function init(){
-    wireModal();
-
-    const lexique = await loadLexique();
-    const jobs = flattenJobs(lexique);
-
-    // search
-    const search = $("metiersSearch");
-    let all = jobs;
-
-    function apply(){
-      const q = norm(search ? search.value : "");
-      if(!q){
-        renderList(all);
-        return;
       }
-      const filtered = all.filter(j => j.key.includes(q));
-      renderList(filtered);
+    }catch(err){
+      const list = $("dxList");
+      if(list) list.innerHTML = `<div class="dxError">Impossible de charger le lexique métiers.</div>`;
+      console.error(err);
     }
-
-    if(search){
-      search.addEventListener("input", apply);
-    }
-
-    renderList(all);
-  }
-
-  document.addEventListener("DOMContentLoaded", init);
+  });
 })();

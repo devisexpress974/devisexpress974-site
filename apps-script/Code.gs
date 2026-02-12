@@ -2,67 +2,7 @@
 // ✅ Fix: si tes onglets ont de "mauvais" en-têtes, on les répare automatiquement.
 //    (Sinon les champs deviennent undefined => le mur ne peut pas filtrer/service/mail offreur impossible.)
 
-var VERSION = "v26-es5";
-
-var JOB_KEYWORDS = {"assistant e  administratif ve": "Assistant(e) administratif(ve)", "assistant administratif": "Assistant(e) administratif(ve)", "secretariat": "Secrétariat / Saisie", "gestion admin": "Assistant(e) administratif(ve)", "comptable   aide comptable": "Comptable / Aide comptable", "compta": "Comptable / Aide comptable", "tenue de comptes": "Comptable / Aide comptable", "facturation": "Comptable / Aide comptable", "consultant creation d entreprise": "Consultant création d’entreprise", "creation entreprise": "Consultant création d’entreprise", "statuts": "Consultant création d’entreprise", "micro entreprise": "Consultant création d’entreprise", "ecrivain public": "Écrivain public", "courrier": "Écrivain public", "lettre": "Écrivain public", "dossier administratif": "Écrivain public", "secretariat   saisie": "Secrétariat / Saisie", "saisie": "Secrétariat / Saisie", "mise en page": "Secrétariat / Saisie", "traducteur   interprete": "Traducteur / Interprète", "traduction": "Traducteur / Interprète", "interprete": "Traducteur / Interprète", "anglais": "Traducteur / Interprète", "creole": "Traducteur / Interprète", "autre  a preciser": "Autre (à préciser)", "autre administratif": "Autre (à préciser)", "autre juridique": "Autre (à préciser)", "garde d animaux   pet sitter": "Garde d’animaux / Pet-sitter", "garde animaux": "Garde d’animaux / Pet-sitter", "petsitter": "Garde d’animaux / Pet-sitter", "garde chien": "Garde d’animaux / Pet-sitter", "garde chat": "Garde d’animaux / Pet-sitter", "toilettage": "Toilettage", "toiletteur": "Toilettage", "bain chien": "Toilettage", "coupe poils": "Toilettage", "educateur canin": "Éducateur canin", "education chien": "Éducateur canin", "dressage": "Éducateur canin", "comportement canin": "Éducateur canin", "promeneur de chien": "Promeneur de chien", "promenade chien": "Promeneur de chien", "sortie chien": "Promeneur de chien", "transport animalier": "Transport animalier", "transport animaux": "Transport animalier", "taxi animalier": "Transport animalier", "autre animaux": "Autre (à préciser)", "mecanicien auto": "Mécanicien auto", "mecanique auto": "Mécanicien auto", "reparation voiture": "Mécanicien auto", "vidange": "Mécanicien auto", "carrossier": "Carrossier", "carrosserie": "Carrossier", "reparation carrosserie": "Carrossier", "peintre auto": "Peintre auto", "peinture voiture": "Peintre auto", "retouche peinture": "Peintre auto", "pneumatiques": "Pneumatiques", "pneus": "Pneumatiques", "changement pneus": "Pneumatiques", "equilibrage": "Pneumatiques", "depannage   remorquage": "Dépannage / Remorquage", "depannage auto": "Dépannage / Remorquage", "remorquage": "Dépannage / Remorquage", "batterie a plat": "Dépannage / Remorquage", "lavage auto": "Lavage auto", "lavage voiture": "Lavage auto", "nettoyage voiture": "Lavage auto", "detailling": "Lavage auto", "chauffeur   transport prive": "Chauffeur / Transport privé", "chauffeur": "Chauffeur / Transport privé", "transport prive": "Chauffeur / Transport privé", "vehicule avec chauffeur": "Chauffeur / Transport privé", "autre auto": "Autre (à préciser)", "autre transport": "Autre (à préciser)", "carreleur": "Carreleur", "carrelage": "Carreleur", "pose carrelage": "Carreleur", "charpentier": "Charpentier", "charpente": "Charpentier", "ossature bois": "Charpentier", "couvreur": "Couvreur", "toiture": "Couvreur", "reparation toit": "Couvreur", "electricien": "Électricien", "electricite": "Électricien", "tableau electrique": "Électricien", "prise": "Électricien", "disjoncteur": "Électricien", "etancheur": "Étancheur", "etancheite": "Étancheur", "infiltration": "Étancheur", "toit plat": "Étancheur", "facadier": "Façadier", "facade": "Façadier", "ravalement facade": "Façadier", "macon": "Maçon", "maconnerie": "Maçon", "dalle": "Maçon", "chape": "Maçon", "menuisier": "Menuisier", "menuiserie": "Menuisier", "porte": "Menuisier", "fenetre": "Menuisier", "bois": "Menuisier", "peintre en batiment": "Peintre en bâtiment", "peinture maison": "Peintre en bâtiment", "peinture mur": "Peintre en bâtiment", "enduit peinture": "Peintre en bâtiment", "platrier   plaquiste": "Plâtrier / Plaquiste", "placo": "Plâtrier / Plaquiste", "platre": "Plâtrier / Plaquiste", "cloison": "Plâtrier / Plaquiste", "faux plafond": "Plâtrier / Plaquiste", "plombier": "Plombier", "plomberie": "Plombier", "fuite": "Plombier", "debouchage": "Plombier", "evier bouche": "Plombier", "robinet": "Plombier", "serrurier": "Serrurier", "serrure": "Serrurier", "porte claquee": "Serrurier", "ouverture porte": "Serrurier", "solier   parqueteur": "Solier / Parqueteur", "parquet": "Solier / Parqueteur", "revetement sol": "Solier / Parqueteur", "sol pvc": "Solier / Parqueteur", "vitrier": "Vitrier", "vitre cassee": "Vitrier", "remplacement vitre": "Vitrier", "double vitrage": "Vitrier", "autre btp": "Autre (à préciser)", "autre renovation": "Autre (à préciser)", "demenageur": "Déménageur", "demenagement": "Déménageur", "monte meubles": "Monte-meubles", "monte meuble": "Monte-meubles", "elevateur": "Monte-meubles", "debarras   enlevement": "Débarras / Enlèvement", "debarras": "Débarras / Enlèvement", "enlevement encombrants": "Débarras / Enlèvement", "stockage   garde meuble": "Stockage / Garde-meuble", "garde meuble": "Stockage / Garde-meuble", "stockage": "Stockage / Garde-meuble", "livraison  hors plateformes": "Livraison (hors plateformes)", "livraison": "Livraison (hors plateformes)", "livreur": "Livraison (hors plateformes)", "autre logistique": "Autre (à préciser)", "climaticien  installation entretien": "Climaticien (installation/entretien)", "clim": "Climaticien (installation/entretien)", "climatisation": "Climaticien (installation/entretien)", "entretien clim": "Climaticien (installation/entretien)", "pose clim": "Climaticien (installation/entretien)", "chauffagiste": "Chauffagiste", "chauffage": "Chauffagiste", "chaudiere": "Chauffagiste", "ballon eau chaude": "Chauffagiste", "installateur panneaux solaires": "Installateur panneaux solaires", "panneaux solaires": "Installateur panneaux solaires", "solaire": "Installateur panneaux solaires", "photovoltaique": "Installateur panneaux solaires", "diagnostic   audit energetique": "Diagnostic / Audit énergétique", "audit energetique": "Diagnostic / Audit énergétique", "diagnostic energie": "Diagnostic / Audit énergétique", "consommation": "Diagnostic / Audit énergétique", "autre energie": "Autre (à préciser)", "animation musicale": "DJ", "photographe": "Photographe", "photo": "Photographe", "photographe mariage": "Photographe", "shooting": "Photographe", "videaste": "Vidéaste", "video": "Vidéaste", "filmer evenement": "Vidéaste", "montage video": "Montage vidéo", "traiteur": "Traiteur", "buffet": "Traiteur", "repas evenement": "Traiteur", "animateur": "Animateur", "animation": "Animateur", "micro": "Animateur", "decoration evenementielle": "Décoration événementielle", "decoration": "Décoration événementielle", "deco evenement": "Décoration événementielle", "location materiel evenementiel": "Location matériel événementiel", "location sono": "Location matériel événementiel", "location tables": "Location matériel événementiel", "location chaises": "Location matériel événementiel", "autre evenementiel": "Autre (à préciser)", "depannage informatique": "Dépannage informatique", "depannage pc": "Dépannage informatique", "ordinateur lent": "Dépannage informatique", "virus": "Dépannage informatique", "reinstallation": "Dépannage informatique", "technicien reseau": "Technicien réseau", "reseau": "Technicien réseau", "wifi": "Technicien réseau", "routeur": "Technicien réseau", "cablage reseau": "Technicien réseau", "developpeur web": "Développeur web", "dev web": "Développeur web", "developpement": "Développeur web", "site web": "Développeur web", "creation site web": "Création site web", "creation site": "Création site web", "site vitrine": "Création site web", "wordpress": "Création site web", "graphiste   design": "Graphiste / Design", "graphiste": "Graphiste / Design", "logo": "Graphiste / Design", "affiche": "Graphiste / Design", "design": "Graphiste / Design", "montage": "Montage vidéo", "editing": "Montage vidéo", "post production": "Montage vidéo", "community manager": "Community manager", "reseaux sociaux": "Community manager", "community": "Community manager", "instagram": "Community manager", "facebook": "Community manager", "autre informatique": "Autre (à préciser)", "jardinier": "Jardinier", "jardinage": "Jardinier", "tonte": "Jardinier", "desherbage": "Jardinier", "paysagiste": "Paysagiste", "paysage": "Paysagiste", "amenagement jardin": "Paysagiste", "elagage   abattage": "Élagage / Abattage", "elagage": "Élagage / Abattage", "abattage arbre": "Élagage / Abattage", "debroussaillage": "Débroussaillage", "nettoyage terrain": "Débroussaillage", "entretien piscine": "Entretien piscine", "piscine": "Entretien piscine", "nettoyage piscine": "Entretien piscine", "traitement eau": "Entretien piscine", "autre exterieur": "Autre (à préciser)", "bricoleur   homme toutes mains": "Bricoleur / Homme toutes mains", "bricolage": "Bricoleur / Homme toutes mains", "petits travaux": "Bricoleur / Homme toutes mains", "montage de meubles": "Montage de meubles", "montage meuble": "Montage de meubles", "ikea": "Montage de meubles", "pose tringles   etageres": "Pose tringles / étagères", "pose tringle": "Pose tringles / étagères", "pose etagere": "Pose tringles / étagères", "reparation electromenager": "Réparation électroménager", "reparation machine": "Réparation électroménager", "lave linge": "Réparation électroménager", "frigo": "Réparation électroménager", "reparation tv   multimedia": "Réparation TV / multimédia", "reparation tv": "Réparation TV / multimédia", "home cinema": "Réparation TV / multimédia", "autre depannage maison": "Autre (à préciser)", "femme   homme de menage": "Femme / Homme de ménage", "menage": "Femme / Homme de ménage", "entretien maison": "Femme / Homme de ménage", "nettoyage fin de chantier": "Nettoyage fin de chantier", "fin de chantier": "Nettoyage fin de chantier", "nettoyage chantier": "Nettoyage fin de chantier", "nettoyage vitres": "Nettoyage vitres", "vitres": "Nettoyage vitres", "laveur de vitres": "Nettoyage vitres", "nettoyage canape   tissus": "Nettoyage canapé / tissus", "canape": "Nettoyage canapé / tissus", "tapis": "Nettoyage canapé / tissus", "tissus": "Nettoyage canapé / tissus", "desinfection   traitement": "Désinfection / traitement", "desinfection": "Désinfection / traitement", "traitement": "Désinfection / traitement", "assainissement": "Désinfection / traitement", "autre nettoyage": "Autre (à préciser)", "coiffeur se  a domicile": "Coiffeur(se) à domicile", "coiffure domicile": "Coiffeur(se) à domicile", "coiffeur": "Coiffeur(se) à domicile", "estheticien ne": "Esthéticien(ne)", "esthetique": "Esthéticien(ne)", "soins beaute": "Esthéticien(ne)", "maquilleur se": "Maquilleur(se)", "maquillage": "Maquilleur(se)", "makeup": "Maquilleur(se)", "massage bien etre": "Massage bien-être", "massage": "Massage bien-être", "relaxation": "Massage bien-être", "coach sportif": "Coach sportif", "coach": "Coach sportif", "coaching sportif": "Coach sportif", "sport": "Coach sportif", "autre bien etre": "Autre (à préciser)", "agent de securite": "Agent de sécurité", "securite": "Agent de sécurité", "surveillance": "Agent de sécurité", "vigile": "Agent de sécurité", "autre securite": "Autre (à préciser)", "aide a domicile": "Aide à domicile", "aide domicile": "Aide à domicile", "aide personne": "Aide à domicile", "garde d enfants": "Garde d’enfants", "baby sitting": "Garde d’enfants", "babysitter": "Garde d’enfants", "garde enfant": "Garde d’enfants", "assistance courses": "Assistance courses", "courses": "Assistance courses", "aide courses": "Assistance courses", "accompagnement rendez vous": "Accompagnement rendez-vous", "accompagnement": "Accompagnement rendez-vous", "rendez vous": "Accompagnement rendez-vous", "autre services personne": "Autre (à préciser)", "conseiller voyage  organisation": "Conseiller voyage (organisation)", "voyage": "Conseiller voyage (organisation)", "itineraire": "Conseiller voyage (organisation)", "organiser voyage": "Conseiller voyage (organisation)", "perou": "Conseiller voyage (organisation)", "guide   accompagnateur": "Guide / Accompagnateur", "guide": "Guide / Accompagnateur", "accompagnateur": "Guide / Accompagnateur", "visite": "Guide / Accompagnateur", "autre voyage": "Autre (à préciser)", "aide agricole  mission": "Aide agricole (mission)", "aide agricole": "Aide agricole (mission)", "aide ferme": "Aide agricole (mission)", "aide exploitation": "Aide agricole (mission)", "ouvrier agricole": "Ouvrier agricole", "travail agricole": "Ouvrier agricole", "recolte   saisonnier": "Récolte / Saisonnier", "recolte": "Récolte / Saisonnier", "saisonnier": "Récolte / Saisonnier", "cueillette": "Récolte / Saisonnier", "entretien exploitation": "Entretien exploitation", "maintenance ferme": "Entretien exploitation", "autre agriculture": "Autre (à préciser)", "autre": "Autre (à préciser)", "divers": "Autre (à préciser)"};
-var BANNED_WORDS = ["batard", "bite", "con", "connard", "connasse", "couille", "cul", "encule", "fdp", "fils de pute", "hitler", "merde", "nazi", "nique", "pd", "pede", "putain", "pute", "raciste", "salope", "ta gueule", "tg"];
-
-function escHtml_(s){
-  return String(s||"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#39;");
-}
-
-function normText_(s){
-  return String(s||"").toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^a-z0-9 ]+/g," ")
-    .replace(/\s+/g," ")
-    .trim();
-}
-
-function containsBannedWords_(text){
-  var t = normText_(text);
-  if(!t) return [];
-  var hits = [];
-  for(var i=0;i<BANNED_WORDS.length;i++){
-    var w = BANNED_WORDS[i];
-    if(!w) continue;
-    // word-ish boundary
-    if((" "+t+" ").indexOf(" "+w+" ")>=0){
-      hits.push(w);
-      if(hits.length>=3) break;
-    }
-  }
-  return hits;
-}
-
-function detectOtherJobInText_(selectedServiceLabel, text){
-  var sel = normText_(selectedServiceLabel);
-  var t = normText_(text);
-  if(!t) return null;
-
-  // map selected to canonical label if possible
-  var selectedCanon = JOB_KEYWORDS[sel] || selectedServiceLabel || "";
-
-  // scan keywords (keep it cheap)
-  for(var k in JOB_KEYWORDS){
-    if(!JOB_KEYWORDS.hasOwnProperty(k)) continue;
-    if(k === sel) continue;
-    if(k.length < 5) continue;
-    if((" "+t+" ").indexOf(" "+k+" ")>=0){
-      var foundLabel = JOB_KEYWORDS[k];
-      if(foundLabel && foundLabel !== selectedCanon){
-        return { selected: selectedCanon, found: foundLabel, keyword: k };
-      }
-    }
-  }
-  return null;
-}
-
+var VERSION = "v27-es5";
 
 // ======================
 // CONFIG (Script Properties)
@@ -420,10 +360,19 @@ function parse_(e){
 
 function sendMailSafe_(to, subject, html){
   try{
-    if(!to) return;
+    if(!to) return { ok:false, error:"missing_to" };
     MailApp.sendEmail({ to: to, subject: subject, htmlBody: html });
-  }catch(e){}
+    return { ok:true };
+  }catch(e){
+    // Log en NOTIFS pour debug (sans bloquer le flux)
+    try{
+      var sh = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
+      sh.appendRow([nowIso_(), "mail_error", String(to||""), String(subject||""), String(e && e.message ? e.message : e)]);
+    }catch(_){}
+    return { ok:false, error:String(e && e.message ? e.message : e) };
+  }
 }
+
 
 // ======================
 // Sessions (minimal)
@@ -536,7 +485,6 @@ case "addDemande":
         sessionDelete_(String(body.token||""));
         return json_({ ok:true });
 
-      case "offreurs":
       case "listOffreursPublic":
       case "getOffreursPublic":
         return json_(listOffreursPublic_(body || {}));
@@ -584,6 +532,57 @@ case "addDemande":
   }
 }
 
+
+// ======================
+// VALIDATIONS (anti-abus)
+// ======================
+var BAD_WORDS = ["pute","enculé","connard","con","salope","fdp","merde","bite","nique","tg","salaud"]; // liste minimale, extensible
+
+function containsBadWords_(text){
+  var t = norm_(String(text||""));
+  for(var i=0;i<BAD_WORDS.length;i++){
+    if(t.indexOf(norm_(BAD_WORDS[i])) !== -1) return true;
+  }
+  return false;
+}
+
+function hasForbiddenContact_(text){
+  var s = String(text||"");
+  // email
+  if(/\b[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}\b/.test(s)) return true;
+  // phone (0692, 0262, +33, 06 92, etc.)
+  if(/(\+33\s?\d{9})|(0\s?[1-9](?:\s?\d{2}){4})/.test(s)) return true;
+  // urls / domains
+  if(/\bhttps?:\/\//i.test(s) || /\bwww\./i.test(s) || /\.(com|fr|re|net|org|io)\b/i.test(s)) return true;
+  return false;
+}
+
+// cohérence métier simple : interdit de citer un autre métier "principal" dans la description
+function isJobDescriptionInconsistent_(selectedService, description){
+  var svc = norm_(selectedService||"");
+  if(!svc) return false;
+  var d = norm_(description||"");
+  if(!d) return false;
+  // Si la description contient explicitement "je cherche un X" où X != service (sur liste courte)
+  var KEY_JOBS = ["electricien","plombier","climatisation","peintre","macon","carreleur","serrurier","vitrier","jardinier","couvreur"];
+  var m = d.match(/je\s*cherche\s*(un|une|des)?\s*([a-zéèêàùîïôç\-\s]{3,30})/i);
+  if(m && m[2]){
+    var target = norm_(m[2]);
+    // map minimal
+    var map = { "electricien":"electricite", "plombier":"plomberie", "couvreur":"couverture", "peintre":"peinture", "macon":"maconnerie", "carreleur":"carrelage" };
+    for(var i=0;i<KEY_JOBS.length;i++){
+      var k = KEY_JOBS[i];
+      if(target.indexOf(k)!==-1){
+        var want = map[k] || k;
+        if(svc.indexOf(want)===-1 && want.indexOf(svc)===-1){
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 // ======================
 // DEMANDES
 // ======================
@@ -592,6 +591,17 @@ function addDemande_(p){
   var zone = String(p.zone||"").trim();
   var commune = String(p.commune||"").trim();
   var description = String(p.description||"").trim();
+// Validations anti-abus (serveur)
+if(containsBadWords_(nom) || containsBadWords_(description) || containsBadWords_(service) || containsBadWords_(commune)){
+  return { ok:false, error:"Merci de rester respectueux : contenu inapproprié détecté." };
+}
+if(hasForbiddenContact_(description)){
+  return { ok:false, error:"Merci de ne pas mettre de téléphone / email / site web dans la description (coordonnées masquées via la plateforme)." };
+}
+if(isJobDescriptionInconsistent_(service, description)){
+  return { ok:false, error:"Incohérence détectée : le métier choisi ne correspond pas à ta description. Corrige le métier ou le texte." };
+}
+
   var nom = String(p.nom||"").trim();
   var tel = String(p.tel||"").trim();
   var email = String(p.email||"").trim();
@@ -617,21 +627,6 @@ function addDemande_(p){
     return { ok:false, error:"Consentement contact requis" };
   }
 
-  // 🔒 Anti-insultes / anti-gros-mots
-  var bad = []
-    .concat(containsBannedWords_(description))
-    .concat(containsBannedWords_(nom))
-    .concat(containsBannedWords_(serviceAutre));
-  if(bad && bad.length){
-    return { ok:false, error:"Contenu non autorisé (langage inapproprié)" };
-  }
-
-  // 🔎 Cohérence métier vs description (ex: plombier ≠ électricien)
-  var mismatch = detectOtherJobInText_(service, description);
-  if(mismatch){
-    return { ok:false, error:"Description incohérente : service '" + mismatch.selected + "' mais vous mentionnez '" + mismatch.found + "'" };
-  }
-
   var id = uid_("dem");
 
   // pièces jointes (optionnel) : stocke jusqu'à 3 liens (Photo1..3) dans la feuille
@@ -655,23 +650,29 @@ function addDemande_(p){
     }
     var withdrawHtml = "";
     if(site){
-      var withdrawUrl = site + "/retirer-demande.html?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id));
+      var withdrawUrl = site + "/gerer-demande.html?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id));
       withdrawHtml = '<p><strong>Retirer ma demande :</strong> <a href="' + withdrawUrl + '">clique ici</a></p>';
     }
-    var brand = '#ff3b0a';
-    var bodyHtml =
-      '<div style="font-family:Arial,sans-serif;background:#0f1216;padding:18px">' +
-        '<div style="max-width:620px;margin:0 auto;background:#141923;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:18px;color:#fff">' +
-          '<h2 style="margin:0 0 10px 0;font-size:18px">Demande publiée ✅</h2>' +
-          '<p style="margin:0 0 10px 0;color:rgba(255,255,255,.85)">Bonjour <strong>' + escHtml_(nom) + '</strong>,</p>' +
-          '<p style="margin:0 0 12px 0;color:rgba(255,255,255,.85)">Ta demande a bien été publiée. Elle restera visible <strong>30 jours</strong>.</p>' +
-          (viewHtml ? ('<div style="margin:12px 0">' + viewHtml + '</div>') : '') +
-          (withdrawHtml ? ('<div style="margin:12px 0">' + withdrawHtml + '</div>') : '') +
-          '<p style="margin:14px 0 0 0;color:rgba(255,255,255,.65);font-size:12px">— DevisExpress974</p>' +
-        '</div>' +
-      '</div>';
-    sendMailSafe_(email, "DevisExpress974 — Demande publiée", bodyHtml);
+    
+  var site = (cfg_().SITE_URL || "").replace(/\/$/,"");
+  var becomeOffreurHtml = "";
+  if(site){
+    becomeOffreurHtml = "<p><strong>Tu veux aussi recevoir des demandes comme offreur ?</strong> " +
+      "<a href=\"" + site + "/offreur-register.html\">Créer mon profil offreur</a></p>";
   }
+  var bodyHtml = ""
+    + "<div style=\"font-family:Arial,sans-serif;line-height:1.45\">"
+    + "<h2 style=\"margin:0 0 10px;color:#ff3b0a\">Demande publiée ✅</h2>"
+    + "<p>Bonjour <strong>" + escapeHtml_(nom) + "</strong>,</p>"
+    + "<p>Ta demande est en ligne. Elle restera visible <strong>30 jours</strong> (ou jusqu'à clôture).</p>"
+    + viewHtml
+    + withdrawHtml
+    + becomeOffreurHtml
+    + "<hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\">"
+    + "<p style=\"color:#666;margin:0\">DevisExpress974 • 100% 974</p>"
+    + "</div>";
+  sendMailSafe_(email, "DevisExpress974 — Demande publiée", bodyHtml);
+}
 
   // Mail admin (optionnel)
   var c = cfg_();
@@ -1559,7 +1560,15 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
           + "<strong>Téléphone :</strong> " + (demandeRow.Tel||"") + "<br>"
           + "<strong>Email :</strong> " + (demandeRow.Email||"") + "</p>";
       } else {
-        html += "<p><em>Coordonnées masquées.</em> Connecte-toi pour débloquer selon ta formule.</p>";
+        html += "<p><em>Coordonnées masquées.</em></p>"
+  + "<p style=\"margin:10px 0 0\"><strong>Débloquer les coordonnées</strong> :</p>"
+  + "<ul style=\"margin:6px 0 12px;padding-left:18px\">"
+  + "<li><a href=\"" + site + "/paiement-ponctuel.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Déblocage ponctuel</a></li>"
+  + "<li><a href=\"" + site + "/paiement-pack.html\">Pack crédits</a></li>"
+  + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
+  + "</ul>"
+  + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
+";
       }
 
       if(site){
@@ -2504,4 +2513,11 @@ function cancelAbonnement_(token){
   });
 
   return { ok:true, cancelAt: end.toISOString() };
+
+function escapeHtml_(s){
+  return String(s||"").replace(/[&<>"']/g, function(c){
+    return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c];
+  });
+}
+
 }

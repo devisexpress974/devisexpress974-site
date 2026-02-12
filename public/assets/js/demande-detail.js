@@ -148,6 +148,26 @@ function setText(id, v) {
     var coords = el("coordsBox");
     if (masked) masked.style.display = canSee ? "none" : "block";
     if (coords) coords.style.display = canSee ? "block" : "none";
+// Options de déblocage (si paiement requis)
+var unlock = el("unlockOptions");
+if (unlock){
+  if(!canSee){
+    unlock.style.display = "block";
+    var did = encodeURIComponent(String(demandeId||id||""));
+    unlock.innerHTML = ""
+      + "<h3 style=\"margin:0 0 8px;\">Débloquer les coordonnées</h3>"
+      + "<p style=\"margin:0 0 10px;color:#555\">Choisis une option :</p>"
+      + "<div style=\"display:flex;gap:10px;flex-wrap:wrap\">"
+      + "<a class=\"dxBtn dxBtnPrimary\" href=\"./paiement-ponctuel.html?demandeId=" + did + "\">Déblocage ponctuel</a>"
+      + "<a class=\"dxBtn dxBtnGhost\" href=\"./paiement-pack.html\">Pack 10 crédits</a>"
+      + "<a class=\"dxBtn dxBtnGhost\" href=\"./paiement-abonnement.html\">Abonnement</a>"
+      + "</div>"
+      + "<p style=\"margin:10px 0 0;color:#666\">Déjà inscrit ? <a href=\"./offreur-login.html\">Se connecter</a></p>";
+  } else {
+    unlock.style.display = "none";
+  }
+}
+
 
     // Paiement : uniquement si connecté + demande active + pas hors métier
     var payBox = el("payBox");
