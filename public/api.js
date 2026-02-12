@@ -2,6 +2,19 @@
 (() => {
   const ENDPOINT = "/.netlify/functions/gas";
 
+  function normalizeAction(action){
+    // Back-compat aliases between UI and GAS routes
+    const a = String(action || "").trim();
+    if (!a) return a;
+    const map = {
+      "listOffreurs": "listOffreursPublic", // UI legacy -> GAS route
+      "offreurs": "listOffreursPublic",
+      "mur": "listDemandesPublic",
+    };
+    return map[a] || a;
+  }
+
+
   function getToken(){
     try { return localStorage.getItem("dx_token") || ""; } catch { return ""; }
   }
