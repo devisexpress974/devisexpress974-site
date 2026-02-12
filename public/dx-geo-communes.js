@@ -40,6 +40,13 @@
     "Sud": ["Les Avirons", "Saint-Louis", "L'Étang-Salé", "Saint-Pierre", "Le Tampon", "Entre-Deux", "Saint-Joseph", "Petite-Île", "Saint-Philippe", "Cilaos"]
   };
 
+  // Exports (référentiel zones/communes unique)
+  try {
+    window.DX_ZONES = ZONES;
+    window.DX_COMMUNES_ALL = COMMUNES_ALL;
+  } catch(e) {}
+
+
   function normalizeZone(v) {
     return (v || "").toString().trim();
   }

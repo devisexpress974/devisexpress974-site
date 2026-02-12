@@ -1,13 +1,3 @@
-
-  function dxShowNotice(text){
-    try{
-      var el = document.getElementById("dx-paypal-notice");
-      if(!el) return;
-      el.innerHTML = "<strong>Info :</strong> " + String(text || "");
-      el.style.display = "block";
-    }catch(_){}
-  }
-
 // paiement-abonnement.js — Patch 57
 // Page de paiement abonnement (4,99€) + auto-confirmation via PayPal (tx)
 

@@ -400,24 +400,8 @@ function doPost(e){
   return route_(action, e, body);
 }
 
-
-// --- SECURITY (v5) ---
-// Set Script Property DX_SECRET (Apps Script -> Project Settings -> Script properties)
-// Netlify function gas.js will inject dx_secret automatically from Netlify env DX_SECRET.
-function requireSecret_(body){
-  var props = PropertiesService.getScriptProperties();
-  var expected = String(props.getProperty("DX_SECRET") || "").trim();
-  if(!expected) throw new Error("DX_SECRET not configured");
-  var got = body && String(body.dx_secret || "").trim();
-  if(got !== expected) throw new Error("UNAUTHORIZED");
-}
-function isSensitiveAction_(action){
-  return ["confirmPayPalPayment","cancelAbonnement","activatePack","activateAbonnement","grantAccess"].indexOf(String(action||"")) >= 0;
-}
-
 function route_(action, e, body){
   try{
-    if(isSensitiveAction_(action)) requireSecret_(body);
     switch(action){
       case "ping":
         return json_({ ok:true, version: VERSION, time: nowIso_() });
@@ -775,6 +759,11 @@ function listDemandesForOffreur_(token, params){
   var q = String(params.q || "").trim();
   var nq = q ? norm_(q) : "";
 
+  // Filtres optionnels (UI)
+  var fZone = String(params.zone||"").trim();
+  var fCommune = String(params.commune||"").trim();
+
+
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
   var rows = sheetToObjects_(sh);
 
@@ -789,6 +778,9 @@ function listDemandesForOffreur_(token, params){
     // FREE/PACK/PONCTUEL => géo strict ; ABO => pas de contrainte géographique sur le mur
     if(!aboOk){
       if(!matchGeo_(oZone, oCommunes, d.Zone, d.Commune)) continue;
+    // Filtres UI (après matching)
+    if(fZone && String(d.Zone||"").trim() !== fZone) continue;
+    if(fCommune && String(d.Commune||"").trim() !== fCommune) continue;
     }
 
     if(nq){
@@ -850,6 +842,12 @@ function listDemandesPublic_(params){
   var q = String(params.q || "").trim();
   var nq = q ? norm_(q) : "";
 
+  // Filtres stricts (service/zone/commune) — évite les incohérences (plombier != garde de chien)
+  var nService = norm_(String(params.service || "").trim());
+  var nZone = norm_(String(params.zone || "").trim());
+  var nCommune = norm_(String(params.commune || "").trim());
+
+
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
   var rows = sheetToObjects_(sh);
 
@@ -859,6 +857,18 @@ function listDemandesPublic_(params){
     var st = String(r.Status||"").trim().toUpperCase();
     if(st === "SUPPRIMÉ" || st === "SUPPRIME") continue;
     if(!isDemandeActive_(r)) continue;
+
+
+    // Filtres stricts (service/zone/commune)
+    if(nService){
+      if(norm_(r.Service) !== nService) continue;
+    }
+    if(nZone){
+      if(norm_(r.Zone) !== nZone) continue;
+    }
+    if(nCommune){
+      if(norm_(r.Commune) !== nCommune) continue;
+    }
 
     // Filtre recherche (q) : service, commune, zone, description
     if(nq){
@@ -2039,8 +2049,8 @@ function getDemande_(e, body){
       var match = matchOffreurDemandeService_(r.obj, row);
 
       if(!match){
-        canSee = false;
-        reason = "NOT_MATCH_SERVICE";
+        // Un offreur connecté ne doit pas accéder aux demandes hors de sa catégorie
+        return { ok:false, error:"Demande non disponible" };
       } else if(isAboOk_(extra)){
         canSee = true;
         reason = "";
