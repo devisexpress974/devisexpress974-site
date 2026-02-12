@@ -1,6 +1,6 @@
 
 /* DX35 - demande submit wiring (Patch9)
-   - Validation pro : tel OU email, tel 974, email format, description >=50
+   - Validation avancée : tel OU email, tel 974, email format, description >=50
    - Consentements : démarchage (oui/non) + accept CGV obligatoire
    - Pièces jointes : jpg/png/pdf, max 3, 10 Mo max par fichier (photos optimisées)
    - Flags soft : incohérence service/description + langage inadapté (avertissement)
@@ -288,7 +288,7 @@ async function buildAttachments(fileList){
       return;
     }
     if(!optInContact){
-      showStatus("Tu dois accepter d’être contacté(e) par des professionnels pour recevoir des devis.", "error");
+      showStatus("Tu dois accepter d’être contacté(e) pour recevoir des propositions.", "error");
       return;
     }
     if(!telRaw && !emailRaw){

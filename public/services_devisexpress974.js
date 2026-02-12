@@ -477,37 +477,37 @@ window.DX_SERVICES = [
   {
     "service_id": "marketing",
     "label": "Marketing / pub",
-    "category": "Services pro"
+    "category": "Services entreprise"
   },
   {
     "service_id": "community_manager",
     "label": "Community management",
-    "category": "Services pro"
+    "category": "Services entreprise"
   },
   {
     "service_id": "secretariat",
     "label": "Secrétariat / assistance",
-    "category": "Services pro"
+    "category": "Services entreprise"
   },
   {
     "service_id": "comptabilite",
-    "label": "Comptabilité (pro)",
-    "category": "Services pro"
+    "label": "Comptabilité (entreprise)",
+    "category": "Services entreprise"
   },
   {
     "service_id": "juridique",
-    "label": "Juridique (pro)",
-    "category": "Services pro"
+    "label": "Juridique (entreprise)",
+    "category": "Services entreprise"
   },
   {
     "service_id": "diagnostic_immo",
     "label": "Diagnostic immobilier",
-    "category": "Services pro"
+    "category": "Services entreprise"
   },
   {
     "service_id": "immobilier",
     "label": "Immobilier (agent)",
-    "category": "Services pro"
+    "category": "Services entreprise"
   },
   {
     "service_id": "architecte",
@@ -651,7 +651,7 @@ window.DX_SERVICES = [
   },
   {
     "service_id": "formation_pro",
-    "label": "Formation pro",
+    "label": "Formation entreprise",
     "category": "Cours & coaching"
   },
   {
@@ -792,7 +792,7 @@ window.DX_SERVICES = [
   {
     "service_id": "traduction",
     "label": "Traduction",
-    "category": "Services pro"
+    "category": "Services entreprise"
   },
   {
     "service_id": "garde_animaux",

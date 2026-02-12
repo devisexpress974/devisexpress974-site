@@ -319,7 +319,7 @@
     $("nom").value = u.nom || "";
     $("email").value = u.email || "";
     $("tel").value = u.tel || "";
-    const typeEl = $("typeOffreur"); if(typeEl) typeEl.value = (u.typeOffreur || "PRO").toUpperCase();
+    const typeEl = $("typeOffreur"); if(typeEl) typeEl.value = (u.typeOffreur || "entreprise").toUpperCase();
     const sirenEl = $("siren"); if(sirenEl) sirenEl.value = u.siren || "";
     $("entreprise").value = u.entreprise || "";
     $("pseudo").value = u.pseudo || "";
@@ -469,7 +469,7 @@
           zone: $("zone").value,
           commune: (isAllIslandZone_($("zone") ? $("zone").value : "") ? "" : communesJoined),
           description: $("description").value,
-          typeOffreur: $("typeOffreur") ? $("typeOffreur").value : "PRO",
+          typeOffreur: $("typeOffreur") ? $("typeOffreur").value : "entreprise",
           siren: $("siren") ? String($("siren").value||"").replace(/[^0-9]/g,"").trim() : ""
         };
 

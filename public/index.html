@@ -3,115 +3,72 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DevisExpress974 — Publie 1 demande, reçois plusieurs propositions</title>
-
+  <title>DevisExpress974 — Une demande, des réponses, tu choisis</title>
+  <meta name="description" content="Décris ton besoin. Ta demande apparaît sur le mur (coordonnées masquées). Des personnes intéressées te contactent. Tu choisis." />
   <meta name="theme-color" content="#ff3b0a" />
-  <meta name="description" content="Décris ton besoin. Ta demande apparaît (coordonnées masquées). Les professionnels te contactent, tu choisis." />
 
-  <link rel="stylesheet" href="./styles.css?v=assumed1" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
-  <script defer src="./assets/js/dx-include-header.js?v=assumed1"></script>
+  <link rel="stylesheet" href="./styles.css?v=assumed2" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed2" />
+  <script defer src="./assets/js/dx-include-header.js?v=assumed2"></script>
 </head>
 
 <body>
   <div id="dx-header-slot"></div>
 
   <main class="container pageWrap">
-
-    <!-- HERO (mobile-first) -->
-    <section class="dxHero">
+    <section class="dxHero dxHero--home">
       <div class="dxHero__left">
-        <h1 class="dxHero__title">Une seule demande.<br>Plusieurs professionnels te répondent.<br><span class="dxHero__accent">Tu choisis.</span></h1>
-        <p class="dxHero__sub">Gratuit pour le demandeur. Ta demande est visible sur le mur, avec coordonnées masquées.</p>
+        <h1 class="dxHero__title">
+          Une seule demande.<br>
+          Des réponses adaptées.<br>
+          <span class="dxHero__accent">Tu choisis.</span>
+        </h1>
+
+        <p class="dxHero__sub">
+          Décris ton besoin en 30 secondes. Ta demande apparaît sur le mur (coordonnées masquées).
+          Ensuite, des personnes intéressées te contactent.
+        </p>
 
         <div class="dxHero__cta">
           <a class="dxBtn dxBtnPrimary dxBtnXL" href="./demande.html">Publier ma demande</a>
-          <a class="dxBtn dxBtnGhost dxBtnXL" href="./professionnels.html">Je suis professionnel</a>
+          <a class="dxBtn dxBtnGhost dxBtnXL" href="./repondre-demandes.html">Répondre à des demandes</a>
         </div>
 
-        <div class="dxHero__proof">
-          <div class="dxKpi">
-            <div class="dxKpi__v">0 €</div>
-            <div class="dxKpi__l">Pour publier</div>
+        <div class="dxMiniProof" style="margin-top:12px;">
+          <a class="dxLink" href="./mur-demandes.html">Voir le mur des demandes (sans coordonnées)</a>
+        </div>
+
+        <div class="dxCards3" style="margin-top:16px;">
+          <div class="dxMiniCard">
+            <h2 class="dxMiniCard__t">1) Tu décris</h2>
+            <p class="dxMiniCard__p">Tu expliques ce que tu veux, ta commune, et si tu as des photos.</p>
           </div>
-          <div class="dxKpi">
-            <div class="dxKpi__v">2 min</div>
-            <div class="dxKpi__l">Pour déposer</div>
+          <div class="dxMiniCard">
+            <h2 class="dxMiniCard__t">2) Des personnes répondent</h2>
+            <p class="dxMiniCard__p">Elles te font une proposition&nbsp;: prix, devis, tarif horaire, dispo…</p>
           </div>
-          <div class="dxKpi">
-            <div class="dxKpi__v">974</div>
-            <div class="dxKpi__l">Partout sur l’île</div>
+          <div class="dxMiniCard">
+            <h2 class="dxMiniCard__t">3) Tu choisis</h2>
+            <p class="dxMiniCard__p">Tu compares, tu échanges, et tu décides simplement.</p>
           </div>
         </div>
       </div>
 
-      <div class="dxHero__right" aria-label="Résumé">
+      <div class="dxHero__right">
         <div class="dxHeroCard">
-          <h2 class="dxHeroCard__t">Comment ça marche ?</h2>
-          <ol class="dxSteps">
-            <li><strong>Tu décris</strong> ton besoin (métier, commune, détails, photos optionnelles).</li>
-            <li><strong>Les pros</strong> intéressés débloquent le contact selon leur formule.</li>
-            <li><strong>Tu choisis</strong> et tu peux laisser une note après la prestation.</li>
-          </ol>
-          <div class="dxHeroCard__actions">
-            <a class="dxBtn dxBtnPrimary" href="./demande.html">Commencer</a>
-            <a class="dxBtn dxBtnGhost" href="./mur-demandes.html">Voir le mur</a>
-          </div>
-          <p class="dxSmall">⚠️ Les coordonnées restent masquées tant qu’un professionnel ne les débloque pas.</p>
+          <h2 class="dxHeroCard__t">Découvrir en vidéo</h2>
+
+          <button id="dxOpenVideo" class="dxVideoThumb" type="button" aria-label="Lire la vidéo">
+            <span class="dxVideoPlay" aria-hidden="true">▶</span>
+            <span class="dxVideoText">Cliquer pour lancer (10s)</span>
+          </button>
+
+          <p class="dxSmall" style="margin-top:10px;">
+            Aucun compte pour publier une demande. Les coordonnées restent masquées sur le mur.
+          </p>
         </div>
       </div>
     </section>
-
-    <!-- PREUVE : aperçu du mur (sans tout afficher) -->
-    <section class="dxSection">
-      <div class="dxSection__head">
-        <h2 class="dxSection__title">Dernières demandes publiées</h2>
-        <p class="dxSection__sub">Un aperçu public (coordonnées masquées). Pour voir plus : connexion pro.</p>
-      </div>
-
-      <div id="murStatus" class="dxStatus" style="display:none;"></div>
-      <div id="murFilters" class="dxMurFilters">
-        <input id="murSearch" class="dxInput" type="search" placeholder="Rechercher (service, commune, description)…" />
-        <button id="murRefresh" class="dxBtn dxBtnGhost" type="button">Rafraîchir</button>
-      </div>
-      <div id="murList" class="dxMurList"></div>
-
-      <div class="dxSection__foot">
-        <a class="dxBtn dxBtnGhost" href="./mur-demandes.html">Ouvrir le mur des demandes</a>
-      </div>
-    </section>
-
-    <!-- PRO -->
-    <section class="dxSection dxSection--soft">
-      <div class="dxSection__head">
-        <h2 class="dxSection__title">Professionnel ? Reçois des demandes ciblées</h2>
-        <p class="dxSection__sub">Crée un compte gratuitement. L’abonnement te donne accès à toutes les demandes de ton domaine + e-mails automatiques (selon ton secteur).</p>
-      </div>
-      <div class="dxCards2">
-        <div class="dxMiniCard">
-          <h3 class="dxMiniCard__t">Compte pro</h3>
-          <ul class="dxList">
-            <li>Profil modifiable (téléphone, SIREN, description…)</li>
-            <li>Choix des zones/villes pour les e-mails</li>
-            <li>Affichage optionnel de la note sur l’annuaire</li>
-          </ul>
-          <div class="dxMiniCard__a">
-            <a class="dxBtn dxBtnPrimary" href="./offreur-register.html">Créer un compte</a>
-            <a class="dxBtn dxBtnGhost" href="./offreur-login.html">Se connecter</a>
-          </div>
-        </div>
-
-        <div class="dxMiniCard">
-          <h3 class="dxMiniCard__t">Débloquer un contact</h3>
-          <p class="dxSmall" style="margin:0 0 10px;">Quand une demande t’intéresse, tu peux débloquer le contact via les offres. (Le demandeur ne paie rien.)</p>
-          <div class="dxMiniCard__a">
-            <a class="dxBtn dxBtnGhost" href="./info-tarifs.html">Voir les offres</a>
-            <a class="dxBtn dxBtnGhost" href="./offreurs.html">Voir l’annuaire</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
   </main>
 
   <footer class="siteFooter">
@@ -127,16 +84,113 @@
     </div>
   </footer>
 
-  <script src="./api.js?v=assumed1"></script>
-  <script src="./auth.js?v=assumed1"></script>
   <script>
     (function(){
       var y = document.getElementById('year');
       if(y) y.textContent = new Date().getFullYear();
     })();
+
+    (function(){
+      var btn = document.getElementById('dxOpenVideo');
+      if(!btn) return;
+
+      function closeModal(modal){
+        try { modal.remove(); } catch(e) {}
+        document.body.classList.remove('dxNoScroll');
+      }
+
+      btn.addEventListener('click', function(){
+        var overlay = document.createElement('div');
+        overlay.className = 'dxModalOverlay';
+
+        var modal = document.createElement('div');
+        modal.className = 'dxModal';
+
+        var close = document.createElement('button');
+        close.className = 'dxModalClose';
+        close.type = 'button';
+        close.setAttribute('aria-label','Fermer');
+        close.textContent = '×';
+
+        var video = document.createElement('video');
+        video.setAttribute('controls','');
+        video.setAttribute('playsinline','');
+        video.style.width = '100%';
+        video.style.borderRadius = '14px';
+        video.src = './video.mp4?v=' + Date.now();
+
+        close.addEventListener('click', function(){ closeModal(overlay); });
+        overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(overlay); });
+
+        modal.appendChild(close);
+        modal.appendChild(video);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        document.body.classList.add('dxNoScroll');
+
+        try { video.play(); } catch(e) {}
+      });
+    })();
   </script>
 
-  <!-- Aperçu mur des demandes (même script que mur-demandes.html) -->
-  <script defer src="./assets/js/dx-mur-demandes.js?v=assumed1"></script>
+  <style>
+    /* Mini CSS local pour la vidéo + modal (safe, sans casser ton CSS global) */
+    .dxVideoThumb{
+      width: 100%;
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: 16px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(255,59,10,.12), rgba(0,0,0,.02));
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .dxVideoPlay{
+      width: 46px; height: 46px;
+      border-radius: 999px;
+      background: #ff3b0a;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex: 0 0 46px;
+    }
+    .dxVideoText{ font-weight: 700; }
+    .dxModalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9999;
+    }
+    .dxModal{
+      width: min(920px, 100%);
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+      position: relative;
+    }
+    .dxModalClose{
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: #fff;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .dxNoScroll{ overflow: hidden; }
+  </style>
 </body>
 </html>
