@@ -32,6 +32,19 @@
   .metierItem{break-inside:avoid;padding:2px 0}
   .metierLink{display:block;padding:3px 8px;border-radius:10px;text-decoration:none;font-weight:850;color:inherit;line-height:1.15}
   .metierLink:hover{background:rgba(255,59,10,.08)}
+
+  /* Modal */
+  .dxModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.55);z-index:9999}
+  .dxModal.open{display:flex}
+  .dxModalCard{width:min(520px,94vw);background:#0f1216;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.55);padding:18px 18px 16px;position:relative}
+  .dxModalClose{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;font-size:20px;cursor:pointer}
+  .dxModalTitle{margin:6px 0 4px 0;font-size:18px;letter-spacing:-.01em}
+  .dxModalSub{margin:0 0 12px 0;color:rgba(255,255,255,.78);font-weight:700}
+  .dxModalActions{display:flex;flex-direction:column;gap:10px}
+  .dxBtnPrimary,.dxBtnGhost{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:12px 14px;border-radius:12px;font-weight:900}
+  .dxBtnPrimary{background:var(--primary);color:#101010}
+  .dxBtnGhost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff}
+
 </style>
 </head>
 
@@ -69,5 +82,20 @@
       </nav>
     </div>
   </footer>
+
+  <!-- Modal métier -->
+  <div id="metierModal" class="dxModal" aria-hidden="true">
+    <div class="dxModalCard" role="dialog" aria-modal="true" aria-labelledby="metierModalTitle">
+      <button class="dxModalClose" type="button" aria-label="Fermer">×</button>
+      <h3 id="metierModalTitle" class="dxModalTitle">Métier</h3>
+      <p class="dxModalSub">Que veux-tu faire ?</p>
+      <div class="dxModalActions">
+        <a id="metierBtnDemande" class="dxBtnPrimary" href="./demande.html">Faire une demande</a>
+        <a id="metierBtnMur" class="dxBtnGhost" href="./mur-demandes.html">Voir les demandes</a>
+        <a id="metierBtnOffreur" class="dxBtnGhost" href="./offreur-register.html">Devenir offreur</a>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -1,7 +1,8 @@
-// assets/js/dx-metiers.js (v2)
-// Lexique métiers (A→Z) — compact, clic métier => pré-remplit la demande
+// assets/js/dx-metiers.js (v9)
+// Lexique métiers (A→Z) — clic métier => popup (Demande / Voir demandes / Devenir offreur)
 (() => {
   "use strict";
+
   const $ = (id) => document.getElementById(id);
 
   function norm(s){
@@ -10,7 +11,10 @@
       .trim()
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   }
 
   function firstLetter(label){
@@ -19,21 +23,38 @@
       const ch = n[i];
       if(/[a-z0-9]/i.test(ch)) return ch.toUpperCase();
     }
-    return "AUTRES"; // plus de '#'
+    return "AUTRES";
   }
 
-  async function loadServices(){
+  async function loadLexique(){
+    // Prefer lexique-metiers.json (categories + jobs + synonyms)
     try{
-      const res = await fetch("./services_devisexpress974.json", { cache: "no-store" });
+      const res = await fetch("./assets/data/lexique-metiers.json", { cache: "no-store" });
       if(res.ok){
         const data = await res.json();
-        if(Array.isArray(data) && data.length) return data;
+        if(data && Array.isArray(data.categories)) return data;
       }
     }catch(e){}
-    if(Array.isArray(window.DX_SERVICES) && window.DX_SERVICES.length){
-      return window.DX_SERVICES;
-    }
-    return [];
+    return { categories: [] };
+  }
+
+  function flattenJobs(lexique){
+    const jobs = [];
+    const seen = new Set();
+    (lexique.categories || []).forEach(cat => {
+      const catLabel = cat.label || "";
+      const arr = cat.jobs || cat.metiers || [];
+      arr.forEach(j => {
+        const label = (j && j.label) ? String(j.label) : "";
+        if(!label) return;
+        const key = norm(label);
+        if(!key || seen.has(key)) return;
+        seen.add(key);
+        jobs.push({ label, key, cat: catLabel });
+      });
+    });
+    jobs.sort((a,b) => a.label.localeCompare(b.label, "fr", { sensitivity:"base" }));
+    return jobs;
   }
 
   function buildAzNav(letters){
@@ -42,115 +63,126 @@
     host.innerHTML = "";
     letters.forEach(L => {
       const a = document.createElement("a");
-      a.href = "#az-" + encodeURIComponent(L);
+      a.href = "#L_" + encodeURIComponent(L);
+      a.className = "azItem";
       a.textContent = L;
       host.appendChild(a);
     });
   }
 
-  function renderGroups(items){
-    const host = $("metiersHost");
-    if(!host) return;
+  function openModal(serviceLabel){
+    const modal = $("metierModal");
+    const title = $("metierModalTitle");
+    const btnDemande = $("metierBtnDemande");
+    const btnMur = $("metierBtnMur");
+    const btnOffreur = $("metierBtnOffreur");
 
-    const groups = new Map();
-    const others = [];
-    items.forEach(it => {
-      const L = firstLetter(it.label || it.name || "");
-      if(!L){ others.push(it); return; }
-      if(!groups.has(L)) groups.set(L, []);
-      groups.get(L).push(it);
+    if(!modal || !title || !btnDemande || !btnMur || !btnOffreur) return;
+
+    title.textContent = serviceLabel;
+
+    const q = encodeURIComponent(serviceLabel);
+    btnDemande.href = "./demande.html?service=" + q;
+    btnMur.href = "./mur-demandes.html?service=" + q;
+    btnOffreur.href = "./offreur-register.html?service=" + q;
+
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeModal(){
+    const modal = $("metierModal");
+    if(!modal) return;
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  function wireModal(){
+    const modal = $("metierModal");
+    if(!modal) return;
+
+    modal.addEventListener("click", (e) => {
+      const t = e.target;
+      if(t && (t.id === "metierModal" || t.closest(".dxModalClose"))) closeModal();
     });
 
-    const letters = Array.from(groups.keys()).sort((a,b)=>a.localeCompare(b,"fr"));
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeModal();
+    });
+  }
+
+  function renderList(jobs){
+    const host = $("metiersList");
+    if(!host) return;
+
+    // group by first letter
+    const groups = {};
+    jobs.forEach(j => {
+      const L = firstLetter(j.label);
+      (groups[L] ||= []).push(j);
+    });
+
+    const letters = Object.keys(groups).sort((a,b)=> a.localeCompare(b, "fr", { sensitivity:"base" }));
     buildAzNav(letters);
 
     host.innerHTML = "";
-
-    function renderSection(title, arr){
-      const sec = document.createElement("section");
-      sec.className = "azSection";
-      sec.id = "az-" + title;
+    letters.forEach(L => {
+      const section = document.createElement("section");
+      section.className = "letterBlock";
+      section.id = "L_" + L;
 
       const h = document.createElement("h2");
-      h.className = "azLetter";
-      h.textContent = title;
-      sec.appendChild(h);
+      h.className = "letterTitle";
+      h.textContent = L;
+      section.appendChild(h);
 
-      const div = document.createElement("div");
-      div.className = "azDivider";
-      sec.appendChild(div);
+      const grid = document.createElement("div");
+      grid.className = "metiersGrid";
 
-      const ul = document.createElement("div");
-      ul.className = "metiersCols";
-
-      const sorted = arr.slice().sort((a,b)=>String(a.label).localeCompare(String(b.label),"fr"));
-      sorted.forEach(it => {
-        const label = String(it.label || "").trim();
-        const item = document.createElement("div");
-        item.className = "metierItem";
-
+      groups[L].forEach(j => {
         const a = document.createElement("a");
+        a.href = "./demande.html?service=" + encodeURIComponent(j.label);
         a.className = "metierLink";
-        a.href = "./demande.html?service=" + encodeURIComponent(label);
-        a.textContent = label;
-        item.appendChild(a);
-        ul.appendChild(item);
+        a.textContent = j.label;
+        a.title = (j.cat ? (j.cat + " • ") : "") + j.label;
+        a.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          openModal(j.label);
+        });
+        grid.appendChild(a);
       });
 
-      sec.appendChild(ul);
-      host.appendChild(sec);
-    }
-
-    letters.forEach(L => renderSection(L, groups.get(L) || []));
-
-    if(others.length){
-      renderSection("Autres", others);
-    }
-  }
-
-  function applySearch(all, q){
-    const nq = norm(q);
-    if(!nq) return all;
-    return all.filter(it => {
-      const label = norm(it.label);
-      const cat = norm(it.category);
-      const sid = norm(it.service_id);
-      return label.includes(nq) || cat.includes(nq) || sid.includes(nq);
+      section.appendChild(grid);
+      host.appendChild(section);
     });
   }
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const input = $("metierSearch");
-    const count = $("metierCount");
+  async function init(){
+    wireModal();
 
-    const sp = new URLSearchParams(location.search);
-    const q0 = (sp.get("q") || "").trim();
-    if(input && q0) input.value = q0;
+    const lexique = await loadLexique();
+    const jobs = flattenJobs(lexique);
 
-    const all = await loadServices();
-    const clean = (all || []).map(s => ({
-      service_id: s.service_id || "",
-      label: s.label || s.name || "",
-      category: s.category || "Autres"
-    })).filter(s => s.label);
+    // search
+    const search = $("metiersSearch");
+    let all = jobs;
 
-    function refresh(){
-      const q = input ? input.value : "";
-      const items = applySearch(clean, q);
-      if(count) count.textContent = items.length + " métiers";
-      renderGroups(items);
+    function apply(){
+      const q = norm(search ? search.value : "");
+      if(!q){
+        renderList(all);
+        return;
+      }
+      const filtered = all.filter(j => j.key.includes(q));
+      renderList(filtered);
     }
 
-    if(input){
-      input.addEventListener("input", refresh);
-      input.addEventListener("keydown", (e) => {
-        if(e.key === "Escape"){
-          input.value = "";
-          refresh();
-        }
-      });
+    if(search){
+      search.addEventListener("input", apply);
     }
 
-    refresh();
-  });
+    renderList(all);
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
 })();
