@@ -61,10 +61,10 @@ function addOneMonth(d){
 function statusLabel(raw){
   raw = String(raw||'').trim().toUpperCase();
   if(!raw) raw = 'PUBLIÉ';
-  if(raw === 'PUBLIE' || raw === 'PUBLIÉ') return {t:'Publié', bg:'#e8fff1', fg:'#0b6b33'};
-  if(raw === 'EN_COURS' || raw === 'EN COURS') return {t:'En cours', bg:'#eef6ff', fg:'#0b4ea2'};
-  if(raw === 'CLOTURE' || raw === 'CLOTURÉ' || raw === 'CLOTUREE' || raw === 'CLOTURÉE') return {t:'Clôturée', bg:'#f1f5f9', fg:'#334155'};
-  if(raw === 'EXPIRE' || raw === 'EXPIRÉ' || raw === 'EXPIREE' || raw === 'EXPIRÉE') return {t:'Expirée', bg:'#fff1f2', fg:'#9f1239'};
+  if(raw === 'PUBLIE' || raw === 'PUBLIÉ') return {t:'Publié', bg:'rgba(255,122,24,.14)', fg:'#ffb36b'};
+  if(raw === 'EN_COURS' || raw === 'EN COURS') return {t:'En cours', bg:'rgba(255,122,24,.10)', fg:'#ffd2a8'};
+  if(raw === 'CLOTURE' || raw === 'CLOTURÉ' || raw === 'CLOTUREE' || raw === 'CLOTURÉE') return {t:'Clôturée', bg:'rgba(255,255,255,.06)', fg:'rgba(255,255,255,.78)'};
+  if(raw === 'EXPIRE' || raw === 'EXPIRÉ' || raw === 'EXPIREE' || raw === 'EXPIRÉE') return {t:'Expirée', bg:'rgba(255,122,24,.10)', fg:'#ffd2a8'};
   if(raw === 'SUPPRIME' || raw === 'SUPPRIMÉ') return {t:'Supprimée', bg:'#f3f4f6', fg:'#6b7280'};
   return {t: raw.charAt(0) + raw.slice(1).toLowerCase(), bg:'#f3f4f6', fg:'#111827'};
 }

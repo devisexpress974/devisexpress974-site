@@ -72,7 +72,7 @@ exports.handler = async (event) => {
       statusCode: 204,
       headers: {
         "access-control-allow-origin": allowedOrigin || "null",
-        "access-control-allow-methods": "POST, OPTIONS",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
         "access-control-allow-headers": "content-type",
         "access-control-max-age": "86400",
       },
@@ -80,15 +80,30 @@ exports.handler = async (event) => {
     };
   }
 
-  if (event.httpMethod !== "POST"){
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+  const method = event.httpMethod || "GET";
 
   let payload = {};
-  try{
-    payload = event.body ? JSON.parse(event.body) : {};
-  }catch(e){
-    return { statusCode: 400, body: JSON.stringify({ ok:false, error:"Invalid JSON body" }) };
+  if (method === "GET"){
+    payload = event.queryStringParameters || {};
+  } else if (method === "POST"){
+    try{
+      payload = event.body ? JSON.parse(event.body) : {};
+    }catch(e){
+      return {
+        statusCode: 400,
+        headers: {
+          "content-type": "application/json",
+          "access-control-allow-origin": allowedOrigin || "null",
+        },
+        body: JSON.stringify({ ok:false, error:"Invalid JSON body" })
+      };
+    }
+  } else {
+    return {
+      statusCode: 405,
+      headers: { "access-control-allow-origin": allowedOrigin || "null" },
+      body: "Method Not Allowed"
+    };
   }
 
   // Optional secret injection (never expose secret to client)
@@ -104,19 +119,30 @@ exports.handler = async (event) => {
     });
 
     const text = await res.text();
+    // pass-through JSON if possible, else wrap
+    let bodyOut = text;
+    let ct = res.headers.get("content-type") || "application/json";
+    if (!ct.includes("application/json")){
+      ct = "application/json";
+      bodyOut = JSON.stringify({ ok:false, error:"Non-JSON response from GAS", raw:text });
+    }
+
     return {
       statusCode: res.status,
       headers: {
-        "content-type": "application/json; charset=utf-8",
+        "content-type": ct,
         "access-control-allow-origin": allowedOrigin || "null",
       },
-      body: text,
+      body: bodyOut,
     };
   }catch(err){
     return {
-      statusCode: 502,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ok:false, error:"Proxy error", detail:String(err && err.message || err) }),
+      statusCode: 500,
+      headers: {
+        "content-type": "application/json",
+        "access-control-allow-origin": allowedOrigin || "null",
+      },
+      body: JSON.stringify({ ok:false, error:"Proxy error", details: String(err && err.message || err) }),
     };
   }
 };
