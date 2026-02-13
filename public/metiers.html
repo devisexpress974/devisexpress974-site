@@ -69,5 +69,21 @@
       </nav>
     </div>
   </footer>
+
+  <!-- Modal Métier -->
+  <div class="dxModal" id="metierModal" aria-hidden="true" style="display:none;">
+    <div class="dxModalOverlay" data-close></div>
+    <div class="dxModalCard" role="dialog" aria-modal="true" aria-labelledby="metierModalTitle">
+      <button class="dxModalClose" type="button" aria-label="Fermer" data-close>×</button>
+      <h2 id="metierModalTitle" style="margin:0 0 8px;">Métier</h2>
+      <p id="metierModalCount" style="margin:0 0 14px;color:#666;"></p>
+      <div class="dxModalActions" style="display:flex;flex-wrap:wrap;gap:10px;">
+        <a class="dxBtn dxBtnPrimary" id="metierActionDemande" href="#">Faire une demande</a>
+        <a class="dxBtn dxBtnGhost" id="metierActionDemandes" href="#">Voir les demandes</a>
+        <a class="dxBtn dxBtnGhost" id="metierActionOffreurs" href="#">Devenir offreur</a>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

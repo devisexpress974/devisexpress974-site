@@ -161,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const serviceFilter = $("serviceFilter");
   const zoneFilter = $("zoneFilter");
   const communeFilter = $("communeFilter");
+  const noteMinFilter = $("noteMinFilter");
   const btnReload = $("btnReload");
   const list = $("list");
   const empty = $("empty");
@@ -308,12 +309,7 @@ function fillSelect(select, items){
     const s = serviceFilter.value;
     const z = zoneFilter.value;
     const c = communeFilter.value;
-
-    if(!s){
-      countBox.textContent = "Choisis un service pour afficher les offreurs.";
-      showEmpty("Choisis un service (obligatoire)");
-      return;
-    }
+    const nmin = noteMinFilter ? noteMinFilter.value : "";
 
     if(!LOADED){
       const ok = await loadData();
@@ -325,7 +321,7 @@ function fillSelect(select, items){
 
     let out = ALL.slice();
 
-    out = out.filter(o => (o.service||o.Service) === s);
+    if(s) out = out.filter(o => (o.service||o.Service) === s);
     if(z) out = out.filter(o => (o.zone||o.Zone) === z);
     if(c) out = out.filter(o => (o.commune||o.Commune) === c);
 
@@ -334,6 +330,17 @@ function fillSelect(select, items){
         const blob = normalize([o.nom||o.Nom||o.name, o.service||o.Service, o.commune||o.Commune, o.zone||o.Zone, o.description||o.Description||""].filter(Boolean).join(" "));
         return blob.includes(nq);
       });
+    }
+
+
+    if(nmin){
+      const minv = parseFloat(String(nmin).replace(",", "."));
+      if(!isNaN(minv)){
+        out = out.filter(o => {
+          const v = parseFloat(String(o.noteMoyenne||o.NoteMoyenne||o.note||"0").replace(",", "."));
+          return isFinite(v) && v >= minv;
+        });
+      }
     }
 
     render(out);
@@ -356,7 +363,7 @@ function fillSelect(select, items){
   fillSelect(communeFilter, COMMUNES);
 
   btnReload.addEventListener("click", reload);
-  [q, serviceFilter, zoneFilter, communeFilter].forEach(el=>{
+  [q, serviceFilter, zoneFilter, communeFilter, noteMinFilter].filter(Boolean).forEach(el=>{
     el.addEventListener("input", apply);
     el.addEventListener("change", apply);
   });
