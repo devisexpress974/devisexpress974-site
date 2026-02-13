@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gérer ma demande | DevisExpress974</title>
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <link rel="stylesheet" href="./styles.css?v=assumed1" />
+  <script defer src="./assets/js/dx-include-header.js?v=assumed1"></script>
+  <script defer src="./api.js?v=27"></script>
+  <script defer src="./assets/js/dx-gerer-demande.js?v=1"></script>
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+  <main class="container" style="padding:18px 0 32px;">
+    <section class="card pad">
+      <h1 class="heroTitle" style="font-size:40px;">Gérer ma demande</h1>
+      <p class="heroSub">Retire ta demande, ou accède à ses informations.</p>
+
+      <div id="msg" class="alert" style="display:none;margin-top:12px;"></div>
+
+      <div class="grid2" style="margin-top:16px;display:grid;gap:14px;grid-template-columns:1fr;">
+        <div class="card pad">
+          <h2 style="margin:0 0 8px;">Ma demande</h2>
+          <div id="demandeBox" style="color:#333;">Chargement…</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+            <a class="dxBtn dxBtnGhost" id="viewBtn" href="./mur-demandes.html">Voir les demandes</a>
+            <button class="dxBtn dxBtnPrimary" id="withdrawBtn" type="button">Supprimer ma demande</button>
+          </div>
+        </div>
+      </div>
+
+      <p style="color:#666;margin-top:12px;">Astuce : après prestation, tu peux noter un offreur depuis le lien reçu par email ou depuis sa fiche.</p>
+    </section>
+  </main>
+</body>
+</html>

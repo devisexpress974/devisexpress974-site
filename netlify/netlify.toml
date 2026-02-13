@@ -1,0 +1,85 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# URLs propres (sans .html)
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demande"
+  to = "/demande.html"
+  status = 200
+
+[[redirects]]
+  from = "/mur-demandes"
+  to = "/mur-demandes.html"
+  status = 200
+
+[[redirects]]
+  from = "/metiers"
+  to = "/metiers.html"
+  status = 200
+
+[[redirects]]
+  from = "/offreurs"
+  to = "/offreurs.html"
+  status = 200
+
+[[redirects]]
+  from = "/connexion"
+  to = "/offreur-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/mon-compte"
+  to = "/mon-compte.html"
+  status = 200
+
+[[redirects]]
+  from = "/paiement-abonnement"
+  to = "/paiement-abonnement.html"
+  status = 200
+
+[[redirects]]
+  from = "/paiement-pack"
+  to = "/paiement-pack.html"
+  status = 200
+
+[[redirects]]
+  from = "/paiement-ponctuel"
+  to = "/paiement-ponctuel.html"
+  status = 200
+
+[[redirects]]
+  from = "/paypal-return"
+  to = "/paypal-return.html"
+  status = 200
+
+[[redirects]]
+  from = "/paypal-cancel"
+  to = "/paypal-cancel.html"
+  status = 200
+
+[[redirects]]
+  from = "/mentions-legales"
+  to = "/mentions-legales.html"
+  status = 200
+
+[[redirects]]
+  from = "/politique-confidentialite"
+  to = "/politique-confidentialite.html"
+  status = 200
+
+[[redirects]]
+  from = "/cgv"
+  to = "/cgv.html"
+  status = 200
+
+# SPA fallback (optionnel)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404

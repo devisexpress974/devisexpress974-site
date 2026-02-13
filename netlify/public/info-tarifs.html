@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Infos & Tarifs — DevisExpress974</title>
+  <meta name="theme-color" content="#ff3b0a" />
+
+  <!-- CSS du site -->
+  <link rel="stylesheet" href="./styles.css?v=assumed1" />
+  <!-- CSS menu (garantit le design du header même si l’auto-injection rate) -->
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
+
+  <!-- Header DX (même menu/design que le reste du site) -->
+  <script src="./assets/js/dx-include-header.js?v=assumed1" defer></script>
+
+  <!-- PayPal config (source de vérité des liens) -->
+  <script src="./paypal-config.js?v=1" defer></script>
+
+  <!-- Styles UNIQUEMENT pour cette page (aucune autre page n'est impactée) -->
+  <style>
+    /* --- Cartes tarifs : accent couleur, hover léger, responsive --- */
+    .infoTarifsPage .cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0 6px;}
+    @media (max-width: 980px){.infoTarifsPage .cards3{grid-template-columns:1fr;}}
+
+    .infoTarifsPage .tarifCard{position:relative;overflow:hidden;border:1px solid rgba(0,0,0,.08);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;}
+    .infoTarifsPage .tarifCard::before{content:"";position:absolute;inset:0;background:radial-gradient(650px circle at 18% 0%, var(--accent), transparent 55%);opacity:.12;pointer-events:none;}
+    .infoTarifsPage .tarifCard::after{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:linear-gradient(90deg, var(--accent), rgba(255,255,255,0));opacity:.95;pointer-events:none;}
+    .infoTarifsPage .tarifCard:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(0,0,0,.10);border-color:rgba(0,0,0,.12);}
+    .infoTarifsPage .tarifCard .btnPrimary{background:linear-gradient(90deg, var(--accent), #ff3b0a);border:none;}
+
+    .infoTarifsPage .tarifCard--ponctuel{--accent:#ff7a18;}
+    .infoTarifsPage .tarifCard--pack{--accent:#ff3b0a;}
+    .infoTarifsPage .tarifCard--abo{--accent:#ffd140;}
+
+    .infoTarifsPage .tarifSmallNote{font-size:13px;opacity:.85;margin-top:10px;line-height:1.35;}
+  </style>
+</head>
+<body class="infoTarifsPage">
+  <!-- Slot (gardé pour compatibilité). Le header est injecté par dx-include-header.js -->
+  <div id="dx-header-slot"></div>
+
+  <main class="container" style="padding:24px 0;">
+    <div class="heroCard" style="padding:28px;">
+      <h1 style="margin:0 0 8px;">Infos & Tarifs</h1>
+      <p class="muted" style="margin:0 0 16px;">
+        Les coordonnées des demandeurs sont <strong>masquées</strong> sur le mur. Pour les voir et les contacter, l’offreur doit <strong>débloquer</strong>.
+      </p>
+
+      <h2 style="margin:18px 0 12px;">Formules Offreur</h2>
+
+      <div class="cards3">
+
+        <!-- PONCTUEL -->
+        <section class="card tarifCard tarifCard--ponctuel" style="padding:18px; border-radius:16px;">
+          <h3 style="margin:0 0 6px;">Ponctuel</h3>
+          <div style="font-size:28px; font-weight:800; margin:0 0 10px;">0,99 €</div>
+          <div class="muted" style="font-weight:700; margin:0 0 12px;">Débloque 1 demande</div>
+          <ul style="margin:0 0 16px 18px;">
+            <li>Choisis une demande sur le mur</li>
+            <li>Coordonnées visibles après déblocage</li>
+            <li>Accès valable pour cette demande</li>
+          </ul>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn btnPrimary" href="./mur-demandes.html">Aller au mur</a>
+            <a id="dxPayPonctuel" class="btn btnGhost" href="#" target="_blank" rel="noopener">Payer 0,99 €</a>
+          </div>
+          <div class="tarifSmallNote">
+            Le paiement 0,99€ se fait <strong>depuis une demande</strong> (bouton « Débloquer » sur le mur). Cela évite l’erreur « ID de demande manquant ».
+          </div>
+        </section>
+
+        <!-- PACK 10 -->
+        <section class="card tarifCard tarifCard--pack" style="padding:18px; border-radius:16px;">
+          <h3 style="margin:0 0 6px;">Pack 10 demandes</h3>
+          <div style="font-size:28px; font-weight:800; margin:0 0 10px;">2,99 €</div>
+          <div class="muted" style="font-weight:700; margin:0 0 12px;">Débloque 10 demandes</div>
+          <ul style="margin:0 0 16px 18px;">
+            <li>10 déblocages à utiliser quand tu veux</li>
+            <li>Idéal pour tester le service</li>
+            <li>Tu gardes l’accès sur les demandes débloquées</li>
+          </ul>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a id="dxPayPack10" class="btn btnPrimary" href="#" target="_blank" rel="noopener">Payer 2,99 €</a>
+            <a class="btn" href="./mur-demandes.html">Retour au mur</a>
+          </div>
+          <div class="tarifSmallNote">
+            Paiement via PayPal (carte bancaire possible selon l’écran PayPal). Si tu as un bloqueur, ouvre dans un nouvel onglet.
+          </div>
+        </section>
+
+        <!-- ABONNEMENT -->
+        <section class="card tarifCard tarifCard--abo" style="padding:18px; border-radius:16px;">
+          <h3 style="margin:0 0 6px;">Abonnement</h3>
+          <div style="font-size:20px; font-weight:800; margin:0 0 6px;">1er mois offert</div>
+          <div class="muted" style="font-weight:700; margin:0 0 12px;">puis 4,99 €/mois — sans engagement</div>
+          <ul style="margin:0 0 16px 18px;">
+            <li>Débloque <strong>toutes</strong> les demandes</li>
+            <li>Réception d’e-mails automatiques des demandes de ton secteur</li>
+            <li>Annulation possible à tout moment</li>
+          </ul>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a id="dxPayAbo" class="btn btnPrimary" href="#" target="_blank" rel="noopener">S’abonner</a>
+            <a class="btn" href="./mur-demandes.html">Retour au mur</a>
+          </div>
+          <div class="tarifSmallNote">
+            ⚠️ Les abonnements PayPal peuvent parfois demander une connexion PayPal. Si tu veux un abonnement <strong>100% carte</strong> sans compte PayPal, il faudra passer sur Stripe (ou un autre prestataire).
+          </div>
+        </section>
+
+      </div>
+
+      <div class="card" style="padding:14px 18px; margin-top:18px;">
+        <strong>Important :</strong> les coordonnées restent masquées sur le mur tant qu’elles ne sont pas débloquées.
+      </div>
+    </div>
+  
+    <section class="dxSection dxSection--soft dxConvStrip">
+      <div class="dxSection__head">
+        <h2 class="dxSection__title">Prêt à recevoir des demandes dès aujourd’hui ?</h2>
+        <p class="dxSection__sub">Crée ton compte gratuitement, puis choisis la formule la plus rentable selon ton activité (ponctuel, pack ou abonnement).</p>
+      </div>
+      <div class="btnRow">
+        <a class="btn btnPrimary" href="./offreur-register.html">Créer mon compte entreprise</a>
+        <a class="btn" href="./offreur-login.html">J’ai déjà un compte</a>
+        <a class="btn" href="./mur-demandes.html">Voir les demandes</a>
+      </div>
+      <p class="dxSmall">Astuce : commence par un pack si tu veux tester sans engagement, puis passe en abonnement quand tu as trouvé ton rythme.</p>
+    </section>
+
+</main>
+
+  <footer class="siteFooter">
+    <div class="container footerInner">
+      <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks" aria-label="Liens légaux">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="cgv.html">CGV</a>
+        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var y = document.getElementById("y");
+      if (y) y.textContent = String(new Date().getFullYear());
+
+      function setPayLink(id, kind) {
+        var a = document.getElementById(id);
+        if (!a) return;
+        var url = "";
+        try {
+          if (window.DX_PAYPAL && typeof window.DX_PAYPAL.getLink === "function") {
+            url = window.DX_PAYPAL.getLink(kind) || "";
+          }
+        } catch (e) {}
+        if (url) {
+          a.setAttribute("href", url);
+          a.removeAttribute("aria-disabled");
+        } else {
+          a.setAttribute("href", "#");
+          a.setAttribute("aria-disabled", "true");
+          a.addEventListener("click", function (ev) { ev.preventDefault(); });
+        }
+      }
+
+      setPayLink("dxPayPonctuel", "ponctuel");
+      setPayLink("dxPayPack10", "pack10");
+      setPayLink("dxPayAbo", "abonnement");
+    });
+  </script>
+</body>
+</html>

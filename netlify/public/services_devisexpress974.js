@@ -1,0 +1,822 @@
+window.DX_SERVICES = [
+  {
+    "service_id": "plomberie",
+    "label": "Plomberie",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "chauffage",
+    "label": "Chauffage / chaudière",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "climatisation",
+    "label": "Climatisation",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "electricite",
+    "label": "Électricité",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "depannage_electrique",
+    "label": "Dépannage électrique urgent",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "serrurerie",
+    "label": "Serrurerie",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "vitrier",
+    "label": "Vitrerie / vitrier",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "debouchage",
+    "label": "Débouchage canalisation",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "recherche_fuite",
+    "label": "Recherche de fuite",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "ventilation",
+    "label": "VMC / ventilation",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "ramonage",
+    "label": "Ramonage",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "clim_nettoyage",
+    "label": "Nettoyage climatisation",
+    "category": "BTP • Dépannage & second œuvre"
+  },
+  {
+    "service_id": "salle_de_bain",
+    "label": "Rénovation salle de bain",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "cuisine",
+    "label": "Rénovation cuisine",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "carrelage",
+    "label": "Carrelage",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "faience",
+    "label": "Faïence",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "peinture",
+    "label": "Peinture intérieure",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "peinture_ext",
+    "label": "Peinture extérieure / façade",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "platrerie",
+    "label": "Plâtrerie / placo",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "isolation",
+    "label": "Isolation (murs/combles)",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "pose_parquet",
+    "label": "Parquet",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "sol_souple",
+    "label": "Sol souple (PVC/lino)",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "faux_plafond",
+    "label": "Faux plafond",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "cloisons",
+    "label": "Cloisons",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "ravalement",
+    "label": "Ravalement façade",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "enduit",
+    "label": "Enduits",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "cuisiniste",
+    "label": "Cuisiniste",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "pose_cuisine",
+    "label": "Pose de cuisine",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "pose_sdb",
+    "label": "Pose sanitaires",
+    "category": "BTP • Rénovation"
+  },
+  {
+    "service_id": "toiture",
+    "label": "Toiture / couvreur",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "charpente",
+    "label": "Charpente",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "zinguerie",
+    "label": "Zinguerie / gouttières",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "etancheite",
+    "label": "Étanchéité",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "maconnerie",
+    "label": "Maçonnerie",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "beton",
+    "label": "Dalle / béton",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "terrassement",
+    "label": "Terrassement",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "assainissement",
+    "label": "Assainissement / fosse",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "fosse_septique",
+    "label": "Fosse septique",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "demolition",
+    "label": "Démolition",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "evacuation_gravats",
+    "label": "Évacuation gravats",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "construction",
+    "label": "Construction / extension",
+    "category": "BTP • Gros œuvre"
+  },
+  {
+    "service_id": "menuiserie",
+    "label": "Menuiserie (bois)",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "menuiserie_alu_pvc",
+    "label": "Menuiserie alu/PVC",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "fenetres_portes",
+    "label": "Pose fenêtres & portes",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "volets",
+    "label": "Volets / stores",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "portes_garage",
+    "label": "Porte de garage",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "dressing",
+    "label": "Dressing / placards",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "metallerie",
+    "label": "Métallerie / ferronnerie",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "soudure",
+    "label": "Soudure",
+    "category": "BTP • Second œuvre"
+  },
+  {
+    "service_id": "veranda",
+    "label": "Véranda / pergola",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "cloture",
+    "label": "Clôture / portail",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "portail_auto",
+    "label": "Motorisation portail",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "terrasse_bois",
+    "label": "Terrasse bois / composite",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "terrasse_carrelage",
+    "label": "Terrasse carrelée",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "eclairage_ext",
+    "label": "Éclairage extérieur",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "beton_imprime",
+    "label": "Béton imprimé",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "enrobe",
+    "label": "Enrobé / goudronnage",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "piscine",
+    "label": "Piscine (construction)",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "entretien_piscine",
+    "label": "Entretien piscine",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "spa",
+    "label": "Spa / jacuzzi",
+    "category": "BTP • Extérieurs"
+  },
+  {
+    "service_id": "jardinage",
+    "label": "Jardinage",
+    "category": "Jardin & extérieur"
+  },
+  {
+    "service_id": "debroussaillage",
+    "label": "Débroussaillage",
+    "category": "Jardin & extérieur"
+  },
+  {
+    "service_id": "elagage",
+    "label": "Élagage / abattage",
+    "category": "Jardin & extérieur"
+  },
+  {
+    "service_id": "taille_haies",
+    "label": "Taille de haies",
+    "category": "Jardin & extérieur"
+  },
+  {
+    "service_id": "amenagement_paysager",
+    "label": "Aménagement paysager",
+    "category": "Jardin & extérieur"
+  },
+  {
+    "service_id": "arrosage_auto",
+    "label": "Arrosage automatique",
+    "category": "Jardin & extérieur"
+  },
+  {
+    "service_id": "nettoyage_ext",
+    "label": "Nettoyage extérieur (karcher)",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "nettoyage_toiture",
+    "label": "Nettoyage toiture",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "nettoyage_facade",
+    "label": "Nettoyage façade",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "nettoyage_vitres",
+    "label": "Nettoyage vitres",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "menage",
+    "label": "Ménage / entretien maison",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "nettoyage_bureaux",
+    "label": "Nettoyage bureaux",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "nettoyage_fin_chantier",
+    "label": "Nettoyage fin de chantier",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "lavage_canape",
+    "label": "Nettoyage canapé/tapis",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "repassage",
+    "label": "Repassage",
+    "category": "Nettoyage & services"
+  },
+  {
+    "service_id": "debarras",
+    "label": "Débarras",
+    "category": "Déménagement & logistique"
+  },
+  {
+    "service_id": "demenagement",
+    "label": "Déménagement",
+    "category": "Déménagement & logistique"
+  },
+  {
+    "service_id": "transport",
+    "label": "Transport / livraison",
+    "category": "Déménagement & logistique"
+  },
+  {
+    "service_id": "garde_meuble",
+    "label": "Garde-meuble / stockage",
+    "category": "Déménagement & logistique"
+  },
+  {
+    "service_id": "monte_meuble",
+    "label": "Monte-meuble",
+    "category": "Déménagement & logistique"
+  },
+  {
+    "service_id": "bricolage",
+    "label": "Bricolage / petits travaux",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "montage_meubles",
+    "label": "Montage de meubles",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "accrocher_tv",
+    "label": "Pose TV / support mural",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "pose_etageres",
+    "label": "Pose étagères / cadres",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "petite_plomberie",
+    "label": "Petite plomberie",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "petite_electricite",
+    "label": "Petite électricité",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "electromenager",
+    "label": "Réparation électroménager",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "installation_electromenager",
+    "label": "Installation électroménager",
+    "category": "Maison & dépannage"
+  },
+  {
+    "service_id": "informatique_depannage",
+    "label": "Dépannage informatique",
+    "category": "Informatique & numérique"
+  },
+  {
+    "service_id": "reparation_pc",
+    "label": "Réparation PC/Mac",
+    "category": "Informatique & numérique"
+  },
+  {
+    "service_id": "reparation_smartphone",
+    "label": "Réparation smartphone/tablette",
+    "category": "Informatique & numérique"
+  },
+  {
+    "service_id": "wifi_reseau",
+    "label": "Wi‑Fi / réseau",
+    "category": "Informatique & numérique"
+  },
+  {
+    "service_id": "creation_site",
+    "label": "Création de site web",
+    "category": "Informatique & numérique"
+  },
+  {
+    "service_id": "seo",
+    "label": "SEO / référencement",
+    "category": "Informatique & numérique"
+  },
+  {
+    "service_id": "graphisme",
+    "label": "Graphisme / logo",
+    "category": "Informatique & numérique"
+  },
+  {
+    "service_id": "marketing",
+    "label": "Marketing / pub",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "community_manager",
+    "label": "Community management",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "secretariat",
+    "label": "Secrétariat / assistance",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "comptabilite",
+    "label": "Comptabilité (entreprise)",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "juridique",
+    "label": "Juridique (entreprise)",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "diagnostic_immo",
+    "label": "Diagnostic immobilier",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "immobilier",
+    "label": "Immobilier (agent)",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "architecte",
+    "label": "Architecte",
+    "category": "BTP • Études"
+  },
+  {
+    "service_id": "maitre_oeuvre",
+    "label": "Maître d’œuvre",
+    "category": "BTP • Études"
+  },
+  {
+    "service_id": "geometre",
+    "label": "Géomètre",
+    "category": "BTP • Études"
+  },
+  {
+    "service_id": "bureau_etudes",
+    "label": "Bureau d’études",
+    "category": "BTP • Études"
+  },
+  {
+    "service_id": "energies_solaire",
+    "label": "Panneaux solaires",
+    "category": "Énergie"
+  },
+  {
+    "service_id": "bornes_recharge",
+    "label": "Borne de recharge",
+    "category": "Énergie"
+  },
+  {
+    "service_id": "alarme",
+    "label": "Alarme / sécurité",
+    "category": "Sécurité"
+  },
+  {
+    "service_id": "videosurveillance",
+    "label": "Vidéosurveillance",
+    "category": "Sécurité"
+  },
+  {
+    "service_id": "interphonie",
+    "label": "Interphonie",
+    "category": "Sécurité"
+  },
+  {
+    "service_id": "porte_blindee",
+    "label": "Porte blindée",
+    "category": "Sécurité"
+  },
+  {
+    "service_id": "gardiennage",
+    "label": "Gardiennage",
+    "category": "Sécurité"
+  },
+  {
+    "service_id": "agent_securite",
+    "label": "Agent de sécurité",
+    "category": "Sécurité"
+  },
+  {
+    "service_id": "deratisation",
+    "label": "Dératisation",
+    "category": "Nuisibles"
+  },
+  {
+    "service_id": "desinsectisation",
+    "label": "Désinsectisation",
+    "category": "Nuisibles"
+  },
+  {
+    "service_id": "desinfection",
+    "label": "Désinfection",
+    "category": "Nuisibles"
+  },
+  {
+    "service_id": "photo_video",
+    "label": "Photo / vidéo (prestataire)",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "photographe",
+    "label": "Photographe",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "videaste",
+    "label": "Vidéaste",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "montage_video",
+    "label": "Montage vidéo",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "dj",
+    "label": "DJ",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "sono_lumiere",
+    "label": "Sonorisation / lumière",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "traiteur",
+    "label": "Traiteur",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "patisserie",
+    "label": "Pâtisserie / gâteaux",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "organisation_evenement",
+    "label": "Organisation événement",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "location_materiel",
+    "label": "Location matériel événement",
+    "category": "Événementiel & création"
+  },
+  {
+    "service_id": "cours_musique",
+    "label": "Cours de musique",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "cours_soutien",
+    "label": "Soutien scolaire",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "cours_langues",
+    "label": "Cours de langues",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "formation_pro",
+    "label": "Formation entreprise",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "coach_sportif",
+    "label": "Coach sportif",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "coach_nutrition",
+    "label": "Coaching nutrition",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "coach_vie",
+    "label": "Coaching / développement perso",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "cours_yoga",
+    "label": "Yoga / Pilates",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "cours_danse",
+    "label": "Cours de danse",
+    "category": "Cours & coaching"
+  },
+  {
+    "service_id": "massage",
+    "label": "Massage bien‑être",
+    "category": "Bien‑être"
+  },
+  {
+    "service_id": "esthetique",
+    "label": "Esthétique",
+    "category": "Bien‑être"
+  },
+  {
+    "service_id": "coiffure_domicile",
+    "label": "Coiffure à domicile",
+    "category": "Bien‑être"
+  },
+  {
+    "service_id": "onglerie",
+    "label": "Onglerie",
+    "category": "Bien‑être"
+  },
+  {
+    "service_id": "maquillage",
+    "label": "Maquillage",
+    "category": "Bien‑être"
+  },
+  {
+    "service_id": "garde_enfant",
+    "label": "Garde d’enfants / baby‑sitting",
+    "category": "Aide & famille"
+  },
+  {
+    "service_id": "aide_personne",
+    "label": "Aide à domicile",
+    "category": "Aide & famille"
+  },
+  {
+    "service_id": "aide_senior",
+    "label": "Aide seniors",
+    "category": "Aide & famille"
+  },
+  {
+    "service_id": "taxi_vtc",
+    "label": "Taxi / VTC",
+    "category": "Transport"
+  },
+  {
+    "service_id": "location_voiture",
+    "label": "Location voiture",
+    "category": "Transport"
+  },
+  {
+    "service_id": "location_utilitaire",
+    "label": "Location utilitaire",
+    "category": "Transport"
+  },
+  {
+    "service_id": "mecanique_auto",
+    "label": "Mécanique auto",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "depannage_auto",
+    "label": "Dépannage auto / remorquage",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "carrosserie",
+    "label": "Carrosserie",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "pare_brise",
+    "label": "Pare‑brise",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "diagnostic_auto",
+    "label": "Diagnostic auto",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "pneus",
+    "label": "Pneus (montage/équilibrage)",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "electricien_auto",
+    "label": "Électricité auto",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "reparation_velo",
+    "label": "Réparation vélo",
+    "category": "Auto & moto"
+  },
+  {
+    "service_id": "couture",
+    "label": "Couture / retouches",
+    "category": "Artisanat & services"
+  },
+  {
+    "service_id": "cordonnerie",
+    "label": "Cordonnerie",
+    "category": "Artisanat & services"
+  },
+  {
+    "service_id": "impression",
+    "label": "Impression / reprographie",
+    "category": "Artisanat & services"
+  },
+  {
+    "service_id": "traduction",
+    "label": "Traduction",
+    "category": "Services entreprise"
+  },
+  {
+    "service_id": "garde_animaux",
+    "label": "Garde d’animaux",
+    "category": "Animaux"
+  },
+  {
+    "service_id": "promenade_chien",
+    "label": "Promenade chien",
+    "category": "Animaux"
+  },
+  {
+    "service_id": "education_canine",
+    "label": "Éducation canine",
+    "category": "Animaux"
+  },
+  {
+    "service_id": "toilettage",
+    "label": "Toilettage",
+    "category": "Animaux"
+  },
+  {
+    "service_id": "autre",
+    "label": "Autre (à préciser)",
+    "category": "Autres"
+  }
+];

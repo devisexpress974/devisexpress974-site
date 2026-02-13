@@ -1,0 +1,70 @@
+<!-- DX HEADER (assumed) - classes alignées sur assets/css/dx-header.css -->
+<header class="dxTopbar" data-dx-header>
+  <div class="dx-header-inner">
+    <a class="dx-brand" href="./index.html" aria-label="DevisExpress974 - Accueil">
+      <img class="dx-logo" src="./assets/img/logo-eclair-orange.png" alt="Logo DevisExpress974" />
+      <span class="dx-brandText">
+        <span class="dx-title">DevisExpress974</span>
+        <span class="dx-tagline">1 demande • plusieurs réponses • 100% 974</span>
+      </span>
+    </a>
+
+    <nav class="dx-navWrap" aria-label="Navigation principale">
+      <div class="dx-navPills">
+        <a class="dx-navLink" href="./index.html" data-path="/index.html">Accueil</a>
+        <a class="dx-navLink" href="./demande.html" data-path="/demande.html">Publier une demande</a>
+        <a class="dx-navLink" href="./mur-demandes.html" data-path="/mur-demandes.html">Demandes</a>
+        <a class="dx-navLink" href="./offreurs.html" data-path="/offreurs.html">Annuaire</a>
+
+        <details class="dxPlus" role="list">
+          <summary class="dx-navLink dx-navLink--summary" role="listitem" aria-haspopup="menu">
+            Plus <span class="dx-caret" aria-hidden="true">▾</span>
+          </summary>
+          <div class="dxPlusMenu" role="menu">
+            <a role="menuitem" href="./metiers.html" data-path="/metiers.html">Métiers (A→Z)</a>
+            <a role="menuitem" href="./repondre-demandes.html" data-path="/repondre-demandes.html">Répondre à des demandes</a>
+            <a role="menuitem" href="./info-tarifs.html" data-path="/info-tarifs.html">Tarifs & abonnements</a>
+            <a role="menuitem" href="./faq.html" data-path="/faq.html">FAQ</a>
+            <a role="menuitem" href="./contact.html" data-path="/contact.html">Contact</a>
+          </div>
+    </details>
+  </div>
+    </nav>
+
+    <div class="dx-actions" id="headerRight">
+      <span class="dxAuthBadge" id="dxAuthBadge" style="display:none;">Connecté</span>
+      <a class="dxBtn dxBtnPrimary" id="loginCta" href="./offreur-login.html">Se connecter</a>
+      <a class="dxBtn dxBtnGhost" id="accountLink" href="./offreur-compte.html" style="display:none;">Mon compte</a>
+      <button class="dxBtn dxBtnGhost" id="logoutBtn" type="button" style="display:none;">Déconnexion</button>
+
+      <button class="dxBurger" type="button" aria-label="Menu" aria-expanded="false">
+        <span class="dxBurgerIcon" aria-hidden="true"></span>
+        <span class="dxBurgerLabel" aria-hidden="true">MENU</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="dxMobilePanel" hidden>
+    <a class="dxMobileLink" href="./index.html">Accueil</a>
+    <a class="dxMobileLink" href="./demande.html">Publier une demande</a>
+
+    <details class="dxMobilePlus">
+      <summary class="dxMobileLink">Plus <span class="dx-caret" aria-hidden="true">▾</span></summary>
+      <div class="dxMobilePlusMenu">
+        <a class="dxMobileSubLink" href="./mur-demandes.html">Mur des demandes</a>
+        <a class="dxMobileSubLink" href="./repondre-demandes.html">Répondre à des demandes</a>
+        <a class="dxMobileSubLink" href="./offreurs.html">Annuaire</a>
+        <a class="dxMobileSubLink" href="./metiers.html">Lexique métiers (A→Z)</a>
+        <a class="dxMobileSubLink" href="./info-tarifs.html">Infos &amp; tarifs</a>
+        <a class="dxMobileSubLink" href="./contact.html">Contact</a>
+        <a class="dxMobileSubLink" href="./mentions-legales.html">Mentions légales</a>
+        <a class="dxMobileSubLink" href="./cgv.html">CGV</a>
+        <a class="dxMobileSubLink" href="./politique-confidentialite.html">Confidentialité</a>
+      </div>
+    </details>
+
+    <a class="dxBtn dxBtnPrimary dxBtnMobile" id="loginCtaMobile" href="./offreur-login.html">Se connecter</a>
+    <a class="dxBtn dxBtnGhost dxBtnMobile" id="accountLinkMobile" href="./offreur-compte.html" style="display:none;">Mon compte</a>
+    <button class="dxBtn dxBtnGhost dxBtnMobile" id="logoutMobileBtn" type="button" style="display:none;">Déconnexion</button>
+  </div>
+</header>

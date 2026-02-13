@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevisExpress974 — Une demande, des réponses, tu choisis</title>
+  <meta name="description" content="Décris ton besoin. Ta demande apparaît sur le mur (coordonnées masquées). Des personnes intéressées te contactent. Tu choisis." />
+  <meta name="theme-color" content="#ff3b0a" />
+
+  <link rel="stylesheet" href="./styles.css?v=assumed2" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed2" />
+  <script defer src="./assets/js/dx-include-header.js?v=assumed2"></script>
+</head>
+
+<body>
+  <div id="dx-header-slot"></div>
+
+  <main class="container pageWrap">
+    <section class="dxHero dxHero--home">
+      <div class="dxHero__left">
+        <h1 class="dxHero__title">
+          Une seule demande.<br>
+          Des réponses adaptées.<br>
+          <span class="dxHero__accent">Tu choisis.</span>
+        </h1>
+
+        <p class="dxHero__sub">
+          Décris ton besoin en 30 secondes. Ta demande apparaît sur le mur (coordonnées masquées).
+          Ensuite, des personnes intéressées te contactent.
+        </p>
+
+        <div class="dxHero__cta">
+          <a class="dxBtn dxBtnPrimary dxBtnXL" href="./demande.html">Publier ma demande</a>
+          <a class="dxBtn dxBtnGhost dxBtnXL" href="./repondre-demandes.html">Répondre à des demandes</a>
+        </div>
+
+        <div class="dxMiniProof" style="margin-top:12px;">
+          <a class="dxLink" href="./mur-demandes.html">Voir le mur des demandes (sans coordonnées)</a>
+        </div>
+
+        <div class="dxCards3" style="margin-top:16px;">
+          <div class="dxMiniCard">
+            <h2 class="dxMiniCard__t">1) Tu décris</h2>
+            <p class="dxMiniCard__p">Tu expliques ce que tu veux, ta commune, et si tu as des photos.</p>
+          </div>
+          <div class="dxMiniCard">
+            <h2 class="dxMiniCard__t">2) Des personnes répondent</h2>
+            <p class="dxMiniCard__p">Elles te font une proposition&nbsp;: prix, devis, tarif horaire, dispo…</p>
+          </div>
+          <div class="dxMiniCard">
+            <h2 class="dxMiniCard__t">3) Tu choisis</h2>
+            <p class="dxMiniCard__p">Tu compares, tu échanges, et tu décides simplement.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dxHero__right">
+        <div class="dxHeroCard">
+          <h2 class="dxHeroCard__t">Découvrir en vidéo</h2>
+
+          <button id="dxOpenVideo" class="dxVideoThumb" type="button" aria-label="Lire la vidéo">
+            <span class="dxVideoPlay" aria-hidden="true">▶</span>
+            <span class="dxVideoText">Cliquer pour lancer (10s)</span>
+          </button>
+
+          <p class="dxSmall" style="margin-top:10px;">
+            Aucun compte pour publier une demande. Les coordonnées restent masquées sur le mur.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerRow">
+      <div class="footLeft">© <span id="year"></span> DevisExpress974 — Tous droits réservés.</div>
+      <nav class="footLinks">
+        <a href="./mentions-legales.html">Mentions légales</a>
+        <a href="./cgv.html">CGV</a>
+        <a href="./politique-confidentialite.html">Confidentialité</a>
+        <a href="./cookies.html">Cookies</a>
+        <a href="./contact.html">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      var y = document.getElementById('year');
+      if(y) y.textContent = new Date().getFullYear();
+    })();
+
+    (function(){
+      var btn = document.getElementById('dxOpenVideo');
+      if(!btn) return;
+
+      function closeModal(modal){
+        try { modal.remove(); } catch(e) {}
+        document.body.classList.remove('dxNoScroll');
+      }
+
+      btn.addEventListener('click', function(){
+        var overlay = document.createElement('div');
+        overlay.className = 'dxModalOverlay';
+
+        var modal = document.createElement('div');
+        modal.className = 'dxModal';
+
+        var close = document.createElement('button');
+        close.className = 'dxModalClose';
+        close.type = 'button';
+        close.setAttribute('aria-label','Fermer');
+        close.textContent = '×';
+
+        var video = document.createElement('video');
+        video.setAttribute('controls','');
+        video.setAttribute('playsinline','');
+        video.style.width = '100%';
+        video.style.borderRadius = '14px';
+        video.src = './video.mp4?v=' + Date.now();
+
+        close.addEventListener('click', function(){ closeModal(overlay); });
+        overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(overlay); });
+
+        modal.appendChild(close);
+        modal.appendChild(video);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        document.body.classList.add('dxNoScroll');
+
+        try { video.play(); } catch(e) {}
+      });
+    })();
+  </script>
+
+  <style>
+    /* Mini CSS local pour la vidéo + modal (safe, sans casser ton CSS global) */
+    .dxVideoThumb{
+      width: 100%;
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: 16px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(255,59,10,.12), rgba(0,0,0,.02));
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .dxVideoPlay{
+      width: 46px; height: 46px;
+      border-radius: 999px;
+      background: #ff3b0a;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex: 0 0 46px;
+    }
+    .dxVideoText{ font-weight: 700; }
+    .dxModalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9999;
+    }
+    .dxModal{
+      width: min(920px, 100%);
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+      position: relative;
+    }
+    .dxModalClose{
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: #fff;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .dxNoScroll{ overflow: hidden; }
+  </style>
+</body>
+</html>

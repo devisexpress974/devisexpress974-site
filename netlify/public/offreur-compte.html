@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mon profil offreur | DevisExpress974</title>
+
+  <meta http-equiv="Cache-Control" content="no-store, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="theme-color" content="#ff3b0a" />
+
+  <link rel="stylesheet" href="./styles.css?v=assumed1" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed1" />
+  <link rel="stylesheet" href="./assets/css/dx-searchable-select.css?v=45" />
+  <script defer src="./assets/js/dx-include-header.js?v=assumed1"></script>
+
+  <style>
+    .pageWrap{ padding:18px 0 26px; }
+    .pills{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 0; }
+    .pillRow{ display:flex; gap:8px; align-items:center; }
+    .pillRow .selectWrap{ flex:1; }
+    .pillX{ border:none; background:transparent; cursor:pointer; font-weight:900; font-size:14px; line-height:1; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      background:#fff;
+      font-weight:900; font-size:12px;
+    }
+    .dot{ width:10px; height:10px; border-radius:50%; background:#bbb; display:inline-block; }
+    .dot.ok{ background:#2e7d32; }
+    .dot.warn{ background:#ff7a00; }
+    .dot.off{ background:#b00020; }
+
+    .twoCols{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width: 980px){ .twoCols{ grid-template-columns: 1fr; } }
+
+    .hint{ color:var(--muted); font-weight:800; font-size:13px; margin:6px 0 0; }
+    .notice{ display:none; margin-top:12px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:#fff; font-weight:800; }
+    .notice.ok{ border-color: rgba(46,125,50,.35); background: rgba(46,125,50,.08); }
+    .notice.bad{ border-color: rgba(176,0,32,.25); background: rgba(176,0,32,.06); }
+
+    .input[readonly]{ opacity:.85; background: rgba(0,0,0,.03); }
+  </style>
+
+  <!-- Core JS (important order) -->
+  <script src="./api.js?v=42"></script>
+  <script src="./auth.js?v=42"></script>
+  <script src="./main.js?v=42"></script>
+</head>
+<body>
+  <div id="dx-header-slot"></div>
+
+  <main class="container pageWrap">
+    <section class="card pad">
+      <h1 class="heroTitle" style="font-size:42px;">Mon profil offreur</h1>
+      <p class="heroSub">Gère tes infos, ton secteur et l’affichage public, sans casser ton compte.</p>
+
+      <div class="pills" id="statusPills" aria-label="Statut du compte"></div>
+    </section>
+  <section class="card pad" style="margin-top:12px;">
+    <div class="twoCols">
+      <div>
+        <h2 class="sectionTitle">Accès aux coordonnées</h2>
+        <div class="pills" id="dxAboPills"></div>
+        <div class="hint" id="dxAboText" style="margin-top:8px;">Chargement…</div>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; align-items:flex-start; flex-wrap:wrap;">
+        <a class="btn btnPrimary" href="offreur-abonnement.html">Gérer</a>
+        <a class="btn" href="paiement-pack.html">Pack 10</a>
+        <a class="btn" href="paiement-ponctuel.html">0,99€</a>
+      </div>
+    </div>
+  </section>
+
+
+    <section class="card pad" style="margin-top:12px;">
+      <h2 class="sectionTitle">Mes informations</h2>
+
+      <form id="profileForm" novalidate>
+        <div class="formGrid" style="margin-top:10px;">
+          <div class="field">
+            <label for="nom">Nom / prénom <span class="req">*</span></label>
+            <input id="nom" class="input" required>
+          </div>
+
+          <div class="field">
+            <label for="email">Email (non modifiable)</label>
+            <input id="email" class="input" type="email" readonly>
+          </div>
+
+          <div class="field">
+            <label for="tel">Téléphone <span class="req">*</span></label>
+            <input id="tel" class="input" type="tel" required placeholder="0692…">
+          </div>
+
+          
+          <div class="field">
+            <label for="typeOffreur">Statut</label>
+            <div class="selectWrap">
+              <select id="typeOffreur" class="input">
+                <option value="entreprise">Professionnel</option>
+                <option value="PARTICULIER">Particulier</option>
+              </select>
+            </div>
+            <div class="hint">Le statut sert à l’affichage. Tu peux être particulier et proposer un service.</div>
+          </div>
+
+          <div class="field">
+            <label for="siren">SIREN / SIRET (optionnel)</label>
+            <input id="siren" class="input" placeholder="9 ou 14 chiffres (optionnel)">
+          </div>
+<div class="field">
+            <label for="entreprise">Entreprise (optionnel)</label>
+            <input id="entreprise" class="input" placeholder="Ex : Plomberie Dupont">
+          </div>
+
+          <div class="field">
+            <label for="pseudo">Pseudo (optionnel)</label>
+            <input id="pseudo" class="input" placeholder="Ex : Pro974">
+          </div>
+
+          <div class="field">
+            <label for="displayMode">Affichage public</label>
+            <div class="selectWrap">
+              <select id="displayMode" class="input">
+                <option value="NOM">Nom</option>
+                <option value="ENTREPRISE">Entreprise</option>
+                <option value="PSEUDO">Pseudo</option>
+              </select>
+            </div>
+            <div class="hint">Sur la page “Offreurs”, on affiche ce choix (si rempli).</div>
+          </div>
+
+          <div class="field">
+            <label for="showNote">Afficher ma note</label>
+            <div class="selectWrap">
+              <select id="showNote" class="input">
+                <option value="OUI">Oui</option>
+                <option value="NON">Non</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="service">Service principal <span class="req">*</span></label>
+            <div class="selectWrap">
+              <select id="service" class="input" required>
+                <option value="">Chargement…</option>
+              </select>
+            </div>
+            <div class="hint" id="serviceLockHint" style="display:none;">Métier verrouillé pendant l’abonnement.</div>
+          </div>
+
+          <div class="field" id="serviceAutreWrap" style="display:none;">
+            <label for="serviceAutre">Précise ton service (si “Autre”)</label>
+            <input id="serviceAutre" class="input" placeholder="Ex : réparation d’instruments…">
+          </div>
+
+          <div class="field">
+            <label for="zone">Zone <span class="req">*</span></label>
+            <div class="selectWrap">
+              <select id="zone" class="input" required>
+                <option value="">Choisir…</option>
+                <option value="Sur toute l'île">Sur toute l'île</option>
+                <option value="Nord">Nord</option>
+                <option value="Sud">Sud</option>
+                <option value="Est">Est</option>
+                <option value="Ouest">Ouest</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="commune">Communes (si zone ≠ Sur toute l'île)</label>
+            <div class="pillRow">
+              <div class="selectWrap">
+                <select id="commune" class="input">
+                  <option value="">Choisir…</option>
+                </select>
+              </div>
+              <button class="btn" type="button" id="btnAddCommune">Ajouter</button>
+            </div>
+            <div class="pills" id="communeChips"></div>
+            <div class="hint">Choisis au moins 1 commune (sauf si tu sélectionnes “Sur toute l'île”). Tu peux en ajouter plusieurs.</div>
+          </div>
+
+          <div class="field" style="grid-column:1/-1;">
+            <label for="description">Description (visible) <span class="req">*</span></label>
+            <textarea id="description" class="input" required placeholder="Ex : dépannage 7j/7, devis gratuit…"></textarea>
+          </div>
+        </div>
+
+        <div class="formActions" style="margin-top:12px;">
+          <button class="btn btnPrimary" id="btnSave" type="submit">Enregistrer</button>
+          <a class="btn" href="./mur-demandes.html">Retour au mur</a>
+          <button class="btn" id="btnLogout" type="button">Se déconnecter</button>
+        </div>
+
+        <div id="msg" class="notice"></div>
+      </form>
+    </section>
+
+    <section class="card pad" style="margin-top:12px;">
+      <h2 class="sectionTitle">Notifications</h2>
+      <p class="heroSub" style="margin-top:6px;">Choisis si tu veux recevoir les emails de nouvelles demandes correspondant à ton métier et à tes zones/communes.</p>
+
+      <div class="formGrid" style="margin-top:10px; max-width:520px;">
+        <div class="field" style="grid-column:1/-1;">
+          <label for="notifEmail">Recevoir les emails de nouvelles demandes</label>
+          <div class="selectWrap">
+            <select id="notifEmail" class="input">
+              <option value="OUI">Oui</option>
+              <option value="NON">Non</option>
+            </select>
+          </div>
+          <div class="hint">Astuce : sur le mur, tu peux toujours voir les demandes. Ce choix ne concerne que les emails.</div>
+        </div>
+      </div>
+
+      <div class="formActions" style="margin-top:12px;">
+        <button class="btn btnPrimary" id="btnSaveNotif" type="button">Enregistrer les notifications</button>
+      </div>
+
+      <div id="msgNotif" class="notice"></div>
+    </section>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerInner">
+      <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks" aria-label="Liens légaux">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="cgv.html">CGV</a>
+        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+    <script src="./assets/js/dx-searchable-select.js?v=45"></script>
+<script src="./offreur-compte.js?v=45"></script>
+  <script src="./assets/js/dx-compte-abonnement-card.js?v=1"></script>
+</body>
+</html>
