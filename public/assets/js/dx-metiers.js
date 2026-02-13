@@ -1,55 +1,63 @@
-// assets/js/dx-metiers.js (v4) — Lexique métiers (A→Z) conforme CDC
-// - source unique: ./assets/data/lexique-metiers.json
-// - recherche instantanée
-// - navigation A→Z
-// - clic métier => modal 3 actions (demande / mur / devenir offreur)
-
+// assets/js/dx-metiers.js (v3)
+// Lexique métiers (A→Z)
+// - affiche index A→Z + métiers triés
+// - clic sur un métier => popup 3 actions : Faire une demande / Voir les demandes / Devenir offreur
 (() => {
   "use strict";
-
-  const LEX_URL = "./assets/data/lexique-metiers.json?v=1";
-
   const $ = (id) => document.getElementById(id);
 
-  const els = {
-    search: $("metierSearch"),
-    count: $("metierCount"),
-    az: $("azNav"),
-    host: $("metiersHost"),
-    modal: $("dxJobModal"),
-    modalTitle: $("dxModalTitle"),
-    modalSub: $("dxModalSub"),
-    actDemande: $("dxActDemande"),
-    actMur: $("dxActMur"),
-    actOffreur: $("dxActOffreur"),
-  };
+  function norm(s){ return String(s||"").trim(); }
 
-  function norm(s){
-    return (s || "")
-      .toString()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
+  function byAlpha(a,b){
+    a = norm(a).toLowerCase(); b = norm(b).toLowerCase();
+    return a < b ? -1 : a > b ? 1 : 0;
   }
 
-  function getAllJobs(lex){
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  }
+
+  function loadLexique(){
+    // Source unique
+    // 1) essaye window.SERVICES_BY_CAT (si présent)
+    // 2) sinon charge assets/data/lexique-metiers.json
+    if (window.SERVICES_BY_CAT && typeof window.SERVICES_BY_CAT === "object") {
+      return Promise.resolve(window.SERVICES_BY_CAT);
+    }
+    return fetch("./assets/data/lexique-metiers.json?v=19", { cache: "no-store" })
+      .then(r => r.json());
+  }
+
+  function flattenLexique(lex){
+    // lex = { "Catégorie": ["Métier", ...], ... } OU { categories:[{name, jobs:[]}] }
     const out = [];
-    (lex.categories || []).forEach(cat => {
-      (cat.jobs || []).forEach(j => {
-        out.push({ category: cat.label, label: j.label, id: j.id });
+    if (Array.isArray(lex.categories)) {
+      lex.categories.forEach(cat=>{
+        const cname = cat.name || cat.title || "Autres";
+        const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
+        jobs.forEach(j=> out.push({ cat: cname, job: j }));
       });
+      return out;
+    }
+    Object.keys(lex||{}).forEach(cat=>{
+      const jobs = Array.isArray(lex[cat]) ? lex[cat] : [];
+      jobs.forEach(j=> out.push({ cat, job: j }));
     });
-    // tri alpha FR
-    out.sort((a,b)=>a.label.localeCompare(b.label,"fr",{sensitivity:"base"}));
     return out;
   }
 
-  function buildAZNav(items){
-    if(!els.az) return;
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    els.az.innerHTML = letters.map(L => `<button type="button" class="dxAzBtn" data-letter="${L}">${L}</button>`).join("");
-    els.az.addEventListener("click", (e)=>{
-      const btn = e.target.closest("[data-letter]");
+  function buildIndex(items){
+    const letters = {};
+    items.forEach(it=>{
+      const L = norm(it.job).charAt(0).toUpperCase();
+      if(!letters[L]) letters[L]=true;
+    });
+    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").filter(L=>letters[L]);
+    const wrap = $("dxAlpha");
+    if(!wrap) return;
+    wrap.innerHTML = alpha.map(L=>`<button class="dxAlphaBtn" data-letter="${L}">${L}</button>`).join("");
+    wrap.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-letter]");
       if(!btn) return;
       const L = btn.getAttribute("data-letter");
       const target = document.querySelector(`[data-letter-anchor="${L}"]`);
@@ -57,101 +65,107 @@
     });
   }
 
-  function openModal(jobLabel){
-    if(!els.modal) return;
-    els.modalTitle.textContent = jobLabel;
-    els.modalSub.textContent = "Choisis une action pour ce métier.";
-    const q = encodeURIComponent(jobLabel);
-    if(els.actDemande) els.actDemande.href = `./demande.html?service=${q}`;
-    if(els.actMur) els.actMur.href = `./mur-demandes.html?service=${q}`;
-    if(els.actOffreur) els.actOffreur.href = `./offreur-register.html?service=${q}`;
-    els.modal.setAttribute("aria-hidden","false");
+  function render(items){
+    const list = $("dxList");
+    if(!list) return;
+
+    // Tri A→Z global, puis groupe par lettre
+    const sorted = items.slice().sort((a,b)=>byAlpha(a.job,b.job));
+    buildIndex(sorted);
+
+    let html = "";
+    let currentL = "";
+    sorted.forEach(it=>{
+      const L = norm(it.job).charAt(0).toUpperCase();
+      if(L !== currentL){
+        currentL = L;
+        html += `<h2 class="dxLetter" data-letter-anchor="${L}">${L}</h2>`;
+      }
+      html += `
+        <button class="dxJob" type="button"
+          data-job="${escapeHtml(it.job)}"
+          data-cat="${escapeHtml(it.cat)}">
+          <span class="dxJobName">${escapeHtml(it.job)}</span>
+          <span class="dxJobCat">${escapeHtml(it.cat)}</span>
+        </button>`;
+    });
+    list.innerHTML = html;
+  }
+
+  function ensureModal(){
+    if(document.getElementById("dxJobModal")) return;
+    const modal = document.createElement("div");
+    modal.id = "dxJobModal";
+    modal.className = "dxModal";
+    modal.innerHTML = `
+      <div class="dxModalBackdrop" data-close></div>
+      <div class="dxModalCard" role="dialog" aria-modal="true" aria-label="Choisir une action">
+        <button class="dxModalClose" type="button" aria-label="Fermer" data-close>×</button>
+        <h3 class="dxModalTitle" id="dxModalTitle"></h3>
+        <p class="dxModalSub" id="dxModalSub"></p>
+        <div class="dxModalActions">
+          <a class="dxBtn dxBtnPrimary" id="dxActDemande" href="#">Faire une demande</a>
+          <a class="dxBtn" id="dxActMur" href="#">Voir les demandes</a>
+          <a class="dxBtn" id="dxActOffreur" href="#">Devenir offreur</a>
+        </div>
+        <p class="dxModalHint">Astuce : le métier sera pré-sélectionné automatiquement.</p>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.addEventListener("click", (e)=>{
+      if(e.target && e.target.closest("[data-close]")) closeModal();
+    });
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape") closeModal();
+    });
+  }
+
+  function openModal(job, cat){
+    ensureModal();
+    const modal = document.getElementById("dxJobModal");
+    const title = document.getElementById("dxModalTitle");
+    const sub = document.getElementById("dxModalSub");
+    title.textContent = job;
+    sub.textContent = cat ? `Catégorie : ${cat}` : "";
+
+    // routes
+    const q = encodeURIComponent(job);
+    document.getElementById("dxActDemande").href = `./demande.html?service=${q}`;
+    document.getElementById("dxActMur").href = `./mur-demandes.html?service=${q}`;
+    document.getElementById("dxActOffreur").href = `./register-offreur.html?service=${q}`;
+
+    modal.classList.add("is-open");
+    document.body.classList.add("dxModalOpen");
   }
 
   function closeModal(){
-    if(!els.modal) return;
-    els.modal.setAttribute("aria-hidden","true");
+    const modal = document.getElementById("dxJobModal");
+    if(!modal) return;
+    modal.classList.remove("is-open");
+    document.body.classList.remove("dxModalOpen");
   }
 
-  function wireModal(){
-    if(!els.modal) return;
-    els.modal.addEventListener("click",(e)=>{
-      if(e.target.matches("[data-dx-close]")) closeModal();
-      if(e.target.closest("[data-dx-close]")) closeModal();
-    });
-    document.addEventListener("keydown",(e)=>{
-      if(e.key==="Escape") closeModal();
-    });
-  }
-
-  function render(items){
-    if(!els.host) return;
-
-    // group by first letter for anchors
-    const grouped = new Map();
-    items.forEach(it=>{
-      const L = (it.label || "").trim().charAt(0).toUpperCase();
-      if(!grouped.has(L)) grouped.set(L, []);
-      grouped.get(L).push(it);
-    });
-
-    const letters = Array.from(grouped.keys()).sort();
-    const html = letters.map(L=>{
-      const jobs = grouped.get(L)
-        .sort((a,b)=>a.label.localeCompare(b.label,"fr",{sensitivity:"base"}))
-        .map(j=>`<button type="button" class="dxJobBtn" data-job="${encodeURIComponent(j.label)}">${j.label}</button>`)
-        .join("");
-      return `
-        <section class="dxLetterBlock">
-          <h3 class="dxLetterTitle" data-letter-anchor="${L}">${L}</h3>
-          <div class="dxJobGrid">${jobs}</div>
-        </section>
-      `;
-    }).join("");
-
-    els.host.innerHTML = html;
-
-    if(els.count){
-      els.count.textContent = `${items.length} métier${items.length>1?"s":""}`;
-    }
-
-    els.host.addEventListener("click",(e)=>{
-      const btn = e.target.closest(".dxJobBtn");
-      if(!btn) return;
-      const jobLabel = decodeURIComponent(btn.getAttribute("data-job") || "");
-      openModal(jobLabel);
-    }, { once:true });
-  }
-
-  function wireSearch(allItems){
-    if(!els.search) return;
-    els.search.addEventListener("input", ()=>{
-      const q = norm(els.search.value);
-      if(!q){
-        render(allItems);
-        return;
-      }
-      const filtered = allItems.filter(it => norm(it.label).includes(q));
-      render(filtered);
-    });
-  }
-
-  async function boot(){
+  document.addEventListener("DOMContentLoaded", async () => {
     try{
-      const res = await fetch(LEX_URL, { cache:"no-store" });
-      if(!res.ok) throw new Error("HTTP "+res.status);
-      const lex = await res.json();
-      const items = getAllJobs(lex);
-
-      buildAZNav(items);
-      wireModal();
+      const lex = await loadLexique();
+      const items = flattenLexique(lex);
       render(items);
-      wireSearch(items);
-    }catch(err){
-      console.error("[DX] Lexique métiers introuvable:", err);
-      if(els.host) els.host.innerHTML = "<p>Impossible de charger la liste des métiers.</p>";
-    }
-  }
 
-  boot();
+      const list = $("dxList");
+      if(list){
+        list.addEventListener("click", (e)=>{
+          const btn = e.target.closest("button.dxJob");
+          if(!btn) return;
+          const job = btn.getAttribute("data-job") || "";
+          const cat = btn.getAttribute("data-cat") || "";
+          openModal(job, cat);
+        });
+      }
+    }catch(err){
+      const list = $("dxList");
+      if(list) list.innerHTML = `<div class="dxError">Impossible de charger le lexique métiers.</div>`;
+      console.error(err);
+    }
+  });
 })();

@@ -1,54 +1,164 @@
 // offreurs.js (v49)
 document.addEventListener("DOMContentLoaded", () => {
-    // Source unique métiers: lexique-metiers.json
-  const LEX_URL = "./assets/data/lexique-metiers.json?v=1";
+  const SERVICES_BY_CAT = {
+  "BTP / Rénovation": [
+    "Rénovation intérieure",
+    "Maçonnerie",
+    "Peinture",
+    "Carrelage",
+    "Parquet / sol",
+    "Sol souple (PVC/Lino)",
+    "Plaquiste / plâtre",
+    "Cloisons / isolation",
+    "Faux plafond",
+    "Enduit / ravalement façade",
+    "Démolition",
+    "Terrassement",
+    "VRD / raccordements",
+    "Étanchéité",
+    "Béton / dalle",
+    "Escalier / garde-corps"
+  ],
+  "Toiture / Menuiserie / Fermetures": [
+    "Charpente",
+    "Couverture / toiture",
+    "Gouttières",
+    "Nettoyage toiture",
+    "Zinguerie",
+    "Menuiserie bois",
+    "Menuiserie alu/PVC",
+    "Pose fenêtres/portes",
+    "Volets roulants",
+    "Portail / clôture",
+    "Serrurerie",
+    "Vitrier",
+    "Stores / pergola",
+    "Rideaux métalliques"
+  ],
+  "Électricité / Plomberie / Clim": [
+    "Électricité",
+    "Mise aux normes électrique",
+    "Tableau électrique",
+    "Éclairage",
+    "Plomberie",
+    "Recherche de fuite",
+    "Débouchage",
+    "Chauffe-eau",
+    "Salle de bain",
+    "Climatisation",
+    "Entretien clim",
+    "Ventilation",
+    "Chauffage",
+    "Domotique",
+    "Interphone / visiophone"
+  ],
+  "Extérieur / Jardin / Piscine": [
+    "Jardinage",
+    "Paysagisme",
+    "Débroussaillage",
+    "Élagage",
+    "Abattage",
+    "Arrosage / irrigation",
+    "Terrasse bois",
+    "Terrasse béton",
+    "Allée / pavés",
+    "Mur extérieur / clôture",
+    "Piscine (entretien)",
+    "Piscine (construction)",
+    "Nettoyage façade",
+    "Nettoyage haute pression",
+    "Traitement anti-termites"
+  ],
+  "Maison / Nettoyage": [
+    "Ménage",
+    "Nettoyage fin de chantier",
+    "Nettoyage vitres",
+    "Nettoyage canapé / tapis",
+    "Désinfection",
+    "Lutte nuisibles (entreprise)",
+    "Débarras",
+    "Montage meubles",
+    "Petits travaux"
+  ],
+  "Déménagement / Transport": [
+    "Déménagement",
+    "Manutention",
+    "Livraison",
+    "Monte-meubles"
+  ],
+  "Auto / Dépannage": [
+    "Mécanique auto",
+    "Carrosserie",
+    "Pare-brise",
+    "Pneus",
+    "Dépannage / remorquage",
+    "Nettoyage auto"
+  ],
+  "Informatique / Digital": [
+    "Dépannage PC",
+    "Installation / Wi‑Fi",
+    "Sauvegarde / sécurité",
+    "Création site web",
+    "Graphisme / logos",
+    "Montage vidéo",
+    "Réseaux sociaux"
+  ],
+  "Événementiel": [
+    "Photographe",
+    "Vidéaste",
+    "DJ",
+    "Traiteur",
+    "Décoration événement",
+    "Location sono/lumière"
+  ],
+  "Cours / Services": [
+    "Soutien scolaire",
+    "Cours de musique",
+    "Coaching",
+    "Traduction",
+    "Aide administrative"
+  ]
+};
 
-  async function loadLexJobs(){
-    const res = await fetch(LEX_URL, { cache:"no-store" });
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const lex = await res.json();
-    const out = [];
-    (lex.categories||[]).forEach(cat=>{
-      (cat.jobs||[]).forEach(job=>{
-        out.push({ category: cat.label || "Autres", label: job.label, id: job.id });
+  const ALL_SERVICES = Object.values(SERVICES_BY_CAT).flat();
+
+  function fillServiceSelect(select, { includeAll = false } = {}) {
+    if (!select) return;
+    select.innerHTML = "";
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = includeAll ? "Tous" : "Choisir un domaine…";
+    select.appendChild(first);
+
+    for (const [cat, items] of Object.entries(SERVICES_BY_CAT)) {
+      const og = document.createElement("optgroup");
+      og.label = cat;
+      items.forEach((s) => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        og.appendChild(opt);
       });
-    });
-    return out;
+      select.appendChild(og);
+    }
+
+    const other = document.createElement("option");
+    other.value = "Autre";
+    other.textContent = "Autre (préciser)";
+    select.appendChild(other);
   }
 
-  function fillServiceSelect(select){
-    if(!select) return;
-    select.innerHTML = '<option value="">Tous les métiers</option>';
+  const ZONES = ["Nord","Sud","Est","Ouest"];
+  const COMMUNES = [
+    "Saint-Denis","Sainte-Marie","Sainte-Suzanne","Saint-André","Bras-Panon","Saint-Benoît",
+    "Sainte-Rose","Saint-Philippe","Saint-Joseph","Petite-Île","Saint-Pierre","Le Tampon",
+    "Entre-Deux","Saint-Louis","Les Avirons","L’Étang-Salé","Saint-Leu","Trois-Bassins",
+    "Saint-Paul","La Possession","Le Port","Cilaos","Salazie","La Plaine-des-Palmistes"
+  ];
 
-    loadLexJobs()
-      .then(jobs=>{
-        const byCat = new Map();
-        jobs.forEach(j=>{
-          const cat = String(j.category||"Autres").trim() || "Autres";
-          if(!byCat.has(cat)) byCat.set(cat, []);
-          byCat.get(cat).push(j);
-        });
-        Array.from(byCat.keys())
-          .sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}))
-          .forEach(cat=>{
-            const og = document.createElement("optgroup");
-            og.label = cat;
-            const arr = byCat.get(cat).slice().sort((a,b)=>String(a.label).localeCompare(String(b.label),"fr",{sensitivity:"base"}));
-            arr.forEach(j=>{
-              const opt = document.createElement("option");
-              opt.value = j.label;
-              opt.textContent = j.label;
-              og.appendChild(opt);
-            });
-            select.appendChild(og);
-          });
-      })
-      .catch(err=>{
-        console.warn("[DX] Impossible de charger lexique-metiers.json pour filtre offreurs:", err);
-      });
-  }
-
-const serviceFilter = $("serviceFilter");
+  const $ = (id) => document.getElementById(id);
+  const q = $("q");
+  const serviceFilter = $("serviceFilter");
   const zoneFilter = $("zoneFilter");
   const communeFilter = $("communeFilter");
   const sort = $("sort");

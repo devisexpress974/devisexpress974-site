@@ -1,124 +1,62 @@
 // offreurs.js (v14)
-document.addEventListener("DOMContentLoaded", () => {
-  const SERVICES_BY_CAT = {
-  "BTP / Rénovation": [
-    "Rénovation intérieure",
-    "Maçonnerie",
-    "Peinture",
-    "Carrelage",
-    "Parquet / sol",
-    "Sol souple (PVC/Lino)",
-    "Plaquiste / plâtre",
-    "Cloisons / isolation",
-    "Faux plafond",
-    "Enduit / ravalement façade",
-    "Démolition",
-    "Terrassement",
-    "VRD / raccordements",
-    "Étanchéité",
-    "Béton / dalle",
-    "Escalier / garde-corps"
-  ],
-  "Toiture / Menuiserie / Fermetures": [
-    "Charpente",
-    "Couverture / toiture",
-    "Gouttières",
-    "Nettoyage toiture",
-    "Zinguerie",
-    "Menuiserie bois",
-    "Menuiserie alu/PVC",
-    "Pose fenêtres/portes",
-    "Volets roulants",
-    "Portail / clôture",
-    "Serrurerie",
-    "Vitrier",
-    "Stores / pergola",
-    "Rideaux métalliques"
-  ],
-  "Électricité / Plomberie / Clim": [
-    "Électricité",
-    "Mise aux normes électrique",
-    "Tableau électrique",
-    "Éclairage",
-    "Plomberie",
-    "Recherche de fuite",
-    "Débouchage",
-    "Chauffe-eau",
-    "Salle de bain",
-    "Climatisation",
-    "Entretien clim",
-    "Ventilation",
-    "Chauffage",
-    "Domotique",
-    "Interphone / visiophone"
-  ],
-  "Extérieur / Jardin / Piscine": [
-    "Jardinage",
-    "Paysagisme",
-    "Débroussaillage",
-    "Élagage",
-    "Abattage",
-    "Arrosage / irrigation",
-    "Terrasse bois",
-    "Terrasse béton",
-    "Allée / pavés",
-    "Mur extérieur / clôture",
-    "Piscine (entretien)",
-    "Piscine (construction)",
-    "Nettoyage façade",
-    "Nettoyage haute pression",
-    "Traitement anti-termites"
-  ],
-  "Maison / Nettoyage": [
-    "Ménage",
-    "Nettoyage fin de chantier",
-    "Nettoyage vitres",
-    "Nettoyage canapé / tapis",
-    "Désinfection",
-    "Lutte nuisibles (entreprise)",
-    "Débarras",
-    "Montage meubles",
-    "Petits travaux"
-  ],
-  "Déménagement / Transport": [
-    "Déménagement",
-    "Manutention",
-    "Livraison",
-    "Monte-meubles"
-  ],
-  "Auto / Dépannage": [
-    "Mécanique auto",
-    "Carrosserie",
-    "Pare-brise",
-    "Pneus",
-    "Dépannage / remorquage",
-    "Nettoyage auto"
-  ],
-  "Informatique / Digital": [
-    "Dépannage PC",
-    "Installation / Wi‑Fi",
-    "Sauvegarde / sécurité",
-    "Création site web",
-    "Graphisme / logos",
-    "Montage vidéo",
-    "Réseaux sociaux"
-  ],
-  "Événementiel": [
-    "Photographe",
-    "Vidéaste",
-    "DJ",
-    "Traiteur",
-    "Décoration événement",
-    "Location sono/lumière"
-  ],
-  "Cours / Services": [
-    "Soutien scolaire",
-    "Cours de musique",
-    "Coaching",
-    "Traduction",
-    "Aide administrative"
-  ]
-};
+document.addEventListener("DOMContentLoaded", async () => {
+  // Services (source unique) — lexique-metiers.json (catégories + tri alpha)
+const LEXIQUE_URL = "./assets/data/lexique-metiers.json?v=19";
+
+async function loadServicesFromLexique_() {
+  try {
+    const res = await fetch(LEXIQUE_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const out = [];
+    const cats = Array.isArray(data.categories) ? data.categories : [];
+    cats.forEach(cat => {
+      const catLabel = String(cat.label || "").trim();
+      const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
+      jobs.forEach(job => {
+        const label = String(job.label || "").trim();
+        if (!label) return;
+        out.push({ category: catLabel || "Autres", label });
+      });
+    });
+    return out;
+  } catch (e) {
+    console.warn("[DX] Impossible de charger le lexique métiers:", e);
+    return [];
+  }
+}
+
+function fillServiceFilter_(selectEl, services) {
+  if (!selectEl) return;
+  // reset
+  selectEl.innerHTML = "";
+  const optAll = document.createElement("option");
+  optAll.value = "";
+  optAll.textContent = "Tous les métiers";
+  selectEl.appendChild(optAll);
+
+  // group by category
+  const map = new Map();
+  services.forEach(s => {
+    const cat = (s.category || "Autres").trim();
+    if (!map.has(cat)) map.set(cat, []);
+    map.get(cat).push(s.label);
+  });
+
+  const cats = Array.from(map.keys()).sort((a,b)=>a.localeCompare(b, "fr", { sensitivity:"base" }));
+  cats.forEach(cat => {
+    const og = document.createElement("optgroup");
+    og.label = cat;
+    const arr = Array.from(new Set(map.get(cat))).sort((a,b)=>a.localeCompare(b, "fr", { sensitivity:"base" }));
+    arr.forEach(label => {
+      const opt = document.createElement("option");
+      opt.value = label;
+      opt.textContent = label;
+      og.appendChild(opt);
+    });
+    selectEl.appendChild(og);
+  });
+}
 
   const ALL_SERVICES = Object.values(SERVICES_BY_CAT).flat();
 

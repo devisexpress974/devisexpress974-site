@@ -148,43 +148,31 @@
   }
 
   async function loadServices_() {
-    // 0) Lexique officiel (source unique)
-    try {
-      const resLex = await fetch("./assets/data/lexique-metiers.json?v=1", { cache: "no-store" });
-      if (resLex.ok) {
-        const lex = await resLex.json();
-        const services = [];
-        (lex.categories || []).forEach(cat => {
-          (cat.jobs || []).forEach(job => {
-            services.push({
-              service_id: job.id || slugify_(job.label),
-              label: job.label,
-              category: cat.label || "Autres"
-            });
-          });
-        });
-        if (services.length) return services;
-      }
-    } catch (e) {
-      console.warn("[DX] Lexique métiers non chargé, fallback DX_SERVICES:", e);
-    }
-
     // 1) window.DX_SERVICES (compatible file://)
     if (Array.isArray(window.DX_SERVICES) && window.DX_SERVICES.length) return window.DX_SERVICES;
 
-    // 2) fetch JSON fallback
+    // 2) fetch JSON (Netlify / serveur)
     try {
-      const res = await fetch("./assets/data/services_devisexpress974.json?v=1", { cache: "no-store" });
+      const res = await fetch("./assets/data/lexique-metiers.json", { cache: "no-store" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
-      if (Array.isArray(data)) return data;
-      if (Array.isArray(data.services)) return data.services;
+      const out = [];
+      const cats = Array.isArray(data.categories) ? data.categories : [];
+      cats.forEach(cat => {
+        const catLabel = String(cat.label || "").trim();
+        const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
+        jobs.forEach(job => {
+          const label = String(job.label || "").trim();
+          if (!label) return;
+          out.push({ category: catLabel || "Autres", label });
+        });
+      });
+      if (out.length) return out;
     } catch (e) {
       console.warn("[DX] Impossible de charger services_devisexpress974.json:", e);
     }
     return [];
   }
-
 
   document.addEventListener("DOMContentLoaded", async () => {
     // Services
