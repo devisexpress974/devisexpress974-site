@@ -70,17 +70,17 @@
     </div>
   </footer>
 
-  <!-- Modal Métier -->
-  <div class="dxModal" id="metierModal" aria-hidden="true" style="display:none;">
-    <div class="dxModalOverlay" data-close></div>
-    <div class="dxModalCard" role="dialog" aria-modal="true" aria-labelledby="metierModalTitle">
-      <button class="dxModalClose" type="button" aria-label="Fermer" data-close>×</button>
-      <h2 id="metierModalTitle" style="margin:0 0 8px;">Métier</h2>
-      <p id="metierModalCount" style="margin:0 0 14px;color:#666;"></p>
-      <div class="dxModalActions" style="display:flex;flex-wrap:wrap;gap:10px;">
-        <a class="dxBtn dxBtnPrimary" id="metierActionDemande" href="#">Faire une demande</a>
-        <a class="dxBtn dxBtnGhost" id="metierActionDemandes" href="#">Voir les demandes</a>
-        <a class="dxBtn dxBtnGhost" id="metierActionOffreurs" href="#">Devenir offreur</a>
+  <!-- Modal métier (3 actions) -->
+  <div id="dxJobModal" class="dxModal" aria-hidden="true">
+    <div class="dxModal__backdrop" data-dx-close></div>
+    <div class="dxModal__panel" role="dialog" aria-modal="true" aria-labelledby="dxModalTitle">
+      <button class="dxModal__close" type="button" data-dx-close aria-label="Fermer">×</button>
+      <h3 id="dxModalTitle" class="dxModal__title"></h3>
+      <p id="dxModalSub" class="dxModal__sub"></p>
+      <div class="dxModal__actions">
+        <a id="dxActDemande" class="dxBtn" href="./demande.html">Faire une demande</a>
+        <a id="dxActMur" class="dxBtn dxBtn--ghost" href="./mur-demandes.html">Voir les demandes</a>
+        <a id="dxActOffreur" class="dxBtn dxBtn--ghost" href="./offreur-register.html">Devenir offreur</a>
       </div>
     </div>
   </div>

@@ -16,62 +16,47 @@
   }
 
   
-
 function renderAuthState(header){
-  const authBtn = header.querySelector("#authBtn");
-  const profileLink = header.querySelector("#profileLink");
-
+  const loginCta = header.querySelector("#loginCta");
+  const accountLink = header.querySelector("#accountLink");
+  const logoutBtn = header.querySelector("#logoutBtn");
+  const badge = header.querySelector("#dxAuthBadge");
   let token = "";
   try{ token = localStorage.getItem("dx_token") || ""; }catch(e){}
   const isAuthed = !!token;
 
-  function setUI(on){
-    // Bouton unique : Se connecter <-> Se déconnecter
-    if(authBtn){
-      if(on){
-        authBtn.textContent = "Se déconnecter";
-        authBtn.setAttribute("href", "#logout");
-      }else{
-        authBtn.textContent = "Se connecter";
-        authBtn.setAttribute("href", "./offreur-login.html");
-      }
-    }
-    // Mon profil dans "Plus"
-    if(profileLink){
-      profileLink.style.display = on ? "" : "none";
-    }
+  function setAuthedUI(on){
+    if(loginCta) loginCta.style.display = on ? "none" : "";
+    if(accountLink) accountLink.style.display = on ? "" : "none";
+    if(logoutBtn) logoutBtn.style.display = on ? "" : "none";
+    if(badge) badge.style.display = on ? "inline-flex" : "none";
   }
 
-  setUI(isAuthed);
+  setAuthedUI(isAuthed);
 
-  if(authBtn){
-    authBtn.addEventListener("click", (e) => {
-      let t = "";
-      try{ t = localStorage.getItem("dx_token") || ""; }catch(err){}
-      const authedNow = !!t;
-
-      // Si pas connecté : laisse la navigation vers /offreur-login.html
-      if(!authedNow) return;
-
-      // Si connecté : on logout
-      e.preventDefault();
-      try{ localStorage.removeItem("dx_token"); }catch(err){}
-      setUI(false);
-      try{ window.location.href = "./offreur-login.html"; }catch(err){}
+  if(logoutBtn){
+    logoutBtn.addEventListener("click", () => {
+      try{ localStorage.removeItem("dx_token"); }catch(e){}
+      setAuthedUI(false);
+      try{ window.location.href = "./offreur-login.html"; }catch(e){}
     });
   }
 
-  // Optionnel : vérifie le token côté serveur si DX_AUTH.whoami existe
+  // Optionnel : vérifie le token côté serveur si api.js/auth.js présents
   if(isAuthed && window.DX_AUTH && typeof window.DX_AUTH.whoami === "function"){
     window.DX_AUTH.whoami().then(res => {
       if(!res || !res.ok){
         try{ localStorage.removeItem("dx_token"); }catch(e){}
-        setUI(false);
+        setAuthedUI(false);
+      } else {
+        // affiche le prénom/nom si dispo
+        if(badge && (res.nom || res.name)){
+          badge.textContent = "Connecté : " + (res.nom || res.name);
+        }
       }
     }).catch(()=>{});
   }
 }
-
 
 function init(rootDoc) {
     const header = rootDoc.querySelector(".dxTopbar[data-dx-header]");

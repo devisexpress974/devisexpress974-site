@@ -84,8 +84,8 @@ function pillHtml(info){
   // ---- état ----
   var all = [];
   var total = 0;
-  var pageSizeLogged = 10;
-  var pageSizePublicFetch = 10;
+  var pageSizeLogged = 24;
+  var pageSizePublicFetch = 200;
   var loading = false;
 
   // ---- filtres ----
@@ -376,6 +376,12 @@ function pillHtml(info){
 
     var count = document.getElementById('murPagerCount');
     var btn = document.getElementById('murPagerBtn');
+
+    if(!isLoggedIn()){
+      pager.style.display = 'none';
+      return;
+    }
+
     var shown = getVisible_().length || 0;
     var t = total || shown;
 
@@ -401,7 +407,8 @@ function pillHtml(info){
 
   function render(){
     showStatus("");
-    renderFull();
+    if(isLoggedIn()) renderFull();
+    else renderPublicPreview();
   }
 
   async function fetchPage(opts){
@@ -480,7 +487,7 @@ function pillHtml(info){
 
     // Public: on ne récupère qu’un lot “raisonnable” (les demandes les plus récentes)
     // Connecté: pagination (Voir plus)
-    var limit = pageSizeLogged;
+    var limit = isLoggedIn() ? pageSizeLogged : pageSizePublicFetch;
     await fetchPage({ reset:true, limit: limit });
 
     loading = false;

@@ -147,6 +147,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function fetchServices(){
+    // Source unique: lexique-metiers.json (catégories + tri alpha)
+    try{
+      const resLex = await fetch("./assets/data/lexique-metiers.json?v=1", { cache:"no-store" });
+      if(resLex.ok){
+        const lex = await resLex.json();
+        const services = [];
+        (lex.categories||[]).forEach(cat=>{
+          (cat.jobs||[]).forEach(job=>{
+            services.push({ category: cat.label || "Autres", label: job.label, id: job.id });
+          });
+        });
+        STATE.services = services;
+
+        if(serviceFilter){
+          // reset with first option already in HTML
+          serviceFilter.innerHTML = '<option value="">Tous les métiers</option>';
+          // group
+          const byCat = new Map();
+          services.forEach(s=>{
+            const cat = String(s.category||"Autres").trim() || "Autres";
+            if(!byCat.has(cat)) byCat.set(cat, []);
+            byCat.get(cat).push(s);
+          });
+          Array.from(byCat.keys())
+            .sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}))
+            .forEach(cat=>{
+              const og = document.createElement("optgroup");
+              og.label = cat;
+              const arr = byCat.get(cat)
+                .slice()
+                .sort((a,b)=>String(a.label).localeCompare(String(b.label),"fr",{sensitivity:"base"}));
+              arr.forEach(s=>{
+                const opt = document.createElement("option");
+                opt.value = s.label;
+                opt.textContent = s.label;
+                og.appendChild(opt);
+              });
+              serviceFilter.appendChild(og);
+            });
+        }
+        return;
+      }
+    }catch(e){
+      console.warn("[DX] Lexique métiers non chargé pour mur:", e);
+    }
+
+    // Fallback: ancien JSON plat
     try{
       const res = await fetch("./assets/data/services_devisexpress974.json?v=1", { cache:"no-store" });
       const data = await res.json();
@@ -156,12 +203,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if(serviceFilter){
         const labels = services.map(s => getServiceLabel(s)).filter(Boolean);
         const uniq = Array.from(new Set(labels)).sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-        serviceFilter.innerHTML = '<option value="">Tous les métiers</option>' + uniq.map(x=>`<option value="${x}">${x}</option>`).join("");
+        serviceFilter.innerHTML = '<option value="">Tous les métiers</option>' + uniq.map(l=>`<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join("");
       }
     }catch(e){
-      // keep defaults
+      console.warn("[DX] Impossible de charger services:", e);
     }
   }
+
 
   function render(){
     if(!listEl) return;
@@ -584,7 +632,8 @@ document.addEventListener("DOMContentLoaded", () => {
     STATE.detailCache = new Map();
     render();
 
-    const res = await window.DX_API.getAny(
+    try{
+      const res = await window.DX_API.getAny(
       ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
       { offset: 0, limit: STATE.limit, service: (serviceFilter && serviceFilter.value)||"", zone: (zoneFilter&&zoneFilter.value)||"", commune:(communeFilter&&communeFilter.value)||"", q:(q&&q.value)||"" }
     );
@@ -599,6 +648,14 @@ document.addEventListener("DOMContentLoaded", () => {
     STATE.lastBatch = items.length;
     STATE.loading = false;
     render();
+    }catch(e){
+      console.error("[DX] fetchFirst error", e);
+      STATE.loading = false;
+      STATE.items = [];
+      STATE.total = 0;
+      STATE.lastBatch = 0;
+      renderError_("Impossible de charger les demandes. Vérifie le lien GAS_URL / déploiement Apps Script, puis clique sur Recharger.");
+    }
   }
 
   async function fetchMore(){
@@ -606,7 +663,8 @@ document.addEventListener("DOMContentLoaded", () => {
     STATE.loading = true;
     render();
 
-    const res = await window.DX_API.getAny(
+    try{
+      const res = await window.DX_API.getAny(
       ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
       { offset: STATE.offset, limit: STATE.limit, service: (serviceFilter && serviceFilter.value)||"", zone: (zoneFilter&&zoneFilter.value)||"", commune:(communeFilter&&communeFilter.value)||"", q:(q&&q.value)||"" }
     );
@@ -621,6 +679,12 @@ document.addEventListener("DOMContentLoaded", () => {
     STATE.lastBatch = more.length;
     STATE.loading = false;
     render();
+    }catch(e){
+      console.error("[DX] fetchMore error", e);
+      STATE.loading = false;
+      STATE.lastBatch = 0;
+      renderError_("Impossible de charger plus de demandes. Réessaie.");
+    }
   }
 
   // events

@@ -26,10 +26,6 @@
     catch(e){ return ''; }
   }
 
-  function pickToken(){
-    return (qs('t') || qs('token') || '').trim();
-  }
-
   function pickOffreurId(){
     return (qs('oid') || qs('offreurId') || qs('offreurID') || qs('id') || '').trim();
   }
@@ -80,24 +76,7 @@
     hideBox(errBox);
     hideBox(infoBox);
 
-    const token = pickToken();
-    let offreurId = pickOffreurId();
-
-    if(token && window.DX_API && DX_API.post){
-      try{
-        const tr = await DX_API.post('consumeAvisToken', { token });
-        if(tr && tr.ok && tr.offreurId){
-          offreurId = tr.offreurId;
-        } else {
-          showBox(errBox, (tr && tr.error) ? String(tr.error) : 'Lien invalide ou expiré.');
-          return null;
-        }
-      }catch(e){
-        showBox(errBox, 'Lien invalide ou expiré.');
-        return null;
-      }
-    }
-
+    const offreurId = pickOffreurId();
     if(!offreurId){
       showBox(errBox, 'OffreurID manquant (lien invalide).');
       if(offreurCard) offreurCard.style.display = 'none';
@@ -176,24 +155,7 @@
     hideBox(errBox);
     hideBox(infoBox);
 
-    const token = pickToken();
-    let offreurId = pickOffreurId();
-
-    if(token && window.DX_API && DX_API.post){
-      try{
-        const tr = await DX_API.post('consumeAvisToken', { token });
-        if(tr && tr.ok && tr.offreurId){
-          offreurId = tr.offreurId;
-        } else {
-          showBox(errBox, (tr && tr.error) ? String(tr.error) : 'Lien invalide ou expiré.');
-          return null;
-        }
-      }catch(e){
-        showBox(errBox, 'Lien invalide ou expiré.');
-        return null;
-      }
-    }
-
+    const offreurId = pickOffreurId();
     const demandeId = pickDemandeId();
     const auteurNom = String(($('auteurNom') && $('auteurNom').value) || '').trim();
     const auteurEmail = String(($('auteurEmail') && $('auteurEmail').value) || '').trim();

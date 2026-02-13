@@ -525,12 +525,6 @@ case "addDemande":
       case "addAvis":
         return json_(addAvisOffreur_(body.payload || body));
 
-      case "consumeAvisToken":
-        return json_(consumeAvisToken_(body.token));
-
-      case "createAvisToken":
-        return json_(createAvisToken_(body || {}));
-
       default:
         return json_({ ok:false, error:"Action inconnue : " + action, action: action });
     }
@@ -598,11 +592,7 @@ function addDemande_(p){
   var zone = String(p.zone||"").trim();
   var commune = String(p.commune||"").trim();
   var description = String(p.description||"").trim();
-var nom = String(p.nom||"").trim();
-  var tel = String(p.tel||"").trim();
-  var email = String(p.email||"").trim();
-
-  // Validations anti-abus (serveur)
+// Validations anti-abus (serveur)
 if(containsBadWords_(nom) || containsBadWords_(description) || containsBadWords_(service) || containsBadWords_(commune)){
   return { ok:false, error:"Merci de rester respectueux : contenu inapproprié détecté." };
 }
@@ -613,6 +603,9 @@ if(isJobDescriptionInconsistent_(service, description)){
   return { ok:false, error:"Incohérence détectée : le métier choisi ne correspond pas à ta description. Corrige le métier ou le texte." };
 }
 
+  var nom = String(p.nom||"").trim();
+  var tel = String(p.tel||"").trim();
+  var email = String(p.email||"").trim();
   var serviceAutre = String(p.serviceAutre||"").trim();
   var budget = (p.budget !== undefined && p.budget !== null && p.budget !== "") ? String(p.budget) : "";
 
@@ -1444,67 +1437,6 @@ function updateOffreurProfile_(token, p){
 }
 
 
-
-function createAvisToken_(p){
-  // Crée un token unique (1 avis) stocké dans Sessions (réutilisation du schéma existant)
-  var offreurId = String(p.offreurId||p.offreurID||"").trim();
-  var email = String(p.email||p.demandeurEmail||"").trim();
-  var auteurNom = String(p.auteurNom||p.nom||"").trim();
-  var days = Number(p.days||30);
-  if(!offreurId) return { ok:false, error:"OffreurID manquant" };
-  if(!email) return { ok:false, error:"Email demandeur manquant" };
-
-  var token = uid_("tav"); // token avis
-  var exp = new Date();
-  exp.setDate(exp.getDate() + (isFinite(days) && days>0 ? days : 30));
-
-  var shS = ensureSheetStrict_(SHEETS.SESSIONS, HEADERS.Sessions);
-  shS.appendRow([token, email, offreurId, exp.toISOString()]);
-
-  return { ok:true, token: token, expireAt: exp.toISOString() };
-}
-
-function consumeAvisToken_(token){
-  token = String(token||"").trim();
-  if(!token) return { ok:false, error:"Token manquant" };
-
-  var shS = ensureSheetStrict_(SHEETS.SESSIONS, HEADERS.Sessions);
-  var vals = shS.getDataRange().getValues();
-  if(!vals || vals.length < 2) return { ok:false, error:"Token introuvable" };
-
-  var h = vals[0];
-  var idxToken = h.indexOf("Token");
-  var idxEmail = h.indexOf("EmailOffreur");
-  var idxOff = h.indexOf("OffreurID");
-  var idxExp = h.indexOf("ExpiresAt");
-  if(idxToken<0 || idxOff<0 || idxExp<0) return { ok:false, error:"Sessions header invalide" };
-
-  for(var i=1;i<vals.length;i++){
-    var row = vals[i];
-    if(String(row[idxToken]||"") !== token) continue;
-
-    // expiration
-    try{
-      var te = new Date(row[idxExp]);
-      if(te && te.getTime && new Date().getTime() > te.getTime()){
-        // token expiré -> supprime
-        shS.deleteRow(i+1);
-        return { ok:false, error:"Token expiré" };
-      }
-    }catch(e){}
-
-    var offreurId = String(row[idxOff]||"").trim();
-    var email = String(row[idxEmail]||"").trim();
-
-    // 1 token = 1 avis : consomme en supprimant la ligne
-    shS.deleteRow(i+1);
-
-    return { ok:true, offreurId: offreurId, email: email };
-  }
-  return { ok:false, error:"Token introuvable" };
-}
-
-
 function addAvisOffreur_(p){
   var offreurId = String(p.offreurId||p.offreurID||"").trim();
   var note = Number(p.note||0);
@@ -1630,14 +1562,13 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
           + "<strong>Email :</strong> " + (demandeRow.Email||"") + "</p>";
       } else {
         html += "<p><em>Coordonnées masquées.</em></p>"
-          + "<p style=\"margin:10px 0 0\"><a href=\"" + site + "/mur-demandes.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Voir la demande</a></p>"
-          + "<p style=\"margin:10px 0 0\"><strong>Débloquer les coordonnées</strong> :</p>"
-          + "<ul style=\"margin:6px 0 12px;padding-left:18px\">"
-          + "<li><a href=\"" + site + "/paiement-ponctuel.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Déblocage ponctuel</a></li>"
-          + "<li><a href=\"" + site + "/paiement-pack.html\">Pack crédits</a></li>"
-          + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
-          + "</ul>"
-          + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
+  + "<p style=\"margin:10px 0 0\"><strong>Débloquer les coordonnées</strong> :</p>"
+  + "<ul style=\"margin:6px 0 12px;padding-left:18px\">"
+  + "<li><a href=\"" + site + "/paiement-ponctuel.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Déblocage ponctuel</a></li>"
+  + "<li><a href=\"" + site + "/paiement-pack.html\">Pack crédits</a></li>"
+  + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
+  + "</ul>"
+  + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
       }
 
       if(site){
