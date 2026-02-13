@@ -180,6 +180,7 @@
     if (services && services.length) {
       fillServiceSelect_($("typeService"), services);   // demande.html
       fillServiceSelect_($("service"), services);       // offreur-register.html
+      fillServiceSelect_($("serviceFilter"), services); // mur-demandes.html & offreurs.html
 
       // PATCH22: recherche dans les listes (métier)
       if (window.DXSearchSelect) {

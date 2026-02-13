@@ -1,3 +1,6 @@
+
+// DX_GUARD_NO_OVERRIDE: ne pas écraser la liste métiers si déjà chargée par dx-services.js
+function dxHasOptgroups(id){const s=document.getElementById("serviceFilter");return !!(s && s.querySelector("optgroup"));}
 // mur-demandes.js (v300) — Mur public "plié / déplié" + PJ + bouton "Voir plus"
 document.addEventListener("DOMContentLoaded", () => {
   const serviceFilter = document.getElementById("serviceFilter");

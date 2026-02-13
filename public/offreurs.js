@@ -1,5 +1,10 @@
+
+// DX_GUARD_NO_OVERRIDE: ne pas écraser la liste métiers si déjà chargée par dx-services.js
+function dxHasOptgroups(id){const s=document.getElementById("serviceFilter");return !!(s && s.querySelector("optgroup"));}
 // offreurs.js (v49)
 document.addEventListener("DOMContentLoaded", () => {
+  if (dxHasOptgroups("serviceFilter")) { /* services déjà chargés */ }
+
   const SERVICES_BY_CAT = {
   "BTP / Rénovation": [
     "Rénovation intérieure",
