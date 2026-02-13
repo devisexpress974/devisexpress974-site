@@ -1569,7 +1569,6 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
   + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
   + "</ul>"
   + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
-";
       }
 
       if(site){
