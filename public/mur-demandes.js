@@ -1,6 +1,3 @@
-
-// DX_GUARD_NO_OVERRIDE: ne pas écraser la liste métiers si déjà chargée par dx-services.js
-function dxHasOptgroups(id){const s=document.getElementById("serviceFilter");return !!(s && s.querySelector("optgroup"));}
 // mur-demandes.js (v300) — Mur public "plié / déplié" + PJ + bouton "Voir plus"
 document.addEventListener("DOMContentLoaded", () => {
   const serviceFilter = document.getElementById("serviceFilter");
@@ -26,19 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const STATE = {
-
-function renderError_(msg){
-  const host = document.getElementById("demandesList") || document.getElementById("list") || document.body;
-  const p = document.createElement("p");
-  p.className = "muted";
-  p.style.marginTop = "10px";
-  p.textContent = msg;
-  // clear spinner text if exists
-  const st = document.getElementById("statusText");
-  if (st) st.textContent = msg;
-  host.prepend(p);
-}
-
     limit: 10,
     offset: 0,
     total: null,
@@ -162,28 +146,10 @@ function renderError_(msg){
     }
   }
 
-  async function fetchServices(){
-    try{
-      const res = await fetch("./assets/data/lexique-metiers.json?v=19", { cache:"no-store" });
-      const data = await res.json();
-      const services = [];
-      const cats = Array.isArray(data.categories) ? data.categories : [];
-      cats.forEach(cat => {
-        const catLabel = String(cat.label || "").trim();
-        const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
-        jobs.forEach(job => {
-          const label = String(job.label || "").trim();
-          if (!label) return;
-          services.push({ category: catLabel || "Autres", label });
-        });
-      });
-      STATE.services = services;
-
-      if(serviceFilter){
-        const labels = services.map(s => getServiceLabel(s)).filter(Boolean);
-        const uniq = Array.from(new Set(labels)).sort((a,b)=>a.localeCompare(b,"fr",{sensitivity:"base"}));
-        serviceFilter.innerHTML = '<option value="">Tous les métiers</option>' + uniq.map(x=>`<option value="${x}">${x}</option>`).join("");
-      }
+    async function fetchServices(){
+    // La liste métiers est désormais remplie par assets/js/dx-services.js (source unique lexique)
+    return;
+  }
     }catch(e){
       // keep defaults
     }
@@ -603,15 +569,14 @@ function renderError_(msg){
   }
 
   async function fetchFirst(){
-    try {
+  STATE.loading = true;
+  STATE.items = [];
+  STATE.offset = 0;
+  STATE.total = null;
+  STATE.detailCache = new Map();
+  render();
 
-    STATE.loading = true;
-    STATE.items = [];
-    STATE.offset = 0;
-    STATE.total = null;
-    STATE.detailCache = new Map();
-    render();
-
+  try{
     const res = await window.DX_API.getAny(
       ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
       { offset: 0, limit: STATE.limit, service: (serviceFilter && serviceFilter.value)||"", zone: (zoneFilter&&zoneFilter.value)||"", commune:(communeFilter&&communeFilter.value)||"", q:(q&&q.value)||"" }
@@ -627,21 +592,30 @@ function renderError_(msg){
     STATE.lastBatch = items.length;
     STATE.loading = false;
     render();
-  
-    } catch (e) {
-      console.error('[DX] API mur demandes:', e);
-      STATE.loading = false;
-      renderError_('Erreur de chargement des demandes (API). Vérifie GAS_URL / déploiement Apps Script puis réessaie.');
+  }catch(e){
+    STATE.loading = false;
+    STATE.items = [];
+    STATE.offset = 0;
+    STATE.lastBatch = 0;
+    if(countBox){
+      countBox.textContent = "0 demande • erreur API";
     }
+    if(emptyEl){
+      emptyEl.style.display = "";
+      emptyEl.textContent = "Erreur de chargement (API). Vérifie le déploiement Netlify Functions / Apps Script.";
+    }
+    if(pager) pager.style.display = "none";
+    console.error(e);
+  }
 }
 
+
   async function fetchMore(){
-    try {
+  if(STATE.loading) return;
+  STATE.loading = true;
+  render();
 
-    if(STATE.loading) return;
-    STATE.loading = true;
-    render();
-
+  try{
     const res = await window.DX_API.getAny(
       ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
       { offset: STATE.offset, limit: STATE.limit, service: (serviceFilter && serviceFilter.value)||"", zone: (zoneFilter&&zoneFilter.value)||"", commune:(communeFilter&&communeFilter.value)||"", q:(q&&q.value)||"" }
@@ -657,13 +631,16 @@ function renderError_(msg){
     STATE.lastBatch = more.length;
     STATE.loading = false;
     render();
-  
-    } catch (e) {
-      console.error('[DX] API mur demandes:', e);
-      STATE.loading = false;
-      renderError_('Erreur de chargement des demandes (API). Vérifie GAS_URL / déploiement Apps Script puis réessaie.');
+  }catch(e){
+    STATE.loading = false;
+    if(countBox){
+      countBox.textContent = (STATE.items.length ? `${STATE.items.length} demande(s)` : "0 demande") + " • erreur API";
     }
+    console.error(e);
+    render();
+  }
 }
+
 
   // events
   setCommuneOptions();

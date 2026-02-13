@@ -1,10 +1,5 @@
-
-// DX_GUARD_NO_OVERRIDE: ne pas écraser la liste métiers si déjà chargée par dx-services.js
-function dxHasOptgroups(id){const s=document.getElementById("serviceFilter");return !!(s && s.querySelector("optgroup"));}
 // offreurs.js (v49)
 document.addEventListener("DOMContentLoaded", () => {
-  if (dxHasOptgroups("serviceFilter")) { /* services déjà chargés */ }
-
   const SERVICES_BY_CAT = {
   "BTP / Rénovation": [
     "Rénovation intérieure",
@@ -178,10 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (communeFilter) window.DXSearchSelect.enhance(communeFilter, { placeholder: "Rechercher une commune…" });
   }
 
-  // état initial: filtres secondaires désactivés tant que le métier n’est pas choisi
-  try{ zoneFilter.disabled = true; communeFilter.disabled = true; q.disabled = true; if(sort) sort.disabled = true; }catch(e){}
-  if(empty){ empty.style.display = "block"; empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs."; }
-  if(countBox){ countBox.textContent = "0"; }
+  // état initial : filtres actifs (le métier est optionnel)
+  try{ if(zoneFilter) zoneFilter.disabled = false; if(communeFilter) communeFilter.disabled = false; if(q) q.disabled = false; if(sort) sort.disabled = false; }catch(e){}
+  if(empty){ empty.style.display = "none"; }
+  if(countBox){ countBox.textContent = "—"; }
 
 
   
@@ -283,7 +278,7 @@ function fillSelect(select, items){
 
     if(!items.length){
       empty.style.display = "block";
-      empty.textContent = (serviceFilter && serviceFilter.value) ? "Aucun offreur trouvé pour ces critères." : "Sélectionne un domaine d’activité pour afficher les offreurs.";
+      empty.textContent = "Aucun offreur ne correspond à tes filtres.";
       return;
     }
     empty.style.display = "none";
@@ -354,7 +349,7 @@ function fillSelect(select, items){
   }
 
   function setControlsDisabled(disabled){
-    try{ zoneFilter.disabled = disabled; communeFilter.disabled = disabled; q.disabled = disabled; if(sort) sort.disabled = disabled; }catch(e){}
+    try{ if(zoneFilter) zoneFilter.disabled = disabled; if(communeFilter) communeFilter.disabled = disabled; if(q) q.disabled = disabled; if(sort) sort.disabled = disabled; }catch(e){}
   }
 
   function updateCount(){
@@ -368,21 +363,6 @@ function fillSelect(select, items){
   function updatePager(){
     const pager = ensurePager();
     const btn = document.getElementById("offreursMoreBtn");
-
-    const hasService = !!serviceFilter.value;
-    if(!hasService){
-      pager.style.display = "none";
-      setControlsDisabled(true);
-      if(empty){
-        empty.style.display = "block";
-        empty.textContent = "Sélectionne un domaine d’activité pour afficher les offreurs.";
-      }
-      STATE.items = [];
-      STATE.total = 0;
-      STATE.offset = 0;
-      updateCount();
-      return;
-    }
 
     setControlsDisabled(false);
 
@@ -408,10 +388,6 @@ function fillSelect(select, items){
 
   async function fetchFirst(){
     const p = currentParams();
-    if(!p.service){
-      updatePager();
-      return;
-    }
 
     STATE.loading = true;
     STATE.items = [];
@@ -442,7 +418,6 @@ function fillSelect(select, items){
 
   async function fetchMore(){
     const p = currentParams();
-    if(!p.service) return;
 
     STATE.loading = true;
     updatePager();
@@ -472,8 +447,7 @@ function fillSelect(select, items){
     if(tmr) clearTimeout(tmr);
     tmr = setTimeout(fetchFirst, 250);
   }
-
-  fillServiceSelect(serviceFilter, { includeAll: false });
+  // La liste métiers est désormais remplie par assets/js/dx-services.js (source unique lexique)
   fillSelect(zoneFilter, ZONES);
   fillSelect(communeFilter, COMMUNES);
   btnReload.addEventListener("click", fetchFirst);

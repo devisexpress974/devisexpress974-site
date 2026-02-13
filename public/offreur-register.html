@@ -8,10 +8,10 @@
 <meta content="no-store, max-age=0" http-equiv="Cache-Control"/>
 <meta content="no-cache" http-equiv="Pragma"/>
 <meta content="0" http-equiv="Expires"/>
-<link href="./styles.css?v=assumed1" rel="stylesheet"/>
-<link href="./assets/css/dx-header.css?v=assumed1" rel="stylesheet"/>
+<link href="./styles.css?v=assumed21" rel="stylesheet"/>
+<link href="./assets/css/dx-header.css?v=assumed21" rel="stylesheet"/>
   <link rel="stylesheet" href="./assets/css/dx-searchable-select.css?v=45" />
-<script defer="" src="./assets/js/dx-include-header.js?v=assumed20"></script>
+<script defer="" src="./assets/js/dx-include-header.js?v=assumed21"></script>
   <style>
     .pillRow{ display:flex; gap:8px; align-items:center; }
     .pillRow .selectWrap{ flex:1; }
@@ -265,39 +265,8 @@
 <script src="main.js?v=42"></script>
 <!-- ✅ Ajout : chargeur de métiers (JSON) -->
   <script src="./assets/js/dx-searchable-select.js?v=45"></script>
-<script src="./assets/js/services-loader.js?v=42"></script>
-<script>
-  (async () => {
-    const sel = document.getElementById("service");
-    const wrap = document.getElementById("serviceAutreWrap");
-
-    if (!sel) return;
-
-    // fallback : si JSON ne charge pas, on garde tes options actuelles
-    const fallbackHTML = sel.innerHTML;
-
-    try {
-      const services = await DX_loadServices(); // ./assets/data/services_devisexpress974.json
-      DX_fillServiceSelect(sel, services, "Choisir un service…");
-    } catch (e) {
-      sel.innerHTML = fallbackHTML;
-      console.warn("Liste métiers JSON non chargée, fallback activé.", e);
-    }
-
-    // show/hide “Autre”
-    if (wrap) {
-      const refresh = () => {
-        const v = (sel.value || "").toLowerCase().trim();
-        wrap.style.display = v.startsWith("autre") ? "" : "none";
-      };
-      sel.addEventListener("change", refresh);
-      refresh();
-    }
-  })();
-</script>
-<script src="./api.js?v=42"></script>
-<script src="./auth.js?v=42"></script>
 <script src="./dx-geo-communes.js?v=1"></script>
-<script src="./offreur-register.js?v=42"></script>
-</body>
+<script src="./offreur-register.js?v=321"></script>
+  <script src="./assets/js/dx-services.js?v=21"></script>
+  </body>
 </html>

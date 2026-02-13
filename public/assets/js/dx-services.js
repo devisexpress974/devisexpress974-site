@@ -1,6 +1,7 @@
 /*!
  * DevisExpress974 — DX Services Loader
- * - Popule les <select> services depuis window.DX_SERVICES (fallback: fetch JSON)
+ * - Popule les <select> métiers depuis le lexique unique assets/data/lexique-metiers.json
+ *   (fallback: window.DX_SERVICES / services JSON legacy)
  * - Normalise les communes + filtre selon la zone
  * Safe: si rien n'existe, ne casse rien.
  */
@@ -72,7 +73,9 @@
     else {
       const opt0 = document.createElement("option");
       opt0.value = "";
-      opt0.textContent = "Choisir un service…";
+      // placeholder contextuel
+      if (selectEl.id === "serviceFilter") opt0.textContent = "Tous les métiers";
+      else opt0.textContent = "Choisir un métier…";
       selectEl.appendChild(opt0);
     }
 
@@ -147,30 +150,53 @@
     });
   }
 
-  async function loadServices_() {
-    // 1) window.DX_SERVICES (compatible file://)
-    if (Array.isArray(window.DX_SERVICES) && window.DX_SERVICES.length) return window.DX_SERVICES;
-
-    // 2) fetch JSON (Netlify / serveur)
-    try {
-      const res = await fetch("./assets/data/lexique-metiers.json", { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const data = await res.json();
-      const out = [];
-      const cats = Array.isArray(data.categories) ? data.categories : [];
-      cats.forEach(cat => {
-        const catLabel = String(cat.label || "").trim();
-        const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
-        jobs.forEach(job => {
-          const label = String(job.label || "").trim();
-          if (!label) return;
-          out.push({ category: catLabel || "Autres", label });
-        });
+  function flattenLexiqueToServices_(lex){
+  // lexique-metiers.json: { categories:[{label, jobs:[{label}]}] }
+  const out = [];
+  try{
+    const cats = Array.isArray(lex && lex.categories) ? lex.categories : [];
+    cats.forEach(cat=>{
+      const catLabel = String(cat.label || cat.name || cat.title || "Autres").trim() || "Autres";
+      const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
+      jobs.forEach(j=>{
+        const jobLabel = String(j.label || j.name || j.title || "").trim();
+        if(!jobLabel) return;
+        out.push({ label: jobLabel, category: catLabel });
       });
-      if (out.length) return out;
-    } catch (e) {
-      console.warn("[DX] Impossible de charger services_devisexpress974.json:", e);
+    });
+  }catch(e){}
+  return out;
+}
+
+async function loadServices_() {
+  // Source unique (prioritaire) : lexique-metiers.json
+  try {
+    const res = await fetch("./assets/data/lexique-metiers.json?v=1", { cache: "no-store" });
+    if (res.ok) {
+      const lex = await res.json();
+      const flat = flattenLexiqueToServices_(lex);
+      if (flat && flat.length) return flat;
     }
+  } catch (e) {
+    console.warn("[DX] Impossible de charger lexique-metiers.json:", e);
+  }
+
+  // Back-compat: window.DX_SERVICES
+  if (Array.isArray(window.DX_SERVICES) && window.DX_SERVICES.length) return window.DX_SERVICES;
+
+  // Back-compat: JSON legacy
+  try {
+    const res = await fetch("./assets/data/services_devisexpress974.json?v=1", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const arr = Array.isArray(data) ? data : (data.services || []);
+    if (Array.isArray(arr) && arr.length) return arr;
+  } catch (e) {
+    console.warn("[DX] Impossible de charger services_devisexpress974.json:", e);
+  }
+
+  return [];
+}
     return [];
   }
 
@@ -179,17 +205,40 @@
     const services = await loadServices_();
     if (services && services.length) {
       fillServiceSelect_($("typeService"), services);   // demande.html
-      fillServiceSelect_($("service"), services);       // offreur-register.html
-      fillServiceSelect_($("serviceFilter"), services); // mur-demandes.html & offreurs.html
+      fillServiceSelect_($("service"), services);       // offreur-register.html / offreur-compte.html
+      fillServiceSelect_($("serviceFilter"), services); // mur-demandes.html / offreurs.html
+// Pré-sélection via URL (?service=...)
+try{
+  const sp = new URLSearchParams(location.search);
+  const wanted = (sp.get("service") || "").trim();
+  if(wanted){
+    const selA = $("typeService");
+    const selB = $("service");
+    const selC = $("serviceFilter");
+    [selA, selB, selC].forEach(sel=>{
+      if(!sel) return;
+      // si l'option existe, on la sélectionne
+      const opt = sel.querySelector(`option[value="${CSS.escape(wanted)}"]`);
+      if(opt) sel.value = wanted;
+    });
+    // déclenchement change pour que les pages recalculent si besoin
+    const selC = $("serviceFilter");
+    if(selC) selC.dispatchEvent(new Event("change", { bubbles:true }));
+  }
+}catch(e){}
+
 
       // PATCH22: recherche dans les listes (métier)
       if (window.DXSearchSelect) {
         const a = $("typeService");
         const b = $("service");
+        const c = $("serviceFilter");
         if (a) window.DXSearchSelect.enhance(a, { placeholder: "Rechercher un métier…" });
         if (b) window.DXSearchSelect.enhance(b, { placeholder: "Rechercher un métier…" });
+        if (c) window.DXSearchSelect.enhance(c, { placeholder: "Rechercher un métier…" });
         if (a) window.DXSearchSelect.refresh(a);
         if (b) window.DXSearchSelect.refresh(b);
+        if (c) window.DXSearchSelect.refresh(c);
       }
     }
     // Zone/commune
