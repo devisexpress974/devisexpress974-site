@@ -1629,15 +1629,15 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
           + "<strong>Téléphone :</strong> " + (demandeRow.Tel||"") + "<br>"
           + "<strong>Email :</strong> " + (demandeRow.Email||"") + "</p>";
       } else {
-        html += "<p><em>Coordonnées masquées.</em></p>
-  + "<p style=\"margin:10px 0 0\"><a href=\"" + site + "/mur-demandes.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Voir la demande</a></p>""
-  + "<p style=\"margin:10px 0 0\"><strong>Débloquer les coordonnées</strong> :</p>"
-  + "<ul style=\"margin:6px 0 12px;padding-left:18px\">"
-  + "<li><a href=\"" + site + "/paiement-ponctuel.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Déblocage ponctuel</a></li>"
-  + "<li><a href=\"" + site + "/paiement-pack.html\">Pack crédits</a></li>"
-  + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
-  + "</ul>"
-  + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
+        html += "<p><em>Coordonnées masquées.</em></p>"
+          + "<p style=\"margin:10px 0 0\"><a href=\"" + site + "/mur-demandes.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Voir la demande</a></p>"
+          + "<p style=\"margin:10px 0 0\"><strong>Débloquer les coordonnées</strong> :</p>"
+          + "<ul style=\"margin:6px 0 12px;padding-left:18px\">"
+          + "<li><a href=\"" + site + "/paiement-ponctuel.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Déblocage ponctuel</a></li>"
+          + "<li><a href=\"" + site + "/paiement-pack.html\">Pack crédits</a></li>"
+          + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
+          + "</ul>"
+          + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
       }
 
       if(site){
