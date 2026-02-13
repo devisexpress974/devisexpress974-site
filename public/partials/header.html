@@ -22,6 +22,7 @@
           </summary>
           <div class="dxPlusMenu" role="menu">
             <a role="menuitem" href="./metiers.html" data-path="/metiers.html">Métiers (A→Z)</a>
+            <a role="menuitem" id="profileLink" href="./offreur-compte.html" style="display:none;">Mon profil</a>
             <a role="menuitem" href="./repondre-demandes.html" data-path="/repondre-demandes.html">Répondre à des demandes</a>
             <a role="menuitem" href="./info-tarifs.html" data-path="/info-tarifs.html">Tarifs & abonnements</a>
             <a role="menuitem" href="./faq.html" data-path="/faq.html">FAQ</a>
@@ -32,12 +33,8 @@
     </nav>
 
     <div class="dx-actions" id="headerRight">
-      <span class="dxAuthBadge" id="dxAuthBadge" style="display:none;">Connecté</span>
-      <a class="dxBtn dxBtnPrimary" id="loginCta" href="./offreur-login.html">Se connecter</a>
-      <a class="dxBtn dxBtnGhost" id="accountLink" href="./offreur-compte.html" style="display:none;">Mon compte</a>
-      <button class="dxBtn dxBtnGhost" id="logoutBtn" type="button" style="display:none;">Déconnexion</button>
-
-      <button class="dxBurger" type="button" aria-label="Menu" aria-expanded="false">
+<a class="dxBtn dxBtnPrimary" id="authBtn" href="./offreur-login.html">Se connecter</a>
+<button class="dxBurger" type="button" aria-label="Menu" aria-expanded="false">
         <span class="dxBurgerIcon" aria-hidden="true"></span>
         <span class="dxBurgerLabel" aria-hidden="true">MENU</span>
       </button>

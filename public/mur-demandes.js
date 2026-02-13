@@ -569,6 +569,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function fetchFirst(){
+    try{
   STATE.loading = true;
   STATE.items = [];
   STATE.offset = 0;

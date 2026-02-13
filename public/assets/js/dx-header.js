@@ -1,4 +1,4 @@
-// DX HEADER v38
+// DX HEADER v22
 (function () {
   function setActiveLinks(root) {
     const path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
@@ -17,30 +17,36 @@
 
   
 function renderAuthState(header){
-  const loginCta = header.querySelector("#loginCta");
-  const accountLink = header.querySelector("#accountLink");
-  const logoutBtn = header.querySelector("#logoutBtn");
-  const badge = header.querySelector("#dxAuthBadge");
-  let token = "";
-  try{ token = localStorage.getItem("dx_token") || ""; }catch(e){}
-  const isAuthed = !!token;
+  const const authBtn = header.querySelector("#authBtn");
+const profileLink = header.querySelector("#profileLink");
+let token = "";
+try{ token = localStorage.getItem("dx_token") || ""; }catch(e){}
+const isAuthed = !!token;
 
-  function setAuthedUI(on){
-    if(loginCta) loginCta.style.display = on ? "none" : "";
-    if(accountLink) accountLink.style.display = on ? "" : "none";
-    if(logoutBtn) logoutBtn.style.display = on ? "" : "none";
-    if(badge) badge.style.display = on ? "inline-flex" : "none";
+function setAuthedUI(on){
+  if(authBtn){
+    authBtn.textContent = on ? "Se déconnecter" : "Se connecter";
+    authBtn.setAttribute("href", on ? "#" : "./offreur-login.html");
+    authBtn.classList.remove("dxBtnGhost");
+    authBtn.classList.add("dxBtnPrimary");
   }
+  if(profileLink) profileLink.style.display = on ? "" : "none";
+}
 
-  setAuthedUI(isAuthed);
+setAuthedUI(isAuthed);
 
-  if(logoutBtn){
-    logoutBtn.addEventListener("click", () => {
-      try{ localStorage.removeItem("dx_token"); }catch(e){}
-      setAuthedUI(false);
-      try{ window.location.href = "./offreur-login.html"; }catch(e){}
-    });
-  }
+if(authBtn){
+  authBtn.addEventListener("click", (e)=>{
+    let token2 = "";
+    try{ token2 = localStorage.getItem("dx_token") || ""; }catch(err){}
+    const authedNow = !!token2;
+    if(!authedNow) return; // normal navigation to login
+    e.preventDefault();
+    try{ localStorage.removeItem("dx_token"); }catch(err){}
+    setAuthedUI(false);
+    location.href = "./index.html";
+  });
+}
 
   // Optionnel : vérifie le token côté serveur si api.js/auth.js présents
   if(isAuthed && window.DX_AUTH && typeof window.DX_AUTH.whoami === "function"){

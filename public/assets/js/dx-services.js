@@ -151,15 +151,33 @@
   }
 
   function flattenLexiqueToServices_(lex){
-  // lexique-metiers.json: { categories:[{label, jobs:[{label}]}] }
+  // Supports 2 schemas:
+  // A) { categories:[{label, jobs:[{label}]}] }
+  // B) { letters:[{letter, items:[{label, category}]}] } (full A→Z lexique)
   const out = [];
   try{
+    // Schema B (preferred): letters[]
+    const letters = Array.isArray(lex && lex.letters) ? lex.letters : [];
+    if(letters.length){
+      letters.forEach(block=>{
+        const items = Array.isArray(block && block.items) ? block.items : [];
+        items.forEach(it=>{
+          const jobLabel = String(it && it.label || "").trim();
+          if(!jobLabel) return;
+          const catLabel = String(it && it.category || "Autres").trim() || "Autres";
+          out.push({ label: jobLabel, category: catLabel });
+        });
+      });
+      return out;
+    }
+
+    // Schema A: categories/jobs
     const cats = Array.isArray(lex && lex.categories) ? lex.categories : [];
     cats.forEach(cat=>{
-      const catLabel = String(cat.label || cat.name || cat.title || "Autres").trim() || "Autres";
-      const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
+      const catLabel = String(cat && (cat.label || cat.name || cat.title) || "Autres").trim() || "Autres";
+      const jobs = Array.isArray(cat && cat.jobs) ? cat.jobs : [];
       jobs.forEach(j=>{
-        const jobLabel = String(j.label || j.name || j.title || "").trim();
+        const jobLabel = String(j && (j.label || j.name || j.title) || "").trim();
         if(!jobLabel) return;
         out.push({ label: jobLabel, category: catLabel });
       });
@@ -171,7 +189,7 @@
 async function loadServices_() {
   // Source unique (prioritaire) : lexique-metiers.json
   try {
-    const res = await fetch("./assets/data/lexique-metiers.json?v=1", { cache: "no-store" });
+    const res = await fetch("./assets/data/lexique-metiers.json?v=22", { cache: "no-store" });
     if (res.ok) {
       const lex = await res.json();
       const flat = flattenLexiqueToServices_(lex);

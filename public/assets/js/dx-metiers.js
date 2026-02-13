@@ -21,7 +21,7 @@
   }
 
   async function loadLexique(){
-    const res = await fetch("./assets/data/lexique-metiers.json?v=1", { cache: "no-store" });
+    const res = await fetch("./assets/data/lexique-metiers.json?v=22", { cache: "no-store" });
     if(!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   }
