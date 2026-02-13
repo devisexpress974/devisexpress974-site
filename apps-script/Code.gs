@@ -399,6 +399,7 @@ function doGet(e){
   e = e || {};
   e.parameter = e.parameter || {};
   var action = String(e.parameter.action || "").trim();
+  if (!action) action = "ping";
   // ✅ doGet passe e.parameter pour supporter token/id en GET
   return route_(action, e, e.parameter);
 }
@@ -1568,6 +1569,7 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
   + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
   + "</ul>"
   + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
+";
       }
 
       if(site){

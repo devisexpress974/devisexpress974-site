@@ -65,6 +65,7 @@
       <div class="dx-navPills">
         <a class="dx-navLink" href="./index.html">Accueil</a>
         <a class="dx-navLink" href="./demande.html">Faire une demande</a>
+        <a class="dx-navLink" href="./metiers.html">Métiers</a>
         <a class="dx-navLink" href="./mur-demandes.html">Mur des demandes</a>
         <a class="dx-navLink" href="./offreurs.html">Les offreurs</a>
 
