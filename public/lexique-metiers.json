@@ -1,927 +1,991 @@
 {
-  "letters": [
+  "version": "DX974_METIERS_V2",
+  "categories": [
     {
-      "letter": "A",
-      "items": [
+      "id": "AIDE_FAMILLE",
+      "label": "Aide & famille",
+      "order": null,
+      "jobs": [
         {
-          "label": "Agent de sécurité",
-          "category": "Sécurité",
-          "slug": "agent-de-s-curit"
-        },
-        {
-          "label": "Aide à domicile",
-          "category": "Aide & famille",
-          "slug": "aide-domicile"
-        },
-        {
+          "id": "AIDE_SENIORS",
           "label": "Aide seniors",
-          "category": "Aide & famille",
-          "slug": "aide-seniors"
+          "synonyms": []
         },
         {
-          "label": "Alarme / sécurité",
-          "category": "Sécurité",
-          "slug": "alarme-s-curit"
+          "id": "AIDE_DOMICILE",
+          "label": "Aide à domicile",
+          "synonyms": []
         },
         {
-          "label": "Aménagement paysager",
-          "category": "Jardin & extérieur",
-          "slug": "am-nagement-paysager"
-        },
-        {
-          "label": "Architecte",
-          "category": "BTP • Études",
-          "slug": "architecte"
-        },
-        {
-          "label": "Arrosage automatique",
-          "category": "Jardin & extérieur",
-          "slug": "arrosage-automatique"
-        },
-        {
-          "label": "Assainissement / fosse",
-          "category": "BTP • Gros œuvre",
-          "slug": "assainissement-fosse"
-        },
-        {
-          "label": "Autre (à préciser)",
-          "category": "Autres",
-          "slug": "autre-pr-ciser"
-        }
-      ]
-    },
-    {
-      "letter": "B",
-      "items": [
-        {
-          "label": "Béton imprimé",
-          "category": "BTP • Extérieurs",
-          "slug": "b-ton-imprim"
-        },
-        {
-          "label": "Borne de recharge",
-          "category": "Énergie",
-          "slug": "borne-de-recharge"
-        },
-        {
-          "label": "Bricolage / petits travaux",
-          "category": "Maison & dépannage",
-          "slug": "bricolage-petits-travaux"
-        },
-        {
-          "label": "Bureau d’études",
-          "category": "BTP • Études",
-          "slug": "bureau-d-tudes"
-        }
-      ]
-    },
-    {
-      "letter": "C",
-      "items": [
-        {
-          "label": "Carrelage",
-          "category": "BTP • Rénovation",
-          "slug": "carrelage"
-        },
-        {
-          "label": "Carrosserie",
-          "category": "Auto & moto",
-          "slug": "carrosserie"
-        },
-        {
-          "label": "Charpente",
-          "category": "BTP • Gros œuvre",
-          "slug": "charpente"
-        },
-        {
-          "label": "Chauffage / chaudière",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "chauffage-chaudi-re"
-        },
-        {
-          "label": "Climatisation",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "climatisation"
-        },
-        {
-          "label": "Cloisons",
-          "category": "BTP • Rénovation",
-          "slug": "cloisons"
-        },
-        {
-          "label": "Clôture / portail",
-          "category": "BTP • Extérieurs",
-          "slug": "cl-ture-portail"
-        },
-        {
-          "label": "Coach sportif",
-          "category": "Cours & coaching",
-          "slug": "coach-sportif"
-        },
-        {
-          "label": "Coaching / développement perso",
-          "category": "Cours & coaching",
-          "slug": "coaching-d-veloppement-perso"
-        },
-        {
-          "label": "Coaching nutrition",
-          "category": "Cours & coaching",
-          "slug": "coaching-nutrition"
-        },
-        {
-          "label": "Coiffure à domicile",
-          "category": "Bien‑être",
-          "slug": "coiffure-domicile"
-        },
-        {
-          "label": "Community management",
-          "category": "Services entreprise",
-          "slug": "community-management"
-        },
-        {
-          "label": "Comptabilité (entreprise)",
-          "category": "Services entreprise",
-          "slug": "comptabilit-entreprise"
-        },
-        {
-          "label": "Construction / extension",
-          "category": "BTP • Gros œuvre",
-          "slug": "construction-extension"
-        },
-        {
-          "label": "Cordonnerie",
-          "category": "Artisanat & services",
-          "slug": "cordonnerie"
-        },
-        {
-          "label": "Cours de danse",
-          "category": "Cours & coaching",
-          "slug": "cours-de-danse"
-        },
-        {
-          "label": "Cours de langues",
-          "category": "Cours & coaching",
-          "slug": "cours-de-langues"
-        },
-        {
-          "label": "Cours de musique",
-          "category": "Cours & coaching",
-          "slug": "cours-de-musique"
-        },
-        {
-          "label": "Couture / retouches",
-          "category": "Artisanat & services",
-          "slug": "couture-retouches"
-        },
-        {
-          "label": "Création de site web",
-          "category": "Informatique & numérique",
-          "slug": "cr-ation-de-site-web"
-        },
-        {
-          "label": "Cuisiniste",
-          "category": "BTP • Rénovation",
-          "slug": "cuisiniste"
-        }
-      ]
-    },
-    {
-      "letter": "D",
-      "items": [
-        {
-          "label": "Dalle / béton",
-          "category": "BTP • Gros œuvre",
-          "slug": "dalle-b-ton"
-        },
-        {
-          "label": "Débarras",
-          "category": "Déménagement & logistique",
-          "slug": "d-barras"
-        },
-        {
-          "label": "Débouchage canalisation",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "d-bouchage-canalisation"
-        },
-        {
-          "label": "Débroussaillage",
-          "category": "Jardin & extérieur",
-          "slug": "d-broussaillage"
-        },
-        {
-          "label": "Déménagement",
-          "category": "Déménagement & logistique",
-          "slug": "d-m-nagement"
-        },
-        {
-          "label": "Démolition",
-          "category": "BTP • Gros œuvre",
-          "slug": "d-molition"
-        },
-        {
-          "label": "Dépannage auto / remorquage",
-          "category": "Auto & moto",
-          "slug": "d-pannage-auto-remorquage"
-        },
-        {
-          "label": "Dépannage électrique urgent",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "d-pannage-lectrique-urgent"
-        },
-        {
-          "label": "Dépannage informatique",
-          "category": "Informatique & numérique",
-          "slug": "d-pannage-informatique"
-        },
-        {
-          "label": "Dératisation",
-          "category": "Nuisibles",
-          "slug": "d-ratisation"
-        },
-        {
-          "label": "Désinfection",
-          "category": "Nuisibles",
-          "slug": "d-sinfection"
-        },
-        {
-          "label": "Désinsectisation",
-          "category": "Nuisibles",
-          "slug": "d-sinsectisation"
-        },
-        {
-          "label": "Diagnostic auto",
-          "category": "Auto & moto",
-          "slug": "diagnostic-auto"
-        },
-        {
-          "label": "Diagnostic immobilier",
-          "category": "Services entreprise",
-          "slug": "diagnostic-immobilier"
-        },
-        {
-          "label": "DJ",
-          "category": "Événementiel & création",
-          "slug": "dj"
-        },
-        {
-          "label": "Dressing / placards",
-          "category": "BTP • Second œuvre",
-          "slug": "dressing-placards"
-        }
-      ]
-    },
-    {
-      "letter": "E",
-      "items": [
-        {
-          "label": "Enduits",
-          "category": "BTP • Rénovation",
-          "slug": "enduits"
-        },
-        {
-          "label": "Enrobé / goudronnage",
-          "category": "BTP • Extérieurs",
-          "slug": "enrob-goudronnage"
-        },
-        {
-          "label": "Entretien piscine",
-          "category": "BTP • Extérieurs",
-          "slug": "entretien-piscine"
-        },
-        {
-          "label": "Esthétique",
-          "category": "Bien‑être",
-          "slug": "esth-tique"
-        },
-        {
-          "label": "Éclairage extérieur",
-          "category": "BTP • Extérieurs",
-          "slug": "clairage-ext-rieur"
-        },
-        {
-          "label": "Éducation canine",
-          "category": "Animaux",
-          "slug": "ducation-canine"
-        },
-        {
-          "label": "Élagage / abattage",
-          "category": "Jardin & extérieur",
-          "slug": "lagage-abattage"
-        },
-        {
-          "label": "Électricité",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "lectricit"
-        },
-        {
-          "label": "Électricité auto",
-          "category": "Auto & moto",
-          "slug": "lectricit-auto"
-        },
-        {
-          "label": "Étanchéité",
-          "category": "BTP • Gros œuvre",
-          "slug": "tanch-it"
-        },
-        {
-          "label": "Évacuation gravats",
-          "category": "BTP • Gros œuvre",
-          "slug": "vacuation-gravats"
-        }
-      ]
-    },
-    {
-      "letter": "F",
-      "items": [
-        {
-          "label": "Faïence",
-          "category": "BTP • Rénovation",
-          "slug": "fa-ence"
-        },
-        {
-          "label": "Faux plafond",
-          "category": "BTP • Rénovation",
-          "slug": "faux-plafond"
-        },
-        {
-          "label": "Formation entreprise",
-          "category": "Cours & coaching",
-          "slug": "formation-entreprise"
-        },
-        {
-          "label": "Fosse septique",
-          "category": "BTP • Gros œuvre",
-          "slug": "fosse-septique"
-        }
-      ]
-    },
-    {
-      "letter": "G",
-      "items": [
-        {
-          "label": "Garde d’animaux",
-          "category": "Animaux",
-          "slug": "garde-d-animaux"
-        },
-        {
+          "id": "GARDE_D_ENFANTS_BABY_SITTING",
           "label": "Garde d’enfants / baby‑sitting",
-          "category": "Aide & famille",
-          "slug": "garde-d-enfants-baby-sitting"
-        },
-        {
-          "label": "Garde-meuble / stockage",
-          "category": "Déménagement & logistique",
-          "slug": "garde-meuble-stockage"
-        },
-        {
-          "label": "Gardiennage",
-          "category": "Sécurité",
-          "slug": "gardiennage"
-        },
-        {
-          "label": "Géomètre",
-          "category": "BTP • Études",
-          "slug": "g-om-tre"
-        },
-        {
-          "label": "Graphisme / logo",
-          "category": "Informatique & numérique",
-          "slug": "graphisme-logo"
+          "synonyms": []
         }
       ]
     },
     {
-      "letter": "I",
-      "items": [
+      "id": "ANIMAUX",
+      "label": "Animaux",
+      "order": null,
+      "jobs": [
         {
-          "label": "Immobilier (agent)",
-          "category": "Services entreprise",
-          "slug": "immobilier-agent"
+          "id": "GARDE_D_ANIMAUX",
+          "label": "Garde d’animaux",
+          "synonyms": []
         },
         {
-          "label": "Impression / reprographie",
-          "category": "Artisanat & services",
-          "slug": "impression-reprographie"
-        },
-        {
-          "label": "Installation électroménager",
-          "category": "Maison & dépannage",
-          "slug": "installation-lectrom-nager"
-        },
-        {
-          "label": "Interphonie",
-          "category": "Sécurité",
-          "slug": "interphonie"
-        },
-        {
-          "label": "Isolation (murs/combles)",
-          "category": "BTP • Rénovation",
-          "slug": "isolation-murs-combles"
-        }
-      ]
-    },
-    {
-      "letter": "J",
-      "items": [
-        {
-          "label": "Jardinage",
-          "category": "Jardin & extérieur",
-          "slug": "jardinage"
-        },
-        {
-          "label": "Juridique (entreprise)",
-          "category": "Services entreprise",
-          "slug": "juridique-entreprise"
-        }
-      ]
-    },
-    {
-      "letter": "L",
-      "items": [
-        {
-          "label": "Location matériel événement",
-          "category": "Événementiel & création",
-          "slug": "location-mat-riel-v-nement"
-        },
-        {
-          "label": "Location utilitaire",
-          "category": "Transport",
-          "slug": "location-utilitaire"
-        },
-        {
-          "label": "Location voiture",
-          "category": "Transport",
-          "slug": "location-voiture"
-        }
-      ]
-    },
-    {
-      "letter": "M",
-      "items": [
-        {
-          "label": "Maçonnerie",
-          "category": "BTP • Gros œuvre",
-          "slug": "ma-onnerie"
-        },
-        {
-          "label": "Maître d’œuvre",
-          "category": "BTP • Études",
-          "slug": "ma-tre-d-uvre"
-        },
-        {
-          "label": "Maquillage",
-          "category": "Bien‑être",
-          "slug": "maquillage"
-        },
-        {
-          "label": "Marketing / pub",
-          "category": "Services entreprise",
-          "slug": "marketing-pub"
-        },
-        {
-          "label": "Massage bien‑être",
-          "category": "Bien‑être",
-          "slug": "massage-bien-tre"
-        },
-        {
-          "label": "Menuiserie (bois)",
-          "category": "BTP • Second œuvre",
-          "slug": "menuiserie-bois"
-        },
-        {
-          "label": "Menuiserie alu/PVC",
-          "category": "BTP • Second œuvre",
-          "slug": "menuiserie-alu-pvc"
-        },
-        {
-          "label": "Mécanique auto",
-          "category": "Auto & moto",
-          "slug": "m-canique-auto"
-        },
-        {
-          "label": "Ménage / entretien maison",
-          "category": "Nettoyage & services",
-          "slug": "m-nage-entretien-maison"
-        },
-        {
-          "label": "Métallerie / ferronnerie",
-          "category": "BTP • Second œuvre",
-          "slug": "m-tallerie-ferronnerie"
-        },
-        {
-          "label": "Montage de meubles",
-          "category": "Maison & dépannage",
-          "slug": "montage-de-meubles"
-        },
-        {
-          "label": "Montage vidéo",
-          "category": "Événementiel & création",
-          "slug": "montage-vid-o"
-        },
-        {
-          "label": "Monte-meuble",
-          "category": "Déménagement & logistique",
-          "slug": "monte-meuble"
-        },
-        {
-          "label": "Motorisation portail",
-          "category": "BTP • Extérieurs",
-          "slug": "motorisation-portail"
-        }
-      ]
-    },
-    {
-      "letter": "N",
-      "items": [
-        {
-          "label": "Nettoyage bureaux",
-          "category": "Nettoyage & services",
-          "slug": "nettoyage-bureaux"
-        },
-        {
-          "label": "Nettoyage canapé/tapis",
-          "category": "Nettoyage & services",
-          "slug": "nettoyage-canap-tapis"
-        },
-        {
-          "label": "Nettoyage climatisation",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "nettoyage-climatisation"
-        },
-        {
-          "label": "Nettoyage extérieur (karcher)",
-          "category": "Nettoyage & services",
-          "slug": "nettoyage-ext-rieur-karcher"
-        },
-        {
-          "label": "Nettoyage façade",
-          "category": "Nettoyage & services",
-          "slug": "nettoyage-fa-ade"
-        },
-        {
-          "label": "Nettoyage fin de chantier",
-          "category": "Nettoyage & services",
-          "slug": "nettoyage-fin-de-chantier"
-        },
-        {
-          "label": "Nettoyage toiture",
-          "category": "Nettoyage & services",
-          "slug": "nettoyage-toiture"
-        },
-        {
-          "label": "Nettoyage vitres",
-          "category": "Nettoyage & services",
-          "slug": "nettoyage-vitres"
-        }
-      ]
-    },
-    {
-      "letter": "O",
-      "items": [
-        {
-          "label": "Onglerie",
-          "category": "Bien‑être",
-          "slug": "onglerie"
-        },
-        {
-          "label": "Organisation événement",
-          "category": "Événementiel & création",
-          "slug": "organisation-v-nement"
-        }
-      ]
-    },
-    {
-      "letter": "P",
-      "items": [
-        {
-          "label": "Panneaux solaires",
-          "category": "Énergie",
-          "slug": "panneaux-solaires"
-        },
-        {
-          "label": "Pare‑brise",
-          "category": "Auto & moto",
-          "slug": "pare-brise"
-        },
-        {
-          "label": "Parquet",
-          "category": "BTP • Rénovation",
-          "slug": "parquet"
-        },
-        {
-          "label": "Pâtisserie / gâteaux",
-          "category": "Événementiel & création",
-          "slug": "p-tisserie-g-teaux"
-        },
-        {
-          "label": "Peinture extérieure / façade",
-          "category": "BTP • Rénovation",
-          "slug": "peinture-ext-rieure-fa-ade"
-        },
-        {
-          "label": "Peinture intérieure",
-          "category": "BTP • Rénovation",
-          "slug": "peinture-int-rieure"
-        },
-        {
-          "label": "Petite électricité",
-          "category": "Maison & dépannage",
-          "slug": "petite-lectricit"
-        },
-        {
-          "label": "Petite plomberie",
-          "category": "Maison & dépannage",
-          "slug": "petite-plomberie"
-        },
-        {
-          "label": "Photo / vidéo (prestataire)",
-          "category": "Événementiel & création",
-          "slug": "photo-vid-o-prestataire"
-        },
-        {
-          "label": "Photographe",
-          "category": "Événementiel & création",
-          "slug": "photographe"
-        },
-        {
-          "label": "Piscine (construction)",
-          "category": "BTP • Extérieurs",
-          "slug": "piscine-construction"
-        },
-        {
-          "label": "Plâtrerie / placo",
-          "category": "BTP • Rénovation",
-          "slug": "pl-trerie-placo"
-        },
-        {
-          "label": "Plomberie",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "plomberie"
-        },
-        {
-          "label": "Pneus (montage/équilibrage)",
-          "category": "Auto & moto",
-          "slug": "pneus-montage-quilibrage"
-        },
-        {
-          "label": "Porte blindée",
-          "category": "Sécurité",
-          "slug": "porte-blind-e"
-        },
-        {
-          "label": "Porte de garage",
-          "category": "BTP • Second œuvre",
-          "slug": "porte-de-garage"
-        },
-        {
-          "label": "Pose de cuisine",
-          "category": "BTP • Rénovation",
-          "slug": "pose-de-cuisine"
-        },
-        {
-          "label": "Pose étagères / cadres",
-          "category": "Maison & dépannage",
-          "slug": "pose-tag-res-cadres"
-        },
-        {
-          "label": "Pose fenêtres & portes",
-          "category": "BTP • Second œuvre",
-          "slug": "pose-fen-tres-portes"
-        },
-        {
-          "label": "Pose sanitaires",
-          "category": "BTP • Rénovation",
-          "slug": "pose-sanitaires"
-        },
-        {
-          "label": "Pose TV / support mural",
-          "category": "Maison & dépannage",
-          "slug": "pose-tv-support-mural"
-        },
-        {
+          "id": "PROMENADE_CHIEN",
           "label": "Promenade chien",
-          "category": "Animaux",
-          "slug": "promenade-chien"
-        }
-      ]
-    },
-    {
-      "letter": "R",
-      "items": [
-        {
-          "label": "Ramonage",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "ramonage"
+          "synonyms": []
         },
         {
-          "label": "Ravalement façade",
-          "category": "BTP • Rénovation",
-          "slug": "ravalement-fa-ade"
-        },
-        {
-          "label": "Recherche de fuite",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "recherche-de-fuite"
-        },
-        {
-          "label": "Repassage",
-          "category": "Nettoyage & services",
-          "slug": "repassage"
-        },
-        {
-          "label": "Rénovation cuisine",
-          "category": "BTP • Rénovation",
-          "slug": "r-novation-cuisine"
-        },
-        {
-          "label": "Rénovation salle de bain",
-          "category": "BTP • Rénovation",
-          "slug": "r-novation-salle-de-bain"
-        },
-        {
-          "label": "Réparation électroménager",
-          "category": "Maison & dépannage",
-          "slug": "r-paration-lectrom-nager"
-        },
-        {
-          "label": "Réparation PC/Mac",
-          "category": "Informatique & numérique",
-          "slug": "r-paration-pc-mac"
-        },
-        {
-          "label": "Réparation smartphone/tablette",
-          "category": "Informatique & numérique",
-          "slug": "r-paration-smartphone-tablette"
-        },
-        {
-          "label": "Réparation vélo",
-          "category": "Auto & moto",
-          "slug": "r-paration-v-lo"
-        }
-      ]
-    },
-    {
-      "letter": "S",
-      "items": [
-        {
-          "label": "Secrétariat / assistance",
-          "category": "Services entreprise",
-          "slug": "secr-tariat-assistance"
-        },
-        {
-          "label": "SEO / référencement",
-          "category": "Informatique & numérique",
-          "slug": "seo-r-f-rencement"
-        },
-        {
-          "label": "Serrurerie",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "serrurerie"
-        },
-        {
-          "label": "Sol souple (PVC/lino)",
-          "category": "BTP • Rénovation",
-          "slug": "sol-souple-pvc-lino"
-        },
-        {
-          "label": "Sonorisation / lumière",
-          "category": "Événementiel & création",
-          "slug": "sonorisation-lumi-re"
-        },
-        {
-          "label": "Soudure",
-          "category": "BTP • Second œuvre",
-          "slug": "soudure"
-        },
-        {
-          "label": "Soutien scolaire",
-          "category": "Cours & coaching",
-          "slug": "soutien-scolaire"
-        },
-        {
-          "label": "Spa / jacuzzi",
-          "category": "BTP • Extérieurs",
-          "slug": "spa-jacuzzi"
-        }
-      ]
-    },
-    {
-      "letter": "T",
-      "items": [
-        {
-          "label": "Taille de haies",
-          "category": "Jardin & extérieur",
-          "slug": "taille-de-haies"
-        },
-        {
-          "label": "Taxi / VTC",
-          "category": "Transport",
-          "slug": "taxi-vtc"
-        },
-        {
-          "label": "Terrasse bois / composite",
-          "category": "BTP • Extérieurs",
-          "slug": "terrasse-bois-composite"
-        },
-        {
-          "label": "Terrasse carrelée",
-          "category": "BTP • Extérieurs",
-          "slug": "terrasse-carrel-e"
-        },
-        {
-          "label": "Terrassement",
-          "category": "BTP • Gros œuvre",
-          "slug": "terrassement"
-        },
-        {
+          "id": "TOILETTAGE",
           "label": "Toilettage",
-          "category": "Animaux",
-          "slug": "toilettage"
+          "synonyms": []
         },
         {
-          "label": "Toiture / couvreur",
-          "category": "BTP • Gros œuvre",
-          "slug": "toiture-couvreur"
-        },
-        {
-          "label": "Traduction",
-          "category": "Services entreprise",
-          "slug": "traduction"
-        },
-        {
-          "label": "Traiteur",
-          "category": "Événementiel & création",
-          "slug": "traiteur"
-        },
-        {
-          "label": "Transport / livraison",
-          "category": "Déménagement & logistique",
-          "slug": "transport-livraison"
+          "id": "DUCATION_CANINE",
+          "label": "Éducation canine",
+          "synonyms": []
         }
       ]
     },
     {
-      "letter": "V",
-      "items": [
+      "id": "ARTISANAT_SERVICES",
+      "label": "Artisanat & services",
+      "order": null,
+      "jobs": [
         {
-          "label": "Véranda / pergola",
-          "category": "BTP • Extérieurs",
-          "slug": "v-randa-pergola"
+          "id": "CORDONNERIE",
+          "label": "Cordonnerie",
+          "synonyms": []
         },
         {
-          "label": "Vidéaste",
-          "category": "Événementiel & création",
-          "slug": "vid-aste"
+          "id": "COUTURE_RETOUCHES",
+          "label": "Couture / retouches",
+          "synonyms": []
         },
         {
-          "label": "Vidéosurveillance",
-          "category": "Sécurité",
-          "slug": "vid-osurveillance"
+          "id": "IMPRESSION_REPROGRAPHIE",
+          "label": "Impression / reprographie",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "AUTO_MOTO",
+      "label": "Auto & moto",
+      "order": null,
+      "jobs": [
+        {
+          "id": "CARROSSERIE",
+          "label": "Carrosserie",
+          "synonyms": []
         },
         {
+          "id": "DIAGNOSTIC_AUTO",
+          "label": "Diagnostic auto",
+          "synonyms": []
+        },
+        {
+          "id": "D_PANNAGE_AUTO_REMORQUAGE",
+          "label": "Dépannage auto / remorquage",
+          "synonyms": []
+        },
+        {
+          "id": "M_CANIQUE_AUTO",
+          "label": "Mécanique auto",
+          "synonyms": []
+        },
+        {
+          "id": "PARE_BRISE",
+          "label": "Pare‑brise",
+          "synonyms": []
+        },
+        {
+          "id": "PNEUS_MONTAGE_QUILIBRAGE",
+          "label": "Pneus (montage/équilibrage)",
+          "synonyms": []
+        },
+        {
+          "id": "R_PARATION_V_LO",
+          "label": "Réparation vélo",
+          "synonyms": []
+        },
+        {
+          "id": "LECTRICIT_AUTO",
+          "label": "Électricité auto",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "AUTRES",
+      "label": "Autres",
+      "order": null,
+      "jobs": [
+        {
+          "id": "AUTRE_PR_CISER",
+          "label": "Autre (à préciser)",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "BIEN_TRE",
+      "label": "Bien‑être",
+      "order": null,
+      "jobs": [
+        {
+          "id": "COIFFURE_DOMICILE",
+          "label": "Coiffure à domicile",
+          "synonyms": []
+        },
+        {
+          "id": "ESTH_TIQUE",
+          "label": "Esthétique",
+          "synonyms": []
+        },
+        {
+          "id": "MAQUILLAGE",
+          "label": "Maquillage",
+          "synonyms": []
+        },
+        {
+          "id": "MASSAGE_BIEN_TRE",
+          "label": "Massage bien‑être",
+          "synonyms": []
+        },
+        {
+          "id": "ONGLERIE",
+          "label": "Onglerie",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "BTP_D_PANNAGE_SECOND_UVRE",
+      "label": "BTP • Dépannage & second œuvre",
+      "order": null,
+      "jobs": [
+        {
+          "id": "CHAUFFAGE_CHAUDI_RE",
+          "label": "Chauffage / chaudière",
+          "synonyms": []
+        },
+        {
+          "id": "CLIMATISATION",
+          "label": "Climatisation",
+          "synonyms": []
+        },
+        {
+          "id": "D_BOUCHAGE_CANALISATION",
+          "label": "Débouchage canalisation",
+          "synonyms": []
+        },
+        {
+          "id": "D_PANNAGE_LECTRIQUE_URGENT",
+          "label": "Dépannage électrique urgent",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_CLIMATISATION",
+          "label": "Nettoyage climatisation",
+          "synonyms": []
+        },
+        {
+          "id": "PLOMBERIE",
+          "label": "Plomberie",
+          "synonyms": []
+        },
+        {
+          "id": "RAMONAGE",
+          "label": "Ramonage",
+          "synonyms": []
+        },
+        {
+          "id": "RECHERCHE_DE_FUITE",
+          "label": "Recherche de fuite",
+          "synonyms": []
+        },
+        {
+          "id": "SERRURERIE",
+          "label": "Serrurerie",
+          "synonyms": []
+        },
+        {
+          "id": "VITRERIE_VITRIER",
           "label": "Vitrerie / vitrier",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "vitrerie-vitrier"
+          "synonyms": []
         },
         {
+          "id": "VMC_VENTILATION",
           "label": "VMC / ventilation",
-          "category": "BTP • Dépannage & second œuvre",
-          "slug": "vmc-ventilation"
+          "synonyms": []
         },
         {
-          "label": "Volets / stores",
-          "category": "BTP • Second œuvre",
-          "slug": "volets-stores"
+          "id": "LECTRICIT",
+          "label": "Électricité",
+          "synonyms": []
         }
       ]
     },
     {
-      "letter": "W",
-      "items": [
+      "id": "BTP_EXT_RIEURS",
+      "label": "BTP • Extérieurs",
+      "order": null,
+      "jobs": [
         {
-          "label": "Wi‑Fi / réseau",
-          "category": "Informatique & numérique",
-          "slug": "wi-fi-r-seau"
+          "id": "B_TON_IMPRIM",
+          "label": "Béton imprimé",
+          "synonyms": []
+        },
+        {
+          "id": "CL_TURE_PORTAIL",
+          "label": "Clôture / portail",
+          "synonyms": []
+        },
+        {
+          "id": "ENROB_GOUDRONNAGE",
+          "label": "Enrobé / goudronnage",
+          "synonyms": []
+        },
+        {
+          "id": "ENTRETIEN_PISCINE",
+          "label": "Entretien piscine",
+          "synonyms": []
+        },
+        {
+          "id": "MOTORISATION_PORTAIL",
+          "label": "Motorisation portail",
+          "synonyms": []
+        },
+        {
+          "id": "PISCINE_CONSTRUCTION",
+          "label": "Piscine (construction)",
+          "synonyms": []
+        },
+        {
+          "id": "SPA_JACUZZI",
+          "label": "Spa / jacuzzi",
+          "synonyms": []
+        },
+        {
+          "id": "TERRASSE_BOIS_COMPOSITE",
+          "label": "Terrasse bois / composite",
+          "synonyms": []
+        },
+        {
+          "id": "TERRASSE_CARREL_E",
+          "label": "Terrasse carrelée",
+          "synonyms": []
+        },
+        {
+          "id": "V_RANDA_PERGOLA",
+          "label": "Véranda / pergola",
+          "synonyms": []
+        },
+        {
+          "id": "CLAIRAGE_EXT_RIEUR",
+          "label": "Éclairage extérieur",
+          "synonyms": []
         }
       ]
     },
     {
-      "letter": "Y",
-      "items": [
+      "id": "BTP_GROS_UVRE",
+      "label": "BTP • Gros œuvre",
+      "order": null,
+      "jobs": [
         {
-          "label": "Yoga / Pilates",
-          "category": "Cours & coaching",
-          "slug": "yoga-pilates"
-        }
-      ]
-    },
-    {
-      "letter": "Z",
-      "items": [
+          "id": "ASSAINISSEMENT_FOSSE",
+          "label": "Assainissement / fosse",
+          "synonyms": []
+        },
         {
+          "id": "CHARPENTE",
+          "label": "Charpente",
+          "synonyms": []
+        },
+        {
+          "id": "CONSTRUCTION_EXTENSION",
+          "label": "Construction / extension",
+          "synonyms": []
+        },
+        {
+          "id": "DALLE_B_TON",
+          "label": "Dalle / béton",
+          "synonyms": []
+        },
+        {
+          "id": "D_MOLITION",
+          "label": "Démolition",
+          "synonyms": []
+        },
+        {
+          "id": "FOSSE_SEPTIQUE",
+          "label": "Fosse septique",
+          "synonyms": []
+        },
+        {
+          "id": "MA_ONNERIE",
+          "label": "Maçonnerie",
+          "synonyms": []
+        },
+        {
+          "id": "TERRASSEMENT",
+          "label": "Terrassement",
+          "synonyms": []
+        },
+        {
+          "id": "TOITURE_COUVREUR",
+          "label": "Toiture / couvreur",
+          "synonyms": []
+        },
+        {
+          "id": "ZINGUERIE_GOUTTI_RES",
           "label": "Zinguerie / gouttières",
-          "category": "BTP • Gros œuvre",
-          "slug": "zinguerie-goutti-res"
+          "synonyms": []
+        },
+        {
+          "id": "TANCH_IT",
+          "label": "Étanchéité",
+          "synonyms": []
+        },
+        {
+          "id": "VACUATION_GRAVATS",
+          "label": "Évacuation gravats",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "BTP_R_NOVATION",
+      "label": "BTP • Rénovation",
+      "order": null,
+      "jobs": [
+        {
+          "id": "CARRELAGE",
+          "label": "Carrelage",
+          "synonyms": []
+        },
+        {
+          "id": "CLOISONS",
+          "label": "Cloisons",
+          "synonyms": []
+        },
+        {
+          "id": "CUISINISTE",
+          "label": "Cuisiniste",
+          "synonyms": []
+        },
+        {
+          "id": "ENDUITS",
+          "label": "Enduits",
+          "synonyms": []
+        },
+        {
+          "id": "FAUX_PLAFOND",
+          "label": "Faux plafond",
+          "synonyms": []
+        },
+        {
+          "id": "FA_ENCE",
+          "label": "Faïence",
+          "synonyms": []
+        },
+        {
+          "id": "ISOLATION_MURS_COMBLES",
+          "label": "Isolation (murs/combles)",
+          "synonyms": []
+        },
+        {
+          "id": "PARQUET",
+          "label": "Parquet",
+          "synonyms": []
+        },
+        {
+          "id": "PEINTURE_EXT_RIEURE_FA_ADE",
+          "label": "Peinture extérieure / façade",
+          "synonyms": []
+        },
+        {
+          "id": "PEINTURE_INT_RIEURE",
+          "label": "Peinture intérieure",
+          "synonyms": []
+        },
+        {
+          "id": "PL_TRERIE_PLACO",
+          "label": "Plâtrerie / placo",
+          "synonyms": []
+        },
+        {
+          "id": "POSE_DE_CUISINE",
+          "label": "Pose de cuisine",
+          "synonyms": []
+        },
+        {
+          "id": "POSE_SANITAIRES",
+          "label": "Pose sanitaires",
+          "synonyms": []
+        },
+        {
+          "id": "RAVALEMENT_FA_ADE",
+          "label": "Ravalement façade",
+          "synonyms": []
+        },
+        {
+          "id": "R_NOVATION_CUISINE",
+          "label": "Rénovation cuisine",
+          "synonyms": []
+        },
+        {
+          "id": "R_NOVATION_SALLE_DE_BAIN",
+          "label": "Rénovation salle de bain",
+          "synonyms": []
+        },
+        {
+          "id": "SOL_SOUPLE_PVC_LINO",
+          "label": "Sol souple (PVC/lino)",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "BTP_SECOND_UVRE",
+      "label": "BTP • Second œuvre",
+      "order": null,
+      "jobs": [
+        {
+          "id": "DRESSING_PLACARDS",
+          "label": "Dressing / placards",
+          "synonyms": []
+        },
+        {
+          "id": "MENUISERIE_BOIS",
+          "label": "Menuiserie (bois)",
+          "synonyms": []
+        },
+        {
+          "id": "MENUISERIE_ALU_PVC",
+          "label": "Menuiserie alu/PVC",
+          "synonyms": []
+        },
+        {
+          "id": "M_TALLERIE_FERRONNERIE",
+          "label": "Métallerie / ferronnerie",
+          "synonyms": []
+        },
+        {
+          "id": "PORTE_DE_GARAGE",
+          "label": "Porte de garage",
+          "synonyms": []
+        },
+        {
+          "id": "POSE_FEN_TRES_PORTES",
+          "label": "Pose fenêtres & portes",
+          "synonyms": []
+        },
+        {
+          "id": "SOUDURE",
+          "label": "Soudure",
+          "synonyms": []
+        },
+        {
+          "id": "VOLETS_STORES",
+          "label": "Volets / stores",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "BTP_TUDES",
+      "label": "BTP • Études",
+      "order": null,
+      "jobs": [
+        {
+          "id": "ARCHITECTE",
+          "label": "Architecte",
+          "synonyms": []
+        },
+        {
+          "id": "BUREAU_D_TUDES",
+          "label": "Bureau d’études",
+          "synonyms": []
+        },
+        {
+          "id": "G_OM_TRE",
+          "label": "Géomètre",
+          "synonyms": []
+        },
+        {
+          "id": "MA_TRE_D_UVRE",
+          "label": "Maître d’œuvre",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "COURS_COACHING",
+      "label": "Cours & coaching",
+      "order": null,
+      "jobs": [
+        {
+          "id": "COACH_SPORTIF",
+          "label": "Coach sportif",
+          "synonyms": []
+        },
+        {
+          "id": "COACHING_D_VELOPPEMENT_PERSO",
+          "label": "Coaching / développement perso",
+          "synonyms": []
+        },
+        {
+          "id": "COACHING_NUTRITION",
+          "label": "Coaching nutrition",
+          "synonyms": []
+        },
+        {
+          "id": "COURS_DE_DANSE",
+          "label": "Cours de danse",
+          "synonyms": []
+        },
+        {
+          "id": "COURS_DE_LANGUES",
+          "label": "Cours de langues",
+          "synonyms": []
+        },
+        {
+          "id": "COURS_DE_MUSIQUE",
+          "label": "Cours de musique",
+          "synonyms": []
+        },
+        {
+          "id": "FORMATION_ENTREPRISE",
+          "label": "Formation entreprise",
+          "synonyms": []
+        },
+        {
+          "id": "SOUTIEN_SCOLAIRE",
+          "label": "Soutien scolaire",
+          "synonyms": []
+        },
+        {
+          "id": "YOGA_PILATES",
+          "label": "Yoga / Pilates",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "D_M_NAGEMENT_LOGISTIQUE",
+      "label": "Déménagement & logistique",
+      "order": null,
+      "jobs": [
+        {
+          "id": "D_BARRAS",
+          "label": "Débarras",
+          "synonyms": []
+        },
+        {
+          "id": "D_M_NAGEMENT",
+          "label": "Déménagement",
+          "synonyms": []
+        },
+        {
+          "id": "GARDE_MEUBLE_STOCKAGE",
+          "label": "Garde-meuble / stockage",
+          "synonyms": []
+        },
+        {
+          "id": "MONTE_MEUBLE",
+          "label": "Monte-meuble",
+          "synonyms": []
+        },
+        {
+          "id": "TRANSPORT_LIVRAISON",
+          "label": "Transport / livraison",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "INFORMATIQUE_NUM_RIQUE",
+      "label": "Informatique & numérique",
+      "order": null,
+      "jobs": [
+        {
+          "id": "CR_ATION_DE_SITE_WEB",
+          "label": "Création de site web",
+          "synonyms": []
+        },
+        {
+          "id": "D_PANNAGE_INFORMATIQUE",
+          "label": "Dépannage informatique",
+          "synonyms": []
+        },
+        {
+          "id": "GRAPHISME_LOGO",
+          "label": "Graphisme / logo",
+          "synonyms": []
+        },
+        {
+          "id": "R_PARATION_PC_MAC",
+          "label": "Réparation PC/Mac",
+          "synonyms": []
+        },
+        {
+          "id": "R_PARATION_SMARTPHONE_TABLETTE",
+          "label": "Réparation smartphone/tablette",
+          "synonyms": []
+        },
+        {
+          "id": "SEO_R_F_RENCEMENT",
+          "label": "SEO / référencement",
+          "synonyms": []
+        },
+        {
+          "id": "WI_FI_R_SEAU",
+          "label": "Wi‑Fi / réseau",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "JARDIN_EXT_RIEUR",
+      "label": "Jardin & extérieur",
+      "order": null,
+      "jobs": [
+        {
+          "id": "AM_NAGEMENT_PAYSAGER",
+          "label": "Aménagement paysager",
+          "synonyms": []
+        },
+        {
+          "id": "ARROSAGE_AUTOMATIQUE",
+          "label": "Arrosage automatique",
+          "synonyms": []
+        },
+        {
+          "id": "D_BROUSSAILLAGE",
+          "label": "Débroussaillage",
+          "synonyms": []
+        },
+        {
+          "id": "JARDINAGE",
+          "label": "Jardinage",
+          "synonyms": []
+        },
+        {
+          "id": "TAILLE_DE_HAIES",
+          "label": "Taille de haies",
+          "synonyms": []
+        },
+        {
+          "id": "LAGAGE_ABATTAGE",
+          "label": "Élagage / abattage",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "MAISON_D_PANNAGE",
+      "label": "Maison & dépannage",
+      "order": null,
+      "jobs": [
+        {
+          "id": "BRICOLAGE_PETITS_TRAVAUX",
+          "label": "Bricolage / petits travaux",
+          "synonyms": []
+        },
+        {
+          "id": "INSTALLATION_LECTROM_NAGER",
+          "label": "Installation électroménager",
+          "synonyms": []
+        },
+        {
+          "id": "MONTAGE_DE_MEUBLES",
+          "label": "Montage de meubles",
+          "synonyms": []
+        },
+        {
+          "id": "PETITE_PLOMBERIE",
+          "label": "Petite plomberie",
+          "synonyms": []
+        },
+        {
+          "id": "PETITE_LECTRICIT",
+          "label": "Petite électricité",
+          "synonyms": []
+        },
+        {
+          "id": "POSE_TV_SUPPORT_MURAL",
+          "label": "Pose TV / support mural",
+          "synonyms": []
+        },
+        {
+          "id": "POSE_TAG_RES_CADRES",
+          "label": "Pose étagères / cadres",
+          "synonyms": []
+        },
+        {
+          "id": "R_PARATION_LECTROM_NAGER",
+          "label": "Réparation électroménager",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "NETTOYAGE_SERVICES",
+      "label": "Nettoyage & services",
+      "order": null,
+      "jobs": [
+        {
+          "id": "M_NAGE_ENTRETIEN_MAISON",
+          "label": "Ménage / entretien maison",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_BUREAUX",
+          "label": "Nettoyage bureaux",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_CANAP_TAPIS",
+          "label": "Nettoyage canapé/tapis",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_EXT_RIEUR_KARCHER",
+          "label": "Nettoyage extérieur (karcher)",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_FA_ADE",
+          "label": "Nettoyage façade",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_FIN_DE_CHANTIER",
+          "label": "Nettoyage fin de chantier",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_TOITURE",
+          "label": "Nettoyage toiture",
+          "synonyms": []
+        },
+        {
+          "id": "NETTOYAGE_VITRES",
+          "label": "Nettoyage vitres",
+          "synonyms": []
+        },
+        {
+          "id": "REPASSAGE",
+          "label": "Repassage",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "NUISIBLES",
+      "label": "Nuisibles",
+      "order": null,
+      "jobs": [
+        {
+          "id": "D_RATISATION",
+          "label": "Dératisation",
+          "synonyms": []
+        },
+        {
+          "id": "D_SINFECTION",
+          "label": "Désinfection",
+          "synonyms": []
+        },
+        {
+          "id": "D_SINSECTISATION",
+          "label": "Désinsectisation",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "SERVICES_ENTREPRISE",
+      "label": "Services entreprise",
+      "order": null,
+      "jobs": [
+        {
+          "id": "COMMUNITY_MANAGEMENT",
+          "label": "Community management",
+          "synonyms": []
+        },
+        {
+          "id": "COMPTABILIT_ENTREPRISE",
+          "label": "Comptabilité (entreprise)",
+          "synonyms": []
+        },
+        {
+          "id": "DIAGNOSTIC_IMMOBILIER",
+          "label": "Diagnostic immobilier",
+          "synonyms": []
+        },
+        {
+          "id": "IMMOBILIER_AGENT",
+          "label": "Immobilier (agent)",
+          "synonyms": []
+        },
+        {
+          "id": "JURIDIQUE_ENTREPRISE",
+          "label": "Juridique (entreprise)",
+          "synonyms": []
+        },
+        {
+          "id": "MARKETING_PUB",
+          "label": "Marketing / pub",
+          "synonyms": []
+        },
+        {
+          "id": "SECR_TARIAT_ASSISTANCE",
+          "label": "Secrétariat / assistance",
+          "synonyms": []
+        },
+        {
+          "id": "TRADUCTION",
+          "label": "Traduction",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "S_CURIT",
+      "label": "Sécurité",
+      "order": null,
+      "jobs": [
+        {
+          "id": "AGENT_DE_S_CURIT",
+          "label": "Agent de sécurité",
+          "synonyms": []
+        },
+        {
+          "id": "ALARME_S_CURIT",
+          "label": "Alarme / sécurité",
+          "synonyms": []
+        },
+        {
+          "id": "GARDIENNAGE",
+          "label": "Gardiennage",
+          "synonyms": []
+        },
+        {
+          "id": "INTERPHONIE",
+          "label": "Interphonie",
+          "synonyms": []
+        },
+        {
+          "id": "PORTE_BLIND_E",
+          "label": "Porte blindée",
+          "synonyms": []
+        },
+        {
+          "id": "VID_OSURVEILLANCE",
+          "label": "Vidéosurveillance",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "TRANSPORT",
+      "label": "Transport",
+      "order": null,
+      "jobs": [
+        {
+          "id": "LOCATION_UTILITAIRE",
+          "label": "Location utilitaire",
+          "synonyms": []
+        },
+        {
+          "id": "LOCATION_VOITURE",
+          "label": "Location voiture",
+          "synonyms": []
+        },
+        {
+          "id": "TAXI_VTC",
+          "label": "Taxi / VTC",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "NERGIE",
+      "label": "Énergie",
+      "order": null,
+      "jobs": [
+        {
+          "id": "BORNE_DE_RECHARGE",
+          "label": "Borne de recharge",
+          "synonyms": []
+        },
+        {
+          "id": "PANNEAUX_SOLAIRES",
+          "label": "Panneaux solaires",
+          "synonyms": []
+        }
+      ]
+    },
+    {
+      "id": "V_NEMENTIEL_CR_ATION",
+      "label": "Événementiel & création",
+      "order": null,
+      "jobs": [
+        {
+          "id": "DJ",
+          "label": "DJ",
+          "synonyms": []
+        },
+        {
+          "id": "LOCATION_MAT_RIEL_V_NEMENT",
+          "label": "Location matériel événement",
+          "synonyms": []
+        },
+        {
+          "id": "MONTAGE_VID_O",
+          "label": "Montage vidéo",
+          "synonyms": []
+        },
+        {
+          "id": "ORGANISATION_V_NEMENT",
+          "label": "Organisation événement",
+          "synonyms": []
+        },
+        {
+          "id": "PHOTO_VID_O_PRESTATAIRE",
+          "label": "Photo / vidéo (prestataire)",
+          "synonyms": []
+        },
+        {
+          "id": "PHOTOGRAPHE",
+          "label": "Photographe",
+          "synonyms": []
+        },
+        {
+          "id": "P_TISSERIE_G_TEAUX",
+          "label": "Pâtisserie / gâteaux",
+          "synonyms": []
+        },
+        {
+          "id": "SONORISATION_LUMI_RE",
+          "label": "Sonorisation / lumière",
+          "synonyms": []
+        },
+        {
+          "id": "TRAITEUR",
+          "label": "Traiteur",
+          "synonyms": []
+        },
+        {
+          "id": "VID_ASTE",
+          "label": "Vidéaste",
+          "synonyms": []
         }
       ]
     }

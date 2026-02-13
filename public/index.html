@@ -7,9 +7,9 @@
   <meta name="description" content="Décris ton besoin. Ta demande apparaît sur le mur (coordonnées masquées). Des personnes intéressées te contactent. Tu choisis." />
   <meta name="theme-color" content="#ff3b0a" />
 
-  <link rel="stylesheet" href="./styles.css?v=assumed21" />
-  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed21" />
-  <script defer src="./assets/js/dx-include-header.js?v=assumed22"></script>
+  <link rel="stylesheet" href="./styles.css?v=assumed23" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=assumed23" />
+  <script defer src="./assets/js/dx-include-header.js?v=assumed23"></script>
 </head>
 
 <body>
@@ -36,8 +36,6 @@
 
         <div class="dxMiniProof" style="margin-top:12px;">
           <a class="dxLink" href="./mur-demandes.html">Voir le mur des demandes (sans coordonnées)</a>
-<div style="margin-top:14px;">
-  <div class="notice muted" style="margin-bottom:8px;">Vidéo de présentation</div>
   <video controls playsinline preload="metadata" style="width:100%;border-radius:14px;border:1px solid rgba(0,0,0,.08);background:#000;">
     <source src="./video.mp4?v=1" type="video/mp4" />
     Ton navigateur ne supporte pas la vidéo.
@@ -65,10 +63,10 @@
         <div class="dxHeroCard">
           <h2 class="dxHeroCard__t">Découvrir en vidéo</h2>
 
-          <button id="dxOpenVideo" class="dxVideoThumb" type="button" aria-label="Lire la vidéo">
-            <span class="dxVideoPlay" aria-hidden="true">▶</span>
-            <span class="dxVideoText">Cliquer pour lancer (10s)</span>
-          </button>
+          <video controls playsinline preload="metadata" style="width:100%;border-radius:14px;border:1px solid rgba(0,0,0,.08);background:#000;">
+            <source src="./video.mp4?v=1" type="video/mp4" />
+            Ton navigateur ne supporte pas la vidéo.
+          </video>
 
           <p class="dxSmall" style="margin-top:10px;">
             Aucun compte pour publier une demande. Les coordonnées restent masquées sur le mur.
@@ -95,48 +93,6 @@
     (function(){
       var y = document.getElementById('year');
       if(y) y.textContent = new Date().getFullYear();
-    })();
-
-    (function(){
-      var btn = document.getElementById('dxOpenVideo');
-      if(!btn) return;
-
-      function closeModal(modal){
-        try { modal.remove(); } catch(e) {}
-        document.body.classList.remove('dxNoScroll');
-      }
-
-      btn.addEventListener('click', function(){
-        var overlay = document.createElement('div');
-        overlay.className = 'dxModalOverlay';
-
-        var modal = document.createElement('div');
-        modal.className = 'dxModal';
-
-        var close = document.createElement('button');
-        close.className = 'dxModalClose';
-        close.type = 'button';
-        close.setAttribute('aria-label','Fermer');
-        close.textContent = '×';
-
-        var video = document.createElement('video');
-        video.setAttribute('controls','');
-        video.setAttribute('playsinline','');
-        video.style.width = '100%';
-        video.style.borderRadius = '14px';
-        video.src = './video.mp4?v=' + Date.now();
-
-        close.addEventListener('click', function(){ closeModal(overlay); });
-        overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(overlay); });
-
-        modal.appendChild(close);
-        modal.appendChild(video);
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-        document.body.classList.add('dxNoScroll');
-
-        try { video.play(); } catch(e) {}
-      });
     })();
   </script>
 

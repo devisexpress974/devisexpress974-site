@@ -145,14 +145,9 @@ document.addEventListener("DOMContentLoaded", () => {
       STATE.me = null;
     }
   }
-
-    async function fetchServices(){
-    // La liste métiers est désormais remplie par assets/js/dx-services.js (source unique lexique)
+  async function fetchServices(){
+    // La liste métiers est remplie par assets/js/dx-services.js
     return;
-  }
-    }catch(e){
-      // keep defaults
-    }
   }
 
   function render(){
@@ -569,7 +564,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function fetchFirst(){
-    try{
   STATE.loading = true;
   STATE.items = [];
   STATE.offset = 0;
