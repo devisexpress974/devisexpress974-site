@@ -15,10 +15,11 @@
 
   document.addEventListener("DOMContentLoaded", function(){
     var tx = getParam("tx") || getParam("txn_id");
+    var subId = getParam("subscription_id") || getParam("sub_id") || getParam("ba_token");
     var st = getParam("st");
 
-    if(!tx){
-      setMsg("Transaction manquante (tx). Tu peux retourner au mur.");
+    if(!tx && !subId){
+      setMsg("Identifiant PayPal manquant (tx / subscription_id). Tu peux retourner au mur.");
       return;
     }
 
@@ -35,15 +36,22 @@
 
     var target = "mur-demandes.html";
     if(type === "ponctuel"){
-      if(id){
+      if(!tx){
+        target = "mur-demandes.html?paid=1";
+      }else if(id){
         target = "paiement-ponctuel.html?id=" + encodeURIComponent(id) + "&tx=" + encodeURIComponent(tx);
       }else{
         target = "paiement-ponctuel.html?tx=" + encodeURIComponent(tx);
       }
     }else if(type === "pack"){
-      target = "paiement-pack.html?tx=" + encodeURIComponent(tx);
+      if(!tx) target = "mur-demandes.html?paid=1";
+      else target = "paiement-pack.html?tx=" + encodeURIComponent(tx);
     }else if(type === "abonnement"){
-      target = "paiement-abonnement.html" + (id ? ("?id=" + encodeURIComponent(id) + "&tx=" + encodeURIComponent(tx)) : ("?tx=" + encodeURIComponent(tx)));
+      if(subId){
+        target = "paiement-abonnement.html" + (id ? ("?id=" + encodeURIComponent(id) + "&subscription_id=" + encodeURIComponent(subId)) : ("?subscription_id=" + encodeURIComponent(subId)));
+      }else{
+        target = "paiement-abonnement.html" + (id ? ("?id=" + encodeURIComponent(id) + "&tx=" + encodeURIComponent(tx)) : ("?tx=" + encodeURIComponent(tx)));
+      }
     }else{
       // fallback : si st est "Completed", on renvoie au mur (le mur affichera la situation)
       target = "mur-demandes.html?paid=1";

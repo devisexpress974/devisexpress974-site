@@ -17,11 +17,13 @@
     }catch(e){}
   }
 
-  async function post(action, payload){
-    if(!window.DX_API || typeof window.DX_API.post !== "function"){
-      throw new Error("DX_API indisponible");
-    }
-    return await window.DX_API.post(action, payload || {});
+  async function callConfirm(payload){
+    const resp = await fetch("/.netlify/functions/paypal-confirm", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    return await resp.json().catch(() => ({}));
   }
 
   function isLogged(){
@@ -62,20 +64,32 @@
     }
   }
 
-  async function confirm(tx, demandeId, next){
-    if(!tx){
-      setMsg("Transaction (tx) manquante.");
+  async function confirm(tx, subId, demandeId, next){
+    var token = String(localStorage.getItem("dx_token") || localStorage.getItem("DX_TOKEN") || "").trim();
+    if(!token){
+      redirectToLogin();
       return;
     }
+    var sid = String(subId || "").trim();
+    var t = String(tx || "").trim();
+
+    if(!sid && t){
+      // Certains retours PayPal mettent l'ID d'abonnement dans "tx" : on accepte si ça ressemble à I-XXXX
+      if(/^I-[A-Z0-9]+$/i.test(t)) sid = t;
+    }
+
+    if(!sid){
+      setMsg("subscription_id manquant (abonnement).");
+      return;
+    }
+
     setMsg("Confirmation PayPal en cours…");
-    var res = await post("confirmPayPalPayment", { tx: tx, product: "abonnement" });
+    var res = await callConfirm({ token: token, product: "abonnement", subscription_id: sid });
+
     if(!res || !res.ok){
       setMsg((res && (res.error || res.message)) ? (res.error || res.message) : "Confirmation impossible.");
       return;
     }
-
-    var until = (res.data && (res.data.aboPaidUntil || res.data.AboPaidUntil)) || "";
-    if(until) setMsg("Abonnement activé jusqu’au " + until);
 
     // Redirection
     if(demandeId){
@@ -83,7 +97,6 @@
       return;
     }
     if(next){
-      // sécurité : on accepte seulement une page interne simple
       next = safeDecode(next);
       if(/^[a-z0-9\-_/]+\.html(\?.*)?$/i.test(next)){
         window.location.href = next + (next.indexOf("?")>=0 ? "&" : "?") + "abo=1";
@@ -102,6 +115,7 @@
     var p = qs();
     var demandeId = String(p.get("id") || p.get("demandeId") || "").trim();
     var tx = String(p.get("tx") || p.get("txn_id") || "").trim();
+    var subId = String(p.get("subscription_id") || p.get("sub_id") || p.get("subscriptionId") || "").trim();
     var next = String(p.get("next") || "").trim();
 
     setPayLinks(demandeId);
@@ -115,7 +129,7 @@
             t = String(prompt("Colle ici le 'tx' (Transaction ID) PayPal :", "") || "").trim();
           }
           if(!t) return;
-          await confirm(t, demandeId, next);
+          await confirm(t, subId, demandeId, next);
         }catch(err){
           setMsg(err && err.message ? err.message : "Erreur.");
         }
@@ -123,9 +137,9 @@
     }
 
     // Auto-confirm si tx dans l'URL
-    if(tx){
+    if(subId || tx){
       setTimeout(function(){
-        confirm(tx, demandeId, next).catch(function(e){
+        confirm(tx, subId, demandeId, next).catch(function(e){
           setMsg(e && e.message ? e.message : "Erreur.");
         });
       }, 250);

@@ -19,6 +19,29 @@ function cfg_(){
 }
 
 // ======================
+// SECURITY : secret serveur (Netlify -> GAS)
+// ======================
+// IMPORTANT : mettre DX_SECRET dans les "Script properties" (Apps Script),
+// et la même valeur dans les variables d'environnement Netlify (DX_SECRET).
+function getDxSecret_(){
+  return String(PROP.getProperty("DX_SECRET") || "").trim();
+}
+function secretOk_(p){
+  var expect = getDxSecret_();
+  var got = String((p && p.dx_secret) || "").trim();
+  return !!(expect && got && got === expect);
+}
+function requireSecret_(p){
+  if(!secretOk_(p)) return { ok:false, error:"Opération protégée (DX_SECRET requis)." };
+  return null;
+}
+function requirePayOk_(p){
+  var v = (p && (p.pay_ok || p.verified)) || false;
+  var ok = (v === true || v === "true" || v === 1 || v === "1");
+  if(!ok) return { ok:false, error:"Paiement non vérifié." };
+  return null;
+}
+// ======================
 // DEMANDEUR : lien retrait sécurisé (id + k)
 // ======================
 function getOrCreateSecret_(propName){
@@ -447,12 +470,12 @@ case "getDemande":
       case "activatePack":
       case "buyPack10":
       case "activatePack10":
-        return json_(activatePack_(tokenFrom_(e, body)));
+        return json_(activatePack_(tokenFrom_(e, body), body));
 
       case "activateAbonnement":
       case "activateSubscription":
       case "activateAbo":
-        return json_(activateAbonnement_(tokenFrom_(e, body)));
+        return json_(activateAbonnement_(tokenFrom_(e, body), body));
 
       case "confirmPayPalPayment":
         return json_(confirmPayPalPayment_(tokenFrom_(e, body), body));
@@ -1967,7 +1990,12 @@ function whoami_(token){
   };
 }
 
-function activatePack_(token){
+function activatePack_(token, body){
+
+  body = body || {};
+  var sec = requireSecret_(body); if(sec) return sec;
+  var pay = requirePayOk_(body); if(pay) return pay;
+
   var sess = sessionGet_(token);
   if(!sess) return { ok:false, error:"Connexion requise" };
 
@@ -1983,7 +2011,10 @@ function activatePack_(token){
   return { ok:true, credits: credits, plan:"PACK" };
 }
 
-function activateAbonnement_(token){
+function activateAbonnement_(token, body){
+
+  body = body || {};
+
   var sess = sessionGet_(token);
   if(!sess) return { ok:false, error:"Connexion requise" };
 
@@ -1991,6 +2022,7 @@ function activateAbonnement_(token){
   if(!r) return { ok:false, error:"Compte introuvable" };
 
   var extra = getOffreurExtra_(r);
+  var subId = String(body.subscription_id || body.sub_id || body.subscriptionId || "").trim();
 
   // Déjà activé
   if(String(extra.plan||"").toUpperCase()==="ABO" || String(extra.aboActive||"").toUpperCase()==="OUI"){
@@ -2029,7 +2061,8 @@ function activateAbonnement_(token){
     AboPaid: "NON",
     TrialUsed: "OUI",
     TrialEnd: trialEnd.toISOString(),
-    TrialWarned: ""
+    TrialWarned: "",
+    SubId: subId
   });
 
   return { ok:true, plan:"ABO", aboActive:"OUI", trialEnd: trialEnd.toISOString() };
@@ -2115,6 +2148,13 @@ function grantAccess_(e, body){
     else if(Number(extra.credits||0) > 0) type = "credit";
     else type = "ponctuel";
   }
+
+  // Sécurité paiement : le mode ponctuel nécessite une validation serveur (DX_SECRET + pay_ok)
+  if(type === "ponctuel"){
+    var sec2 = requireSecret_(body); if(sec2) return sec2;
+    var pay2 = requirePayOk_(body); if(pay2) return pay2;
+  }
+
 
   // règles
   if(type === "credit"){
@@ -2476,6 +2516,9 @@ function ensurePaymentsSheet_(){
 
 function confirmPayPalPayment_(token, body){
   body = body || {};
+  var sec = requireSecret_(body); if(sec) return sec;
+  var pay = requirePayOk_(body); if(pay) return pay;
+
   var sess = sessionGet_(token);
   if(!sess) return { ok:false, error:"Connexion requise" };
 
@@ -2514,16 +2557,16 @@ function confirmPayPalPayment_(token, body){
   if(product === "ponctuel"){
     if(!demandeId) return { ok:false, error:"Identifiant de demande manquant." };
     // Débloque accès ponctuel
-    return grantAccess_({ parameter:{} }, { token: token, demandeId: demandeId, type: "ponctuel" });
+    return grantAccess_({ parameter:{} }, { token: token, demandeId: demandeId, type: "ponctuel", pay_ok:true, dx_secret: getDxSecret_() });
   }
 
   if(product === "pack" || product === "pack10"){
-    return activatePack_(token);
+    return activatePack_(token, { pay_ok:true, dx_secret: getDxSecret_() });
   }
 
   if(product === "abonnement" || product === "abo"){
     // Active l'abonnement (mois offert géré par activateAbonnement_)
-    return activateAbonnement_(token);
+    return activateAbonnement_(token, { pay_ok:true, dx_secret: getDxSecret_(), subscription_id: String(body.subscription_id || body.sub_id || "") });
   }
 
   return { ok:false, error:"Produit inconnu." };

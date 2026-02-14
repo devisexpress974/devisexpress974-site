@@ -31,7 +31,11 @@
     const out = [];
     (Array.isArray(list) ? list : []).forEach(x=>{
       if(!x) return;
-      const cat = norm(x.category || "Autres") || "Autres";
+      const catRaw = norm(x.category || "Autres") || "Autres";
+      const parts = catRaw.split("•").map(s=>norm(s)).filter(Boolean);
+      const main = parts[0] || "Autres";
+      const sub = parts[1] || "";
+      const cat = sub ? `${main} • ${sub}` : main;
       const raw = norm(x.label || x.name || x.title || "");
       if(!raw) return;
 

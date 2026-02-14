@@ -107,10 +107,8 @@ if (!gasUrl){
     };
   }
 
-  // Optional secret injection (never expose secret to client)
-  if (process.env.DX_SECRET){
-    payload.dx_secret = process.env.DX_SECRET;
-  }
+  // NOTE: On n'injecte PLUS DX_SECRET ici.
+  // Les opérations sensibles (paiements) passent par une fonction dédiée qui vérifie PayPal côté serveur.
 
   try{
     const res = await fetch(gasUrl, {

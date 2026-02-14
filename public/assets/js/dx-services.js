@@ -43,61 +43,81 @@
 
   function buildCatsFromServices(list){
     // list = [ {service_id, category, label} ... ]
-    var map = {};
-    var order = [];
+    function splitCat(catRaw){
+      catRaw = String(catRaw || "Autres").trim() || "Autres";
+      // Catégorie • Sous-catégorie (si présent)
+      var parts = catRaw.split("•").map(function(x){ return String(x||"").trim(); }).filter(Boolean);
+      var main = parts[0] || "Autres";
+      var sub  = parts[1] || "";
+      return { main: main, sub: sub, full: sub ? (main + " • " + sub) : main };
+    }
+
+    var map = {};   // fullCat -> [ {value,text} ]
+    var order = []; // fullCat[]
+    var meta = {};  // fullCat -> {main,sub}
+
     (Array.isArray(list) ? list : []).forEach(function(x){
       if(!x) return;
-      var cat = String(x.category || "Autres").trim() || "Autres";
       var label = String(x.label || x.name || x.title || "").trim();
       if(!label) return;
+
+      var catInfo = splitCat(x.category);
+      var fullCat = catInfo.full;
+      meta[fullCat] = catInfo;
 
       // Harmonisation "Autre" (déclenche l'input 'autreService' côté demande)
       var isAutre = normalize(label).indexOf("autre") === 0;
       var opt = { value: isAutre ? "Autre" : label, text: isAutre ? "Autre (préciser)" : label };
 
-      if(!map[cat]){
-        map[cat] = [];
-        order.push(cat);
+      if(!map[fullCat]){
+        map[fullCat] = [];
+        order.push(fullCat);
       }
-      map[cat].push(opt);
+      map[fullCat].push(opt);
     });
 
-    // tri catégories alpha, mais "Autres" en dernier
+    // tri catégories alpha (Catégorie puis Sous-catégorie), mais "Autres" en dernier
     order.sort(function(a,b){
-      var na = normalize(a), nb = normalize(b);
-      if(na === "autres") return 1;
-      if(nb === "autres") return -1;
-      return a.localeCompare(b,'fr',{sensitivity:'base'});
+      var A = meta[a] || {main:a, sub:""};
+      var B = meta[b] || {main:b, sub:""};
+      var na = normalize(A.main), nb = normalize(B.main);
+      if(na === "autres" && nb !== "autres") return 1;
+      if(nb === "autres" && na !== "autres") return -1;
+      var c = String(A.main).localeCompare(String(B.main), "fr", { sensitivity:"base" });
+      if(c !== 0) return c;
+      return String(A.sub||"").localeCompare(String(B.sub||""), "fr", { sensitivity:"base" });
     });
 
     var cats = [];
-    order.forEach(function(cat){
-      var items = map[cat] || [];
-      // unique par value+text
-      items.sort(function(a,b){ return String(a.text).localeCompare(String(b.text),'fr',{sensitivity:'base'}); });
-      var uniq = [];
+    order.forEach(function(fullCat){
+      var items = map[fullCat] || [];
+      items.sort(function(a,b){
+        return String(a.text).localeCompare(String(b.text), "fr", { sensitivity:"base" });
+      });
+
+      // "Autre (préciser)" toujours en dernier dans son groupe
+      var autre = [];
+      var normal = [];
+      for(var i=0;i<items.length;i++){
+        if(items[i] && items[i].value === "Autre") autre.push(items[i]);
+        else normal.push(items[i]);
+      }
+
+      // dédoublonnage (value+text)
       var seen = {};
-      items.forEach(function(it){
+      var uniq = [];
+      (normal.concat(autre)).forEach(function(it){
+        if(!it) return;
         var key = it.value + "||" + it.text;
         if(seen[key]) return;
-        seen[key] = true;
+        seen[key]=1;
         uniq.push(it);
       });
 
-      // "Autre (préciser)" toujours tout en bas
-      var autreIdx = -1;
-      for(var ai=0; ai<uniq.length; ai++){
-        if(uniq[ai] && uniq[ai].value === "Autre"){ autreIdx = ai; break; }
-      }
-      if(autreIdx >= 0){
-        var autre = uniq.splice(autreIdx,1)[0];
-        uniq.push(autre);
-      }
-
-      if(uniq.length) cats.push({ label: cat, items: uniq });
+      if(uniq.length) cats.push({ label: fullCat, items: uniq });
     });
 
-    // s'assurer que l'option "Autre" existe tout à la fin
+    // s'assurer que l'option "Autre" existe tout à la fin (au cas où)
     var hasAutre = cats.some(function(c){
       return (c.items || []).some(function(it){ return it && it.value === "Autre"; });
     });
