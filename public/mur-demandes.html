@@ -12,6 +12,7 @@
 
   <link rel="stylesheet" href="./styles.css?v=60" />
   <link rel="stylesheet" href="./assets/css/dx-header.css?v=60" />
+  <link rel="stylesheet" href="./assets/css/dx-searchable-select.css?v=60" />
   <link rel="stylesheet" href="./assets/css/mur-demandes.css?v=200" />
   <script defer src="./assets/js/dx-include-header.js?v=60"></script>
 </head>
@@ -39,7 +40,7 @@
             <label for="zoneFilter">Zone</label>
             <div class="selectWrap">
               <select id="zoneFilter">
-                <option>Sur toute l'île</option>
+                <option value="">Sur toute l'île</option>
                 <option>Nord</option>
                 <option>Sud</option>
                 <option>Est</option>
@@ -70,8 +71,7 @@
 
         <div class="formActions">
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btnPrimary" id="btnReload" type="button">Recharger</button>
-            <a class="btn" href="demande.html">Publier une demande</a>
+<a class="btn" href="demande.html">Publier une demande</a>
             <a class="btn" href="offreurs.html">Voir les offreurs</a>
           </div>
           <div class="notice muted" id="countBox">—</div>
@@ -82,7 +82,7 @@
         <div class="empty" id="empty" style="display:none;">Aucune demande ne correspond à tes filtres.</div>
 
         <div class="pager" id="pager" style="display:none;">
-          <button class="btn" id="moreBtn" type="button">Voir plus…</button>
+          <button class="btn" id="moreBtn" type="button">Voir plus de demandes</button>
         </div>
       </section>
     </div>
@@ -103,8 +103,9 @@
 
   <script src="./api.js?v=42"></script>
   <script src="./dx-geo-communes.js?v=8"></script>
-    <script src="./assets/js/dx-services.js?v=21"></script>
-  <script src="./mur-demandes.js?v=321"></script>
+  <script src="./assets/js/dx-searchable-select.js?v=60"></script>
+  <script src="./assets/js/dx-services.js?v=22"></script>
+  <script src="./mur-demandes.js?v=400"></script>
   <script>document.getElementById("y").textContent = new Date().getFullYear();</script>
 </body>
 </html>

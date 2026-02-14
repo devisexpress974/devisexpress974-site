@@ -11,15 +11,12 @@ var DEFAULT_SHEET_ID = "1iJlfs-X4hY1NYkFrw_LBt5BLsWL3C6ZOZi8-zUxKrts";
 var PROP = PropertiesService.getScriptProperties();
 
 function cfg_(){
-  // ⚠️ IMPORTANT: on force la feuille par défaut pour éviter qu'une mauvaise Script Property "SHEET_ID"
-  // (souvent oubliée ou mal renseignée) fasse pointer le backend vers une autre base => mur vide.
   return {
-    SHEET_ID: DEFAULT_SHEET_ID,
+    SHEET_ID: PROP.getProperty("SHEET_ID") || DEFAULT_SHEET_ID,
     OWNER_EMAIL: PROP.getProperty("OWNER_EMAIL") || "",
     SITE_URL: PROP.getProperty("SITE_URL") || "" // ex: https://devisexpress974.netlify.app
   };
 }
-
 
 // ======================
 // DEMANDEUR : lien retrait sécurisé (id + k)

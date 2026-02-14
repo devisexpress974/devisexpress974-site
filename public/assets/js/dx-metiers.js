@@ -1,4 +1,5 @@
-// assets/js/dx-metiers.js (v21) — Lexique métiers (A→Z) + recherche + popup 3 actions
+// assets/js/dx-metiers.js (v22) — Index métiers (A→Z) + recherche + popup 3 actions
+// Source unique : services_devisexpress974.json (mêmes libellés que les filtres / formulaires)
 (() => {
   "use strict";
 
@@ -15,32 +16,46 @@
   function esc(s){
     return String(s||"").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   }
-
   function byFR(a,b){
     return norm(a).localeCompare(norm(b), "fr", { sensitivity:"base" });
   }
+  function nlow(s){ return norm(s).toLowerCase(); }
 
-  async function loadLexique(){
-    const res = await fetch("./assets/data/lexique-metiers.json?v=1", { cache: "no-store" });
+  async function loadServices(){
+    const res = await fetch("./assets/data/services_devisexpress974.json?v=1", { cache: "no-store" });
     if(!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   }
 
-  function flatten(lex){
+  function flatten(list){
     const out = [];
-    const cats = Array.isArray(lex && lex.categories) ? lex.categories : [];
-    cats.forEach(cat=>{
-      const catLabel = norm(cat.label || cat.name || cat.title || "Autres") || "Autres";
-      const jobs = Array.isArray(cat.jobs) ? cat.jobs : [];
-      jobs.forEach(j=>{
-        const job = norm(j.label || j.name || j.title || "");
-        if(!job) return;
-        out.push({ cat: catLabel, job });
+    (Array.isArray(list) ? list : []).forEach(x=>{
+      if(!x) return;
+      const cat = norm(x.category || "Autres") || "Autres";
+      const raw = norm(x.label || x.name || x.title || "");
+      if(!raw) return;
+
+      // Harmonisation "Autre"
+      const isAutre = nlow(raw).startsWith("autre");
+      out.push({
+        cat,
+        job: isAutre ? "Autre (préciser)" : raw,
+        value: isAutre ? "Autre" : raw
       });
     });
+
+    // unique par value
+    const seen = new Set();
+    const uniq = [];
+    out.forEach(it=>{
+      if(seen.has(it.value)) return;
+      seen.add(it.value);
+      uniq.push(it);
+    });
+
     // tri global A→Z
-    out.sort((a,b)=>byFR(a.job,b.job));
-    return out;
+    uniq.sort((a,b)=>byFR(a.job,b.job));
+    return uniq;
   }
 
   function buildAZ(items){
@@ -88,15 +103,15 @@
     });
   }
 
-  function openModal(job, cat){
+  function openModal(displayJob, cat, value){
     ensureModal();
     const modal = document.getElementById("dxJobModal");
     const title = document.getElementById("dxModalTitle");
     const sub = document.getElementById("dxModalSub");
-    title.textContent = job;
+    title.textContent = displayJob;
     sub.textContent = cat ? `Catégorie : ${cat}` : "";
 
-    const q = encodeURIComponent(job);
+    const q = encodeURIComponent(value || displayJob);
     document.getElementById("dxActDemande").href = `./demande.html?service=${q}`;
     document.getElementById("dxActMur").href = `./mur-demandes.html?service=${q}`;
     document.getElementById("dxActOffreur").href = `./offreur-register.html?service=${q}`;
@@ -125,7 +140,7 @@
         currentL = L;
         html += `</div><div class="azSection"><h2 class="azLetter" id="dx-${esc(L)}">${esc(L)}</h2><div class="azDivider"></div></div><div class="metiersCols">`;
       }
-      html += `<div class="metierItem"><a href="#" class="metierLink" data-job="${esc(it.job)}" data-cat="${esc(it.cat)}">${esc(it.job)}</a></div>`;
+      html += `<div class="metierItem"><a href="#" class="metierLink" data-job="${esc(it.job)}" data-cat="${esc(it.cat)}" data-value="${esc(it.value)}">${esc(it.job)}</a></div>`;
     });
     html += "</div>";
     els.host.innerHTML = html;
@@ -135,14 +150,18 @@
       const a = e.target.closest("a.metierLink");
       if(!a) return;
       e.preventDefault();
-      openModal(a.getAttribute("data-job") || "", a.getAttribute("data-cat") || "");
+      openModal(
+        a.getAttribute("data-job") || "",
+        a.getAttribute("data-cat") || "",
+        a.getAttribute("data-value") || ""
+      );
     });
   }
 
   function applySearch(items, query){
-    const q = norm(query).toLowerCase();
+    const q = nlow(query);
     if(!q) return items;
-    return items.filter(it => it.job.toLowerCase().includes(q) || it.cat.toLowerCase().includes(q));
+    return items.filter(it => nlow(it.job).includes(q) || nlow(it.cat).includes(q));
   }
 
   function setCount(n){
@@ -153,8 +172,8 @@
   document.addEventListener("DOMContentLoaded", async () => {
     if(!els.host) return;
     try{
-      const lex = await loadLexique();
-      const all = flatten(lex);
+      const list = await loadServices();
+      const all = flatten(list);
 
       const refresh = () => {
         const filtered = applySearch(all, els.search ? els.search.value : "");
@@ -166,11 +185,10 @@
         els.search.addEventListener("input", refresh);
       }
 
-      // pre-open via ?open=... (optional)
       refresh();
     }catch(e){
       console.error(e);
-      if(els.host) els.host.innerHTML = '<div class="notice err">Impossible de charger le lexique métiers.</div>';
+      if(els.host) els.host.innerHTML = '<div class="notice err">Impossible de charger la liste des métiers.</div>';
       if(els.count) els.count.textContent = "—";
     }
   });

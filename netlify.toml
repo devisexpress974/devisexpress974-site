@@ -5,10 +5,7 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# ----------------------------
-# Pretty URLs (sans .html)
-# ----------------------------
-
+# URLs propres (sans .html)
 [[redirects]]
   from = "/"
   to = "/index.html"
@@ -25,33 +22,48 @@
   status = 200
 
 [[redirects]]
-  from = "/offreurs"
-  to = "/offreurs.html"
-  status = 200
-
-[[redirects]]
   from = "/metiers"
   to = "/metiers.html"
   status = 200
 
 [[redirects]]
-  from = "/info-tarifs"
-  to = "/info-tarifs.html"
+  from = "/offreurs"
+  to = "/offreurs.html"
   status = 200
 
 [[redirects]]
-  from = "/contact"
-  to = "/contact.html"
+  from = "/connexion"
+  to = "/offreur-login.html"
   status = 200
 
 [[redirects]]
-  from = "/professionnels"
-  to = "/professionnels.html"
+  from = "/mon-compte"
+  to = "/mon-compte.html"
   status = 200
 
 [[redirects]]
-  from = "/faq"
-  to = "/faq.html"
+  from = "/paiement-abonnement"
+  to = "/paiement-abonnement.html"
+  status = 200
+
+[[redirects]]
+  from = "/paiement-pack"
+  to = "/paiement-pack.html"
+  status = 200
+
+[[redirects]]
+  from = "/paiement-ponctuel"
+  to = "/paiement-ponctuel.html"
+  status = 200
+
+[[redirects]]
+  from = "/paypal-return"
+  to = "/paypal-return.html"
+  status = 200
+
+[[redirects]]
+  from = "/paypal-cancel"
+  to = "/paypal-cancel.html"
   status = 200
 
 [[redirects]]
@@ -65,129 +77,18 @@
   status = 200
 
 [[redirects]]
-  from = "/confidentialite"
-  to = "/confidentialite.html"
-  status = 200
-
-[[redirects]]
-  from = "/cookies"
-  to = "/cookies.html"
-  status = 200
-
-[[redirects]]
   from = "/cgv"
   to = "/cgv.html"
   status = 200
 
-# (page existante dans ton projet)
+# SPA fallback (optionnel)
 [[redirects]]
-  from = "/cvg"
-  to = "/cvg.html"
+  from = "/faq"
+  to = "/faq.html"
   status = 200
 
-# ----------------------------
-# Pages “compte offreur”
-# ----------------------------
 
 [[redirects]]
-  from = "/offreur-register"
-  to = "/offreur-register.html"
-  status = 200
-
-[[redirects]]
-  from = "/offreur-login"
-  to = "/offreur-login.html"
-  status = 200
-
-[[redirects]]
-  from = "/offreur-compte"
-  to = "/offreur-compte.html"
-  status = 200
-
-[[redirects]]
-  from = "/offreur-profil"
-  to = "/offreur-profil.html"
-  status = 200
-
-[[redirects]]
-  from = "/offreur-notifications"
-  to = "/offreur-notifications.html"
-  status = 200
-
-[[redirects]]
-  from = "/offreur-abonnement"
-  to = "/offreur-abonnement.html"
-  status = 200
-
-[[redirects]]
-  from = "/offreur-reset"
-  to = "/offreur-reset.html"
-  status = 200
-
-[[redirects]]
-  from = "/offreur-unsubscribe"
-  to = "/offreur-unsubscribe.html"
-  status = 200
-
-# ----------------------------
-# Paiements / retours PayPal
-# ----------------------------
-
-[[redirects]]
-  from = "/paiement-ponctuel"
-  to = "/paiement-ponctuel.html"
-  status = 200
-
-[[redirects]]
-  from = "/paiement-pack"
-  to = "/paiement-pack.html"
-  status = 200
-
-[[redirects]]
-  from = "/paiement-pack10"
-  to = "/paiement-pack10.html"
-  status = 200
-
-[[redirects]]
-  from = "/paiement-abonnement"
-  to = "/paiement-abonnement.html"
-  status = 200
-
-[[redirects]]
-  from = "/paypal-return"
-  to = "/paypal-return.html"
-  status = 200
-
-[[redirects]]
-  from = "/paypal-cancel"
-  to = "/paypal-cancel.html"
-  status = 200
-
-# ----------------------------
-# Autres pages utilitaires
-# ----------------------------
-
-[[redirects]]
-  from = "/demande-detail"
-  to = "/demande-detail.html"
-  status = 200
-
-[[redirects]]
-  from = "/gerer-demande"
-  to = "/gerer-demande.html"
-  status = 200
-
-[[redirects]]
-  from = "/repondre-demandes"
-  to = "/repondre-demandes.html"
-  status = 200
-
-[[redirects]]
-  from = "/retirer-demande"
-  to = "/retirer-demande.html"
-  status = 200
-
-[[redirects]]
-  from = "/noter-offreur"
-  to = "/noter-offreur.html"
-  status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 404

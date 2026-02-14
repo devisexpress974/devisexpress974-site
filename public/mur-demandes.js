@@ -1,4 +1,4 @@
-// mur-demandes.js (v300) — Mur public "plié / déplié" + PJ + bouton "Voir plus"
+// mur-demandes.js (v401) — Mur public "plié / déplié" + PJ + bouton "Voir plus"
 document.addEventListener("DOMContentLoaded", () => {
   const serviceFilter = document.getElementById("serviceFilter");
   const zoneFilter = document.getElementById("zoneFilter");
@@ -95,6 +95,22 @@ document.addEventListener("DOMContentLoaded", () => {
       q: String(q && q.value || "").trim()
     };
   }
+
+  function apiParams(){
+    const p = currentParams();
+    const zoneNorm = norm(p.zone);
+    const isAllZone = (!p.zone) || zoneNorm === "sur toute l'île" || zoneNorm === "toute l'île";
+    const z = isAllZone ? "" : p.zone;
+
+    const serviceNorm = norm(p.service);
+    const isAllService = (!p.service) || serviceNorm === "tous les métiers" || serviceNorm === "toutes les catégories";
+    const svc = isAllService ? "" : p.service;
+
+    const c = isAllZone ? "" : p.commune;
+
+    return { service: svc, zone: z, commune: c, q: p.q };
+  }
+
 
   function applyClientFilters(items){
     const p = currentParams();
@@ -574,7 +590,7 @@ document.addEventListener("DOMContentLoaded", () => {
   try{
     const res = await window.DX_API.getAny(
       ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
-      { offset: 0, limit: STATE.limit, service: (serviceFilter && serviceFilter.value)||"", zone: (zoneFilter&&zoneFilter.value)||"", commune:(communeFilter&&communeFilter.value)||"", q:(q&&q.value)||"" }
+      { offset: 0, limit: STATE.limit, ...apiParams() }
     );
 
     const data = res && res.ok ? (res.data || res.items || res.demandes || []) : [];
@@ -613,7 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
   try{
     const res = await window.DX_API.getAny(
       ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
-      { offset: STATE.offset, limit: STATE.limit, service: (serviceFilter && serviceFilter.value)||"", zone: (zoneFilter&&zoneFilter.value)||"", commune:(communeFilter&&communeFilter.value)||"", q:(q&&q.value)||"" }
+      { offset: STATE.offset, limit: STATE.limit, ...apiParams() }
     );
 
     const data = res && res.ok ? (res.data || res.items || res.demandes || []) : [];
@@ -636,15 +652,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 }
 
-
   // events
   setCommuneOptions();
-  zoneFilter && zoneFilter.addEventListener("change", () => { setCommuneOptions(); render(); });
-  communeFilter && communeFilter.addEventListener("change", () => render());
-  serviceFilter && serviceFilter.addEventListener("change", () => render());
-  q && q.addEventListener("input", () => render());
 
-  btnReload && btnReload.addEventListener("click", () => fetchFirst());
+  // changement de filtres => recharge automatique des 10 dernières (plus besoin de bouton "Recharger")
+  const debounce = (fn, ms) => {
+    let t = null;
+    return () => {
+      if(t) clearTimeout(t);
+      t = setTimeout(fn, ms);
+    };
+  };
+
+  const debouncedFetch = debounce(fetchFirst, 350);
+
+  zoneFilter && zoneFilter.addEventListener("change", () => {
+    setCommuneOptions();
+    fetchFirst();
+  });
+
+  communeFilter && communeFilter.addEventListener("change", () => fetchFirst());
+  serviceFilter && serviceFilter.addEventListener("change", () => fetchFirst());
+
+  q && q.addEventListener("input", () => debouncedFetch());
+  q && q.addEventListener("change", () => fetchFirst());
+
   moreBtn && moreBtn.addEventListener("click", () => fetchMore());
 
   // boot
