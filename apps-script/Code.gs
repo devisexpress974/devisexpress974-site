@@ -2625,11 +2625,10 @@ function cancelAbonnement_(token){
   });
 
   return { ok:true, cancelAt: end.toISOString() };
+}
 
 function escapeHtml_(s){
   return String(s||"").replace(/[&<>"']/g, function(c){
     return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c];
   });
-}
-
 }

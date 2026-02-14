@@ -1,0 +1,13 @@
+PATCH 2026-02-14 (Fix demande + catégories)
+
+1) BUG BLOQUANT "escapeHtml_ is not defined" (Apps Script)
+- Corrigé dans apps-script/Code.gs : la fonction escapeHtml_ était accidentellement "dans" cancelAbonnement_ (accolades mal placées), donc invisible pour le reste du code.
+- Résultat : createDemande plantait au moment d'envoyer les emails -> la demande ne partait pas.
+
+2) MÉTIERS / CATÉGORIES (UI)
+- dx-searchable-select.js : la recherche au-dessus des <select> reconstruisait la liste et supprimait les optgroup (catégories/sous-catégories).
+- Corrigé : la recherche préserve maintenant les optgroup, donc les catégories/sous-catégories restent visibles + ordre A→Z.
+
+FICHIERS TOUCHÉS
+- apps-script/Code.gs
+- public/assets/js/dx-searchable-select.js

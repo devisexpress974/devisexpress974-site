@@ -1,6 +1,7 @@
-// DX Searchable Select (PATCH22) — simple, fast, no dependency
+// DX Searchable Select (PATCH46) — simple, fast, no dependency
 // - Ajoute un champ "Rechercher…" au-dessus d'un <select>
 // - Filtre les options en temps réel (accents ignorés)
+// - Préserve les <optgroup> (catégories / sous-catégories)
 // - Compatible avec les <select> re-remplis dynamiquement (refresh)
 (() => {
   const norm = (s) => (s ?? "")
@@ -30,36 +31,110 @@
     selectEl.parentNode.insertBefore(wrap, selectEl);
 
     const snapshot = () => {
-      selectEl._dxAllOptions = Array.from(selectEl.options).map((o) => ({
-        value: o.value,
-        text: o.textContent || o.innerText || "",
-        disabled: !!o.disabled
-      }));
+      // Capture structure: options racine + optgroups (pour préserver les catégories)
+      const root = [];
+      const groups = [];
+
+      Array.from(selectEl.children).forEach((node) => {
+        if (!node || !node.tagName) return;
+        const tag = node.tagName.toUpperCase();
+
+        if (tag === "OPTION") {
+          root.push({
+            value: node.value,
+            text: node.textContent || node.innerText || "",
+            disabled: !!node.disabled
+          });
+          return;
+        }
+
+        if (tag === "OPTGROUP") {
+          const g = { label: node.label || "", options: [] };
+          Array.from(node.children).forEach((opt) => {
+            if (!opt || !opt.tagName) return;
+            if (opt.tagName.toUpperCase() !== "OPTION") return;
+            g.options.push({
+              value: opt.value,
+              text: opt.textContent || opt.innerText || "",
+              disabled: !!opt.disabled
+            });
+          });
+          groups.push(g);
+        }
+      });
+
+      // fallback si aucun optgroup (ancien comportement)
+      if (!groups.length && !root.length) {
+        selectEl._dxAllGroups = { root: [], groups: [] };
+        return;
+      }
+      if (!groups.length) {
+        // Tout en root
+        selectEl._dxAllGroups = {
+          root: Array.from(selectEl.options).map((o) => ({
+            value: o.value,
+            text: o.textContent || o.innerText || "",
+            disabled: !!o.disabled
+          })),
+          groups: []
+        };
+        return;
+      }
+
+      selectEl._dxAllGroups = { root, groups };
     };
 
     const apply = () => {
       const q = norm(input.value).trim();
-      const all = selectEl._dxAllOptions || [];
+      const data = selectEl._dxAllGroups || { root: [], groups: [] };
 
       const current = selectEl.value;
-      const filtered = !q
-        ? all
-        : all.filter((o) => (o.value === "") || norm(o.text).includes(q) || norm(o.value).includes(q));
 
+      const match = (o) => {
+        if (!o) return false;
+        if (o.value === "") return true; // placeholder toujours visible
+        if (!q) return true;
+        return norm(o.text).includes(q) || norm(o.value).includes(q);
+      };
+
+      const rootFiltered = (data.root || []).filter(match);
+
+      const groupsFiltered = [];
+      (data.groups || []).forEach((g) => {
+        const opts = (g.options || []).filter(match);
+        if (opts.length) groupsFiltered.push({ label: g.label, options: opts });
+      });
+
+      // Rebuild (préserve optgroups)
       selectEl.innerHTML = "";
       const frag = document.createDocumentFragment();
-      for (const o of filtered) {
+
+      for (const o of rootFiltered) {
         const opt = document.createElement("option");
         opt.value = o.value;
         opt.textContent = o.text;
         opt.disabled = o.disabled;
         frag.appendChild(opt);
       }
+
+      for (const g of groupsFiltered) {
+        const og = document.createElement("optgroup");
+        og.label = g.label;
+        for (const o of g.options) {
+          const opt = document.createElement("option");
+          opt.value = o.value;
+          opt.textContent = o.text;
+          opt.disabled = o.disabled;
+          og.appendChild(opt);
+        }
+        frag.appendChild(og);
+      }
+
       selectEl.appendChild(frag);
 
-      if (filtered.some((o) => o.value === current)) {
-        selectEl.value = current;
-      }
+      // Restore selection if still present
+      const hasCurrent = Array.from(selectEl.options).some((o) => o.value === current);
+      if (hasCurrent) selectEl.value = current;
     };
 
     input.addEventListener("input", apply);
@@ -71,6 +146,8 @@
     selectEl._dxSearchApply = apply;
 
     snapshot();
+    // Important : Chrome peut autofill le champ search, donc on applique tout de suite
+    apply();
   }
 
   function refresh(selectEl) {
