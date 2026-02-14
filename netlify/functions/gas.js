@@ -46,14 +46,15 @@ function getAllowedOrigin(event){
 
 exports.handler = async (event) => {
   ensureFetch();
-  const gasUrl = process.env.GAS_URL;
-  if (!gasUrl){
-    return {
-      statusCode: 500,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ok:false, error:"GAS_URL environment variable is missing (Netlify)."} ),
-    };
-  }
+  const gasUrl = process.env.GAS_URL || "https://script.google.com/macros/s/AKfycbwb4qKG6EDlHborHOJgtVTkD-2ujfbmhqqOwgnNMTfFqUtkXek-YiZ1CBNnvYJOhXQm/exec";
+// If env missing, we fall back to baked-in /exec so the site remains deployable out-of-the-box.
+if (!gasUrl){
+  return {
+    statusCode: 500,
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ ok:false, error:"GAS_URL is missing and no fallback URL is configured." }),
+  };
+}
 
   const ip = getIp(event);
   if (!allowRequest(ip)){

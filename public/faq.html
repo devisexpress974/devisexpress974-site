@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ — DevisExpress974</title>
+  <meta name="theme-color" content="#ff3b0a" />
+  <link rel="stylesheet" href="./styles.css?v=dx23" />
+  <link rel="stylesheet" href="./assets/css/dx-header.css?v=dx23" />
+  <style>
+    .faqPage .card{background:#101214;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;margin:14px 0;}
+    .faqPage h1{margin:0 0 8px;}
+    .faqPage details{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 14px;margin:10px 0;}
+    .faqPage summary{cursor:pointer;font-weight:700;}
+    .faqPage p{margin:10px 0 0;line-height:1.5;opacity:.95;}
+    .faqPage .muted{opacity:.8;}
+  </style>
+  <script src="./assets/js/dx-include-header.js?v=dx23" defer></script>
+</head>
+<body class="faqPage">
+  <div id="dx-header-slot"></div>
+
+  <main class="container" style="padding:24px 0;">
+    <div class="card">
+      <h1>FAQ</h1>
+      <div class="muted">Réponses rapides sur le fonctionnement, la confidentialité et les paiements.</div>
+    </div>
+
+    <details>
+      <summary>Comment ça marche ?</summary>
+      <p>Tu publies une demande (métier + commune + description). Les offreurs correspondant au métier et à la zone reçoivent une alerte. Sur le site public, les coordonnées du demandeur sont masquées.</p>
+    </details>
+
+    <details>
+      <summary>Pourquoi les coordonnées sont masquées ?</summary>
+      <p>Pour protéger le demandeur, limiter le démarchage abusif et garder un modèle rentable : l’offreur débloque les coordonnées uniquement s’il veut répondre.</p>
+    </details>
+
+    <details>
+      <summary>Comment un offreur débloque les coordonnées ?</summary>
+      <p>Depuis la page de réponse aux demandes, l’offreur choisit une offre (ponctuel, pack, ou abonnement). Après paiement, l’accès aux coordonnées est activé selon l’offre.</p>
+    </details>
+
+    <details>
+      <summary>Quels sont les tarifs ?</summary>
+      <p>Tu peux consulter les offres sur la page <a href="./info-tarifs.html">Tarifs & abonnements</a>. Les paiements se font via PayPal (carte possible selon PayPal).</p>
+    </details>
+
+    <details>
+      <summary>Et si quelqu’un met un numéro ou un mail dans la description ?</summary>
+      <p>Le site bloque automatiquement les contacts (téléphone, e‑mail, liens) et certains mots interdits. Objectif : éviter les contournements et garder la qualité des demandes.</p>
+    </details>
+
+    <details>
+      <summary>Combien de temps une demande reste visible ?</summary>
+      <p>Les demandes expirent automatiquement (durée définie côté serveur) et peuvent aussi être retirées par le demandeur.</p>
+    </details>
+
+    <details>
+      <summary>Un offreur peut-il se désinscrire ?</summary>
+      <p>Oui. Il peut se désabonner et gérer ses notifications depuis son espace. Pour les détails légaux, consulte <a href="./cgv.html">CGV</a> et <a href="./politique-confidentialite.html">Confidentialité</a>.</p>
+    </details>
+
+    <details>
+      <summary>Je rencontre un problème, qui contacter ?</summary>
+      <p>Va sur la page <a href="./contact.html">Contact</a> et précise : ton e‑mail, ton problème, et si possible une capture d’écran.</p>
+    </details>
+  </main>
+
+  <footer class="siteFooter">
+    <div class="container footerInner">
+      <div class="footerLeft">© <span id="y"></span> DevisExpress974 — Tous droits réservés.</div>
+      <div class="footerLinks" aria-label="Liens légaux">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="cgv.html">CGV</a>
+        <a href="politique-confidentialite.html">Politique de confidentialité</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

@@ -2,6 +2,9 @@
   publish = "public"
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "18"
+
 # URLs propres (sans .html)
 [[redirects]]
   from = "/"
@@ -80,6 +83,11 @@
 
 # SPA fallback (optionnel)
 [[redirects]]
+[[redirects]]
+  from = "/faq"
+  to = "/faq.html"
+  status = 200
+
   from = "/*"
   to = "/index.html"
   status = 404

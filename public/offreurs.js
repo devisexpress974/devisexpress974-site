@@ -382,12 +382,28 @@ function fillSelect(select, items){
       zone: zoneFilter.value,
       commune: communeFilter.value,
       q: q.value.trim(),
-      sort: (sort && sort.value) ? sort.value : "note_desc"
+      sort: (sort && sort.value) ? sort.value : "alpha_asc"
     };
   }
 
   async function fetchFirst(){
     const p = currentParams();
+
+    // Règle projet : l'annuaire des offreurs n'apparaît pas sans filtre métier.
+    if(!p.service){
+      STATE.loading = false;
+      STATE.items = [];
+      STATE.offset = 0;
+      STATE.total = 0;
+      list.innerHTML = "";
+      updatePager();
+      if(countBox) countBox.textContent = "Choisis un métier pour afficher les offreurs.";
+      if(empty){
+        empty.textContent = "Choisis un métier pour afficher les offreurs (puis filtre par zone/commune si besoin).";
+        empty.style.display = "";
+      }
+      return;
+    }
 
     STATE.loading = true;
     STATE.items = [];
@@ -418,6 +434,12 @@ function fillSelect(select, items){
 
   async function fetchMore(){
     const p = currentParams();
+
+    if(!p.service){
+      STATE.loading = false;
+      updatePager();
+      return;
+    }
 
     STATE.loading = true;
     updatePager();

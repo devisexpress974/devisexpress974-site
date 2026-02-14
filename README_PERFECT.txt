@@ -14,6 +14,9 @@ Déploiement rapide :
    - Functions directory: netlify/functions
 2) Variables d'environnement recommandées (Netlify > Site settings > Environment variables)
    - GAS_URL = URL de ton WebApp Apps Script (/exec)
+   - (NOUVEAU) Si GAS_URL n’est pas défini, le site utilise un fallback intégré dans netlify/functions/gas.js (pratique pour déployer sans configuration).
+     Recommandation : définir quand même GAS_URL pour pouvoir le changer sans modifier le code.
+     Fallback actuel : https://script.google.com/macros/s/AKfycbwb4qKG6EDlHborHOJgtVTkD-2ujfbmhqqOwgnNMTfFqUtkXek-YiZ1CBNnvYJOhXQm/exec
 3) Apps Script
    - Déployer en tant que WebApp (exécuter en: moi, accès: tout le monde)
    - Copier l'URL /exec et la mettre dans GAS_URL
