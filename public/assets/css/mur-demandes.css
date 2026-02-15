@@ -1,4 +1,17 @@
 /* Mur des demandes (1 colonne + pagination) */
+
+/*
+  Compat variables
+  ---------------
+  Le thème global (styles.css) définit : --accent, --text, --muted.
+  Ce fichier utilisait aussi des variables "dx" (ex: --dx-accent) sans les définir,
+  ce qui pouvait rendre certains boutons (ex: 0,99€) illisibles (texte blanc sur fond quasi blanc).
+*/
+:root{
+  --dx-accent: var(--accent, #ff3b0a);
+  --dx-ink: var(--text, #111);
+  --dx-ink2: var(--muted, #5d5d5d);
+}
 .heroTitle{ margin:0 0 6px 0; font-size:clamp(28px,3.2vw,44px); letter-spacing:-.02em; }
 .heroSub{ margin:0 0 14px 0; color:var(--muted); font-weight:700; }
 
