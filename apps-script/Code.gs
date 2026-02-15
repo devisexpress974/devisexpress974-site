@@ -902,6 +902,29 @@ function splitList_(s){
   return out;
 }
 
+function splitServiceList_(s){
+  // Liste de métiers côté offreur : on accepte virgule / point-virgule / pipe.
+  // ⚠️ On NE split PAS sur "/" car beaucoup de métiers contiennent un "/" (ex: "Coaching / développement perso").
+  s = String(s||"").trim();
+  if(!s) return [];
+  var parts = s.split(/[,;|]+/);
+  var out = [];
+  for(var i=0;i<parts.length;i++){
+    var p = String(parts[i]||"").trim();
+    if(p) out.push(p);
+  }
+  return out;
+}
+
+function normService_(s){
+  s = (s===undefined||s===null) ? "" : String(s);
+  // harmonise les espaces autour de "/"
+  s = s.replace(/\s*\/\s*/g, " / ");
+  s = s.replace(/\s+/g, " ").trim();
+  return norm_(s);
+}
+
+
 function isDemandeActive_(row){
   // Statut : seules les demandes PUBLIÉ/ACTIVE (ou vide) restent visibles
   var st = String(row.Status||row.Statut||"").trim().toUpperCase();
@@ -932,19 +955,23 @@ function isDemandeActive_(row){
 
 
 function matchService_(offreurService, demandeService){
-  var o = norm_(offreurService);
-  var d = norm_(demandeService);
+  var o = normService_(offreurService);
+  var d = normService_(demandeService);
   if(!o || !d) return false;
 
-  // support listes côté offreur (Service = "Plombier, Electricien")
-  var list = splitList_(offreurService);
-  if(list.length <= 1) return o === d;
+  // Match exact (cas le plus courant : dropdown identique)
+  if(o === d) return true;
+
+  // Support listes côté offreur (Service = "Plombier, Electricien")
+  var list = splitServiceList_(offreurService);
+  if(list.length <= 1) return false;
 
   for(var i=0;i<list.length;i++){
-    if(norm_(list[i]) === d) return true;
+    if(normService_(list[i]) === d) return true;
   }
   return false;
 }
+
 
 function matchAutreKeywords_(offreurServiceAutre, demandeServiceAutre, demandeDescription){
   // Matching "Autre" par mots clés : offreur(ServiceAutre) doit apparaître dans (demande ServiceAutre + description)
