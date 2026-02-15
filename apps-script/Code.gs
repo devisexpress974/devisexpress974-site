@@ -1583,6 +1583,8 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
   try{
     var c = cfg_();
     var site = c.SITE_URL ? String(c.SITE_URL).replace(/\/$/,"") : "";
+    var viewUrl = site ? (site + "/demande-detail.html?id=" + encodeURIComponent(String(demandeId))) : "";
+    var unlockUrl = viewUrl ? (viewUrl + "&unlock=1") : "";
 
     var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
     var offreurs = sheetToObjects_(shOff);
@@ -1652,16 +1654,20 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
           + "<strong>Téléphone :</strong> " + (demandeRow.Tel||"") + "<br>"
           + "<strong>Email :</strong> " + (demandeRow.Email||"") + "</p>";
       } else {
-        html += "<p><em>Coordonnées masquées.</em></p>"
-          + "<p style=\"margin:10px 0 0\"><a href=\"" + site + "/mur-demandes.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Voir la demande</a></p>"
-          + "<p style=\"margin:10px 0 0\"><strong>Débloquer les coordonnées</strong> :</p>"
-          + "<ul style=\"margin:6px 0 12px;padding-left:18px\">"
-          + "<li><a href=\"" + site + "/paiement-ponctuel.html?demandeId=" + encodeURIComponent(String(demandeId)) + "\">Déblocage ponctuel</a></li>"
-          + "<li><a href=\"" + site + "/paiement-pack.html\">Pack crédits</a></li>"
-          + "<li><a href=\"" + site + "/paiement-abonnement.html\">Abonnement</a></li>"
-          + "</ul>"
-          + "<p>Déjà inscrit ? <a href=\"" + site + "/offreur-login.html\">Se connecter</a></p>";
+        html += "<p><em>Coordonnées masquées.</em></p>";
+        if(viewUrl){
+          html += "<p style=\"margin:14px 0 8px\"><a href=\"" + viewUrl + "\" style=\"display:inline-block;padding:12px 16px;background:#ff3b0a;color:#fff;text-decoration:none;border-radius:10px\">Voir la demande</a></p>"
+            + "<p style=\"margin:8px 0 0\"><a href=\"" + unlockUrl + "\" style=\"display:inline-block;padding:12px 16px;background:#111;color:#fff;text-decoration:none;border-radius:10px\">Débloquer les coordonnées</a></p>"
+            + "<p style=\"margin:10px 0 0;font-size:13px;color:#444\">Règle : tu arrives d’abord sur la demande, puis tu peux te connecter (si besoin) et débloquer. 0,99€ / pack / abonnement. 💳 Carte bancaire possible (sans compte PayPal).</p>";
+        } else {
+          html += "<p><strong>Voir la demande :</strong> SITE_URL non configuré.</p>";
+        }
       }
+
+      if(mode === "with_contact" && viewUrl){
+        html += "<p style=\"margin:14px 0 0\"><a href=\"" + viewUrl + "\">Voir la demande</a></p>";
+      }
+
 
       if(site){
         html += "<p>Lien mur : " + site + "/mur-demandes.html</p>";

@@ -171,6 +171,15 @@
       fillSelect($("service"), cats);
       fillSelect($("serviceFilter"), cats);
 
+      // Si un select est "searchable", on refresh le snapshot après remplissage (optgroup + tri).
+      try{
+        if(window.DXSearchSelect && typeof window.DXSearchSelect.refresh === "function"){
+          window.DXSearchSelect.refresh($("typeService"));
+          window.DXSearchSelect.refresh($("service"));
+          window.DXSearchSelect.refresh($("serviceFilter"));
+        }
+      }catch(e){}
+
       preselectFromUrl();
 
       // Si un composant "recherche dans select" existe, on l'active
