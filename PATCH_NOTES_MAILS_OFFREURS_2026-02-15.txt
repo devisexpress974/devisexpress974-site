@@ -1,0 +1,18 @@
+DEVIS_EXPRESS974 — Patch ciblé "Emails auto offreurs" (15/02/2026)
+
+Objectif
+- Corriger le non-envoi des emails aux offreurs SANS casser le reste du projet.
+
+Changements (uniquement Apps Script)
+1) apps-script/Code.gs — ensureSheetStrict_()
+   - Avant : ré-écrivait la ligne 1 (en-têtes) des feuilles, ce qui peut désaligner les données si l'ordre des colonnes diffère.
+   - Maintenant : n'écrase jamais les en-têtes existants.
+     -> Ajoute seulement les colonnes manquantes à droite.
+     -> Initialise les en-têtes uniquement si la ligne 1 est totalement vide.
+
+2) apps-script/Code.gs — isAllIsland_()
+   - Reconnaissance robuste de "Toute l'île" (et variantes) dans le matching géographique.
+
+Impact
+- Aucun changement front.
+- Le matching offreurs (métier + géo) et les mails restent identiques, mais les feuilles existantes ne sont plus altérées.

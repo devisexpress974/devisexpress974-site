@@ -238,6 +238,43 @@ function norm_(s){
   try{ s = s.normalize("NFD").replace(/[\u0300-\u036f]/g,""); }catch(e){}
   return s;
 }
+
+
+// Normalisation robuste (comparaisons service/zone/commune, tolère tirets/apostrophes/espaces)
+function normKey_(s){
+  s = (s===undefined||s===null) ? "" : String(s);
+  s = s.toLowerCase().trim();
+  try{ s = s.normalize("NFD").replace(/[\u0300-\u036f]/g,""); }catch(e){}
+  // apostrophes & tirets typographiques
+  s = s.replace(/[’´`]/g,"'");
+  s = s.replace(/[\u2010-\u2015]/g,"-");
+  // séparateurs -> espace
+  s = s.replace(/[-_/.,;:()\[\]{}!?"“”«»]/g," ");
+  s = s.replace(/\s+/g," ").trim();
+  return s;
+}
+
+function normCommune_(s){
+  s = normKey_(s);
+  // abréviations fréquentes
+  s = s.replace(/^st\s+/,"saint ").replace(/^ste\s+/,"sainte ");
+  s = s.replace(/\bst\s+/g,"saint ").replace(/\bste\s+/g,"sainte ");
+  return s.trim();
+}
+
+
+function isAllIsland_(zone){
+  var z = normKey_(zone);
+  if(!z) return false;
+  // Accepte "Toute l'île", "Sur toute l'île", variantes apostrophes/accents, et alias utiles.
+  // (Le bouton UI peut aussi être libellé différemment, donc on tolère des synonymes)
+  if(z.indexOf("toute") === -1) return false;
+  if(z.indexOf("ile") !== -1) return true;
+  if(z.indexOf("reunion") !== -1) return true;
+  if(z.indexOf("974") !== -1) return true;
+  if(z.indexOf("ville") !== -1) return true; // tolérance UI si jamais stocké ainsi
+  return false;
+}
 function splitServices_(s){
   s = (s===undefined||s===null) ? "" : String(s);
   var parts = s.split(/[,;\/|]+/);
@@ -281,26 +318,52 @@ function renameOld_(ss, name){
   sh.setName(name + "_OLD_" + stamp);
 }
 
+
 function ensureSheetStrict_(name, headers){
   var ss = getSS_();
   var sh = ss.getSheetByName(name);
   if(!sh){
     sh = ss.insertSheet(name);
-    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    if(headers && headers.length){
+      sh.getRange(1,1,1,headers.length).setValues([headers]);
+    }
     sh.setFrozenRows(1);
     return sh;
   }
 
-  // PATCH1 (sécurité) : normalise les en-têtes SANS renommer / recréer la feuille.
-  // On ne touche qu'à la ligne 1 (en-têtes) et on ajoute des colonnes si besoin.
+  // IMPORTANT : ne jamais ré-écrire les en-têtes existants.
+  // On ajoute seulement les colonnes manquantes à droite.
   try{
     var need = headers || [];
-    var lastCol = sh.getLastColumn();
-    if(lastCol < need.length){
-      sh.insertColumnsAfter(lastCol, need.length - lastCol);
-    }
     if(need.length){
-      sh.getRange(1,1,1,need.length).setValues([need]);
+      var lastCol = Math.max(1, sh.getLastColumn());
+      var hdrRow = sh.getRange(1,1,1,lastCol).getValues()[0];
+
+      // si la ligne 1 est vide (sheet neuve/import), on initialise proprement
+      var anyHeader = false;
+      for(var i=0;i<hdrRow.length;i++){
+        if(String(hdrRow[i]||"").trim()){ anyHeader = true; break; }
+      }
+      if(!anyHeader){
+        if(lastCol < need.length){
+          sh.insertColumnsAfter(lastCol, need.length - lastCol);
+        }
+        sh.getRange(1,1,1,need.length).setValues([need]);
+      }else{
+        // sinon : on n'écrase rien, on append seulement
+        var existing = {};
+        for(var c=0;c<hdrRow.length;c++){
+          var h = String(hdrRow[c]||"").trim();
+          if(h) existing[h] = true;
+        }
+        for(var j=0;j<need.length;j++){
+          var want = String(need[j]||"").trim();
+          if(want && !existing[want]){
+            sh.getRange(1, sh.getLastColumn()+1).setValue(want);
+            existing[want] = true;
+          }
+        }
+      }
     }
     sh.setFrozenRows(1);
   }catch(e){}
@@ -896,12 +959,12 @@ function matchOffreurDemandeService_(offreurObj, demandeObj){
 
 
 function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
-  var oz = norm_(offreurZone);
-  var dz = norm_(demandeZone);
-  var dc = norm_(demandeCommune);
+  var oz = normKey_(offreurZone);
+  var dz = normKey_(demandeZone);
+  var dc = normCommune_(demandeCommune);
 
-  // Toute l'île
-  if(oz === norm_("toute l'île") || oz === norm_("toute l ile") || oz === norm_("toute l'île / toute l ile") || oz === norm_("toute l'ile") || oz === norm_("toute l’île")){
+  // Toute l'île (tolère "Sur toute l'île")
+  if(isAllIsland_(oz)){
     return true;
   }
 
@@ -909,7 +972,9 @@ function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
   var communes = splitList_(offreurCommunes);
   if(communes.length > 0){
     for(var i=0;i<communes.length;i++){
-      if(norm_(communes[i]) === dc) return true;
+      // Si quelqu'un a mis "toute l'île" dans la liste de communes => on accepte
+      if(isAllIsland_(communes[i])) return true;
+      if(normCommune_(communes[i]) === dc) return true;
     }
     return false;
   }
@@ -918,6 +983,7 @@ function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
   if(oz && dz) return oz === dz;
   return false;
 }
+
 
 function listDemandesForOffreur_(token, params){
   params = params || {};
@@ -1660,6 +1726,9 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
   var shNotif = null;
   try{ shNotif = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs); }catch(e){}
 
+  var stats = { total:0, inactive:0, notifOff:0, noEmail:0, serviceNo:0, geoNo:0, sent:0, mailErr:0 };
+  var matched = 0;
+
   try{
     var c = cfg_();
     var site = String((c.SITE_URL || DEFAULT_SITE_URL || "")).replace(/\/+$/,"");
@@ -1668,6 +1737,7 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
 
     var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
     var offreurs = sheetToObjects_(shOff);
+    stats.total = (offreurs||[]).length;
 
     // On charge la demande (ligne brute) pour récupérer les coordonnées si abonnement actif
     var shDem = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
@@ -1676,25 +1746,25 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
     for(var di=0; di<dRows.length; di++){
       if(String(dRows[di].DemandeID||dRows[di].id||"") === String(demandeId)) { demandeRow = dRows[di]; break; }
     }
+    var dObj = demandeRow || { Service: service, ServiceAutre: "", Description: description };
 
     var sent = 0;
-    var matched = 0;
 
     for(var i=0;i<offreurs.length;i++){
       var o = offreurs[i] || {};
-      if(String(o.Actif||"OUI").toUpperCase() === "NON") continue;
+      var actif = String(o.Actif||"OUI").trim().toUpperCase();
+      if(actif === "NON"){ stats.inactive++; continue; }
 
       var to = String(o.Email||"").trim();
-      if(!to) continue;
+      if(!to){ stats.noEmail++; continue; }
 
       // Préférence notif
       var pref = String(o.NotifEmail||o.Notifications||"").trim().toUpperCase();
-      if(pref === "NON") continue;
+      if(pref === "NON"){ stats.notifOff++; continue; }
 
       // Matching strict service + geo
-      var dObj = demandeRow || { Service: service, ServiceAutre: "", Description: description };
-      if(!matchOffreurDemandeService_(o, dObj)) continue;
-      if(!matchGeo_(String(o.Zone||""), String(o.Commune||""), zone, commune)) continue;
+      if(!matchOffreurDemandeService_(o, dObj)){ stats.serviceNo++; continue; }
+      if(!matchGeo_(String(o.Zone||""), String(o.Commune||""), zone, commune)){ stats.geoNo++; continue; }
 
       matched++;
 
@@ -1736,7 +1806,8 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
         return '<a href="' + href + '" style="display:inline-block;margin:6px 8px 0 0;padding:10px 14px;border-radius:10px;text-decoration:none;background:#fff;border:1px solid #ff3b0a;color:#ff3b0a;font-weight:700;">' + label + '</a>';
       }
 
-      var safeDesc = escapeHtml_(String(description||"")).replace(/\n/g, "<br>");
+      var safeDesc = escapeHtml_(String(description||"")).replace(/
+/g, "<br>");
       var shortDesc = safeDesc;
       if(shortDesc.length > 900) shortDesc = shortDesc.slice(0,900) + "…";
 
@@ -1793,16 +1864,42 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
         + '<p style="color:#777;margin:0;font-size:12px">DevisExpress974 • 100% 974</p>'
         + '</div></div>';
 
-      // envoi (try/catch par offreur)
-      try{
-        sendMailSafe_(to, subj, html);
+      // envoi + log
+      var send = sendMailSafe_(to, subj, html);
+      if(send && send.ok){
+        stats.sent++;
         if(shNotif) try{ shNotif.appendRow([nowIso_(), String(demandeId), String(o.OffreurID||""), to, mode, String(service||""), String(zone||""), String(commune||"")]); }catch(_){}
-      }catch(err){
+      }else{
+        stats.mailErr++;
         if(shNotif) try{ shNotif.appendRow([nowIso_(), String(demandeId), String(o.OffreurID||""), to, "ERROR", String(service||""), String(zone||""), String(commune||"")]); }catch(_){}
       }
 
       sent++;
       if(sent >= 80) break;
+    }
+
+    // Statistiques debug (toujours)
+    if(shNotif){
+      try{
+        shNotif.appendRow([
+          nowIso_(),
+          String(demandeId||""),
+          "",
+          "",
+          "NOTIF_STATS",
+          String(service||""),
+          String(zone||""),
+          String(commune||"") +
+            " | total=" + stats.total +
+            " inactive=" + stats.inactive +
+            " notifOff=" + stats.notifOff +
+            " noEmail=" + stats.noEmail +
+            " serviceNo=" + stats.serviceNo +
+            " geoNo=" + stats.geoNo +
+            " sent=" + stats.sent +
+            " mailErr=" + stats.mailErr
+        ]);
+      }catch(e){}
     }
 
     // Si 0 match, log explicite
@@ -1816,6 +1913,7 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
     }
   }
 }
+
 
 
 // ======================

@@ -1,0 +1,8 @@
+PATCH 2026-02-15 (Fix mails auto offreurs)
+
+Problème probable : l'UI utilise le libellé 'Toute ville' pour signifier 'Toute l'île'.
+Le backend ne le reconnaissait pas comme 'all-island' => geoNo => 0 mails envoyés.
+
+Correction : isAllIsland_ accepte maintenant aussi 'toute ville(s)', 'toute la reunion', '974'.
+
+Fichier touché : apps-script/Code.gs (uniquement)
