@@ -338,7 +338,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const img = el("img","dxPhoto");
         img.alt = `Pièce jointe ${idx+1}`;
         img.loading = "lazy";
-        img.src = url;
+        img.src = toPreviewUrl(url);
+        img.onerror = () => { try{ img.style.display='none'; dl.textContent='Ouvrir'; }catch(e){} };
 
         const dl = el("span","dxPhotoDl","Télécharger");
         a.appendChild(img);
@@ -476,6 +477,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function escapeHtml(s){
     return String(s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
+
+function toPreviewUrl(u){
+  u = String(u||"").trim();
+  if(!u) return u;
+  // Drive : /file/d/<id>/view
+  var m = u.match(/\/file\/d\/([^\/\?]+)\//);
+  if(m && m[1]) return "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(m[1]);
+  // Drive : open?id=<id>
+  m = u.match(/[\?&]id=([^&]+)/);
+  if(u.indexOf("drive.google.com") !== -1 && m && m[1]) return "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(m[1]);
+  return u;
+}
 
   function cssEscape(s){
     if(window.CSS && CSS.escape) return CSS.escape(String(s||""));

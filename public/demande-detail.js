@@ -198,11 +198,6 @@ function setText(id, v) {
 
   function setLinks(demandeId) {
     var back = "demande-detail.html?id=" + encodeURIComponent(demandeId);
-    try{
-      var u = (qs().get("unlock") || "").toString();
-      if(u) back += "&unlock=" + encodeURIComponent(u);
-    }catch(e){}
-
 
     var l1 = el("btnPay1");
     var lp = el("btnPayPack");
@@ -277,44 +272,7 @@ function setText(id, v) {
     };
   }
 
-  
-  // Auto depuis email : ?unlock=1
-  function maybeAutoUnlock_(isLogged){
-    var q = qs();
-    var u = (q.get("unlock") || "").toString();
-    if(u !== "1" && u.toLowerCase() !== "true") return;
-
-    // Toujours redirigé d'abord sur la demande, puis on guide l'utilisateur.
-    if(!isLogged){
-      showAlert("Connecte-toi pour débloquer les coordonnées.");
-      try{
-        var login = el("btnLogin");
-        if(login){
-          login.scrollIntoView({ behavior:"smooth", block:"center" });
-          if(typeof login.focus === "function") login.focus();
-        }
-      }catch(e){}
-      return;
-    }
-
-    // Si connecté : on tente le déblocage immédiat (crédits/abo), sinon on scroll vers les paiements.
-    setTimeout(function(){
-      try{
-        var btn = el("btnUnlockNow");
-        if(btn && btn.style && btn.style.display !== "none" && !btn.disabled){
-          btn.scrollIntoView({ behavior:"smooth", block:"center" });
-          btn.click();
-          return;
-        }
-        var pay = el("payBox");
-        if(pay){
-          pay.scrollIntoView({ behavior:"smooth", block:"start" });
-        }
-      }catch(e){}
-    }, 250);
-  }
-
-function renderAttachments(att) {
+  function renderAttachments(att) {
     var box = el("attachBox");
     var list = el("attachList");
     if (!box || !list) return;
@@ -415,7 +373,6 @@ function renderAttachments(att) {
 
         setAccessUI(canSee, true, reason, planData);
         setUnlockNowUI(canSee, true, reason, planData, token, demandeId);
-        maybeAutoUnlock_(true);
 
         if (canSee) {
           setText("vTel", d.Tel || d.tel || d.Telephone || d.telephone || "—");
@@ -429,9 +386,7 @@ function renderAttachments(att) {
         setLoginUI(false);
         setAccessUI(false, false, "NOT_LOGGED", null);
       setUnlockNowUI(false, false, "NOT_LOGGED", null, "", demandeId);
-      maybeAutoUnlock_(false);
         setUnlockNowUI(false, false, "NOT_LOGGED", null, "", demandeId);
-      maybeAutoUnlock_(false);
       }
     } else {
       setAccessUI(false, false, "NOT_LOGGED", null);

@@ -269,6 +269,17 @@ if (unlock){
     });
 
     box.style.display = "block";
+
+// AUTO_SCROLL_UNLOCK_FROM_EMAIL : si le lien vient d'un email (&unlock=1), on descend directement
+try{
+  var u = qs().get("unlock");
+  if(u === "1" || String(u).toLowerCase() === "true"){
+    var target = el("unlockOptions") || el("payBox") || el("coordsBox");
+    if(target && target.scrollIntoView){
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+}catch(e){}
   }
 
   async function main() {

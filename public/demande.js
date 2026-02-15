@@ -202,7 +202,7 @@ const ZONES = ["Sur toute l'île","Nord","Sud","Est","Ouest"];
 
   // -------- Pièces jointes (max 3) --------
   const ATT_MAX_FILES = 3;
-  const ATT_MAX_BYTES = 1500 * 1024; // 1,5 Mo conseillé
+  const ATT_MAX_BYTES = 5 * 1024 * 1024; // 5 Mo // 1,5 Mo conseillé
 
   function fileToBase64_(file){
     return new Promise((resolve, reject) => {

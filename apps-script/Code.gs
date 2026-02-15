@@ -10,6 +10,8 @@ var VERSION = "v27-es5";
 var DEFAULT_SHEET_ID = "1iJlfs-X4hY1NYkFrw_LBt5BLsWL3C6ZOZi8-zUxKrts";
 var PROP = PropertiesService.getScriptProperties();
 
+var DEFAULT_SITE_URL = "https://devisexpress974.netlify.app";
+
 function cfg_(){
   return {
     SHEET_ID: PROP.getProperty("SHEET_ID") || DEFAULT_SHEET_ID,
@@ -185,7 +187,7 @@ function saveAttachments_(items, prefix, id){
         f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
       }catch(e){}
 
-      urls.push(f.getUrl());
+      urls.push(driveUcUrl_(f.getId()));
     }
     return urls;
   }catch(err){
@@ -196,6 +198,12 @@ function saveAttachments_(items, prefix, id){
 // ======================
 // Helpers
 // ======================
+function driveUcUrl_(fileId){
+  fileId = String(fileId||"").trim();
+  if(!fileId) return "";
+  return "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(fileId);
+}
+
 function json_(o){
   return ContentService.createTextOutput(JSON.stringify(o))
     .setMimeType(ContentService.MimeType.JSON);
@@ -381,16 +389,42 @@ function parse_(e){
   return {};
 }
 
+function htmlToText_(html){
+  try{
+    html = String(html||"");
+    // enlève scripts/styles
+    html = html.replace(/<\s*(script|style)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, "");
+    // br/p -> newline
+    html = html.replace(/<\s*br\s*\/?>/gi, "\n");
+    html = html.replace(/<\s*\/?p\s*>/gi, "\n");
+    // tags
+    html = html.replace(/<[^>]+>/g, "");
+    // entités simples
+    html = html.replace(/&nbsp;/g, " ")
+               .replace(/&amp;/g, "&")
+               .replace(/&lt;/g, "<")
+               .replace(/&gt;/g, ">")
+               .replace(/&#39;/g, "'")
+               .replace(/&quot;/g, '"');
+    // compact
+    html = html.replace(/\n{3,}/g, "\n\n").trim();
+    return html;
+  }catch(e){
+    return "";
+  }
+}
+
 function sendMailSafe_(to, subject, html){
   try{
     if(!to) return { ok:false, error:"missing_to" };
-    MailApp.sendEmail({ to: to, subject: subject, htmlBody: html });
+    var txt = htmlToText_(html);
+    MailApp.sendEmail({ to: to, subject: subject, body: txt || " ", htmlBody: html });
     return { ok:true };
   }catch(e){
     // Log en NOTIFS pour debug (sans bloquer le flux)
     try{
       var sh = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
-      sh.appendRow([nowIso_(), "mail_error", String(to||""), String(subject||""), String(e && e.message ? e.message : e)]);
+      sh.appendRow([nowIso_(), "mail_error", String(to||""), String(subject||""), String(e && e.message ? e.message : e), "", "", ""]);
     }catch(_){}
     return { ok:false, error:String(e && e.message ? e.message : e) };
   }
@@ -670,42 +704,85 @@ if(isJobDescriptionInconsistent_(service, description)){
   var optInVal = isYes_(optInContact) ? "OUI" : "NON";
   sh.appendRow([nowIso_(), id, service, serviceAutre, zone, commune, description, budget, nom, tel, email, photo1, photo2, photo3, "PUBLIÉ", optInVal]);
 
-  // Mail demandeur (si email fourni)
-  if(email){
-    var cMail = cfg_();
-    var site = cMail.SITE_URL ? String(cMail.SITE_URL).replace(/\/+$/,"") : "";
-    var viewHtml = "";
-    if(site){
-      var viewUrl = site + "/demande-detail.html?id=" + encodeURIComponent(id);
-      viewHtml = '<p><strong>Voir ma demande :</strong> <a href="' + viewUrl + '">clique ici</a></p>';
-    }
-    var withdrawHtml = "";
-    if(site){
-      var withdrawUrl = site + "/gerer-demande.html?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id));
-      withdrawHtml = '<p><strong>Retirer ma demande :</strong> <a href="' + withdrawUrl + '">clique ici</a></p>';
-    }
-    
-  var site = (cfg_().SITE_URL || "").replace(/\/$/,"");
-  var becomeOffreurHtml = "";
-  if(site){
-    becomeOffreurHtml = "<p><strong>Tu veux aussi recevoir des demandes comme offreur ?</strong> " +
-      "<a href=\"" + site + "/offreur-register.html\">Créer mon profil offreur</a></p>";
+  
+// Mail demandeur (si email fourni)
+if(email){
+  var cMail = cfg_();
+  var site = String((cMail.SITE_URL || DEFAULT_SITE_URL || "")).replace(/\/+$/,"");
+  var viewUrl = site ? (site + "/demande-detail.html?id=" + encodeURIComponent(id)) : "";
+  var murUrl = site ? (site + "/mur-demandes.html#d=" + encodeURIComponent(id)) : "";
+  var withdrawUrl = site ? (site + "/gerer-demande.html?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id))) : "";
+  var becomeUrl = site ? (site + "/offreur-register.html") : "";
+  var infosUrl = site ? (site + "/infos-tarifs.html") : "";
+
+  var safeService = escapeHtml_(service);
+  var safeZone = escapeHtml_(zone);
+  var safeCommune = escapeHtml_(commune);
+  var safeBudget = escapeHtml_(budget || "");
+  var safeNom = escapeHtml_(nom || "");
+  var safeDesc = escapeHtml_(description || "").replace(/\n/g, "<br>");
+  var safeServiceAutre = escapeHtml_(serviceAutre || "");
+
+  var pj = [photo1, photo2, photo3].filter(function(x){ return x && String(x).trim(); });
+
+  function btn_(href, label){
+    if(!href) return "";
+    return '<a href="' + href + '" style="display:inline-block;margin:6px 8px 0 0;padding:10px 14px;border-radius:10px;text-decoration:none;background:#ff3b0a;color:#fff;font-weight:700;">' + label + '</a>';
   }
-  var bodyHtml = ""
-    + "<div style=\"font-family:Arial,sans-serif;line-height:1.45\">"
-    + "<h2 style=\"margin:0 0 10px;color:#ff3b0a\">Demande publiée ✅</h2>"
-    + "<p>Bonjour <strong>" + escapeHtml_(nom) + "</strong>,</p>"
-    + "<p>Ta demande est en ligne. Elle restera visible <strong>30 jours</strong> (ou jusqu'à clôture).</p>"
-    + viewHtml
-    + withdrawHtml
-    + becomeOffreurHtml
-    + "<hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\">"
-    + "<p style=\"color:#666;margin:0\">DevisExpress974 • 100% 974</p>"
-    + "</div>";
-  sendMailSafe_(email, "DevisExpress974 — Demande publiée", bodyHtml);
+  function btnGhost_(href, label){
+    if(!href) return "";
+    return '<a href="' + href + '" style="display:inline-block;margin:6px 8px 0 0;padding:10px 14px;border-radius:10px;text-decoration:none;background:#fff;border:1px solid #ff3b0a;color:#ff3b0a;font-weight:700;">' + label + '</a>';
+  }
+
+  var bodyHtml = ''
+    + '<div style="font-family:Arial,sans-serif;line-height:1.45;background:#f6f7fb;padding:16px;">'
+    + '<div style="max-width:620px;margin:0 auto;background:#fff;border:1px solid #eee;border-radius:14px;padding:18px;">'
+    + '<h2 style="margin:0 0 10px;color:#ff3b0a">Demande publiée ✅</h2>'
+    + '<p style="margin:0 0 10px">Bonjour <strong>' + safeNom + '</strong>,</p>'
+    + '<p style="margin:0 0 12px">Ta demande est en ligne sur le mur public. Les prestataires la voient <strong>sans tes coordonnées</strong>.</p>'
+
+    + '<div style="background:#fff7f2;border:1px solid rgba(255,59,10,.25);border-radius:12px;padding:12px;margin:12px 0;">'
+    + '<div style="font-weight:800;margin:0 0 6px">Récapitulatif</div>'
+    + '<div><strong>ID :</strong> ' + escapeHtml_(id) + '</div>'
+    + '<div><strong>Métier :</strong> ' + safeService + (norm_(service)==norm_("Autre") && safeServiceAutre ? (' <em>(' + safeServiceAutre + ')</em>') : '') + '</div>'
+    + '<div><strong>Zone :</strong> ' + safeZone + '</div>'
+    + '<div><strong>Commune :</strong> ' + safeCommune + '</div>'
+    + (safeBudget ? ('<div><strong>Budget :</strong> ' + safeBudget + '</div>') : '')
+    + '</div>'
+
+    + '<div style="margin:12px 0 0">'
+    + '<div style="font-weight:800;margin:0 0 6px">Ta description</div>'
+    + '<div style="color:#333">' + safeDesc + '</div>'
+    + '</div>';
+
+  if(pj.length){
+    bodyHtml += '<div style="margin:14px 0 0">'
+      + '<div style="font-weight:800;margin:0 0 6px">Pièces jointes</div>'
+      + '<ul style="margin:6px 0 0;padding-left:18px">';
+    for(var pi=0; pi<pj.length; pi++){
+      var u = String(pj[pi]||"").trim();
+      if(!u) continue;
+      bodyHtml += '<li><a href="' + u + '" target="_blank" rel="noopener">Pièce jointe ' + (pi+1) + '</a></li>';
+    }
+    bodyHtml += '</ul></div>';
+  }
+
+  bodyHtml += ''
+    + '<div style="margin:16px 0 0">'
+    + btn_(viewUrl, "Voir ma demande")
+    + btnGhost_(withdrawUrl, "Retirer ma demande")
+    + (becomeUrl ? btnGhost_(becomeUrl, "Devenir offreur") : '')
+    + '</div>'
+    + (murUrl ? ('<p style="margin:14px 0 0;color:#666">Mur public : <a href="' + murUrl + '">voir la demande sur le mur</a></p>') : '')
+    + (infosUrl ? ('<p style="margin:8px 0 0;color:#666">Infos & tarifs : <a href="' + infosUrl + '">voir les offres</a></p>') : '')
+    + '<hr style="border:none;border-top:1px solid #eee;margin:16px 0">'
+    + '<p style="color:#777;margin:0;font-size:12px">DevisExpress974 • 1 demande • plusieurs réponses • 100% 974</p>'
+    + '</div></div>';
+
+  sendMailSafe_(email, "DevisExpress974 — Demande publiée (ID " + id + ")", bodyHtml);
 }
 
-  // Mail admin (optionnel)
+// Mail admin (optionnel) (optionnel)
   var c = cfg_();
   if(c.OWNER_EMAIL){
     sendMailSafe_(c.OWNER_EMAIL, "Nouvelle demande (DevisExpress974)",
@@ -1580,11 +1657,14 @@ function addAvisOffreur_(p){
 // NOTIF OFFREURS
 // ======================
 function notifyOffreursNewDemande_(demandeId, service, zone, commune, description, budget){
+  var shNotif = null;
+  try{ shNotif = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs); }catch(e){}
+
   try{
     var c = cfg_();
-    var site = c.SITE_URL ? String(c.SITE_URL).replace(/\/$/,"") : "";
+    var site = String((c.SITE_URL || DEFAULT_SITE_URL || "")).replace(/\/+$/,"");
     var viewUrl = site ? (site + "/demande-detail.html?id=" + encodeURIComponent(String(demandeId))) : "";
-    var unlockUrl = viewUrl ? (viewUrl + "&unlock=1") : "";
+    var unlockUrl = site ? (site + "/demande-detail.html?id=" + encodeURIComponent(String(demandeId)) + "&unlock=1") : "";
 
     var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
     var offreurs = sheetToObjects_(shOff);
@@ -1597,30 +1677,35 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
       if(String(dRows[di].DemandeID||dRows[di].id||"") === String(demandeId)) { demandeRow = dRows[di]; break; }
     }
 
-    var shNotif = ensureSheetStrict_(SHEETS.NOTIFS, HEADERS.Notifs);
-
     var sent = 0;
+    var matched = 0;
+
     for(var i=0;i<offreurs.length;i++){
-      var o = offreurs[i];
-      if(String(o.Actif||"OUI") !== "OUI") continue;
+      var o = offreurs[i] || {};
+      if(String(o.Actif||"OUI").toUpperCase() === "NON") continue;
+
       var to = String(o.Email||"").trim();
       if(!to) continue;
 
-      var pref = String(o.NotifEmail||"").trim().toUpperCase();
+      // Préférence notif
+      var pref = String(o.NotifEmail||o.Notifications||"").trim().toUpperCase();
       if(pref === "NON") continue;
 
-      // Matching strict service (+ "Autre" par mots clés) + geo
+      // Matching strict service + geo
       var dObj = demandeRow || { Service: service, ServiceAutre: "", Description: description };
       if(!matchOffreurDemandeService_(o, dObj)) continue;
       if(!matchGeo_(String(o.Zone||""), String(o.Commune||""), zone, commune)) continue;
 
-      // Mode : coords seulement si abonnement actif
+      matched++;
+
+      // Mode / message selon profil
       var mode = "masked";
       var extra = {
         plan: String(o.Plan||""),
         aboActive: String(o.AboActive||""),
         aboPaid: String(o.AboPaid||""),
-        trialEnd: String(o.TrialEnd||"")
+        trialEnd: String(o.TrialEnd||""),
+        credits: Number(o.Credits||0) || 0
       };
 
       var aboOk = false;
@@ -1637,59 +1722,99 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
         }catch(e){}
       }
 
-      if(aboOk) mode = "with_contact";
+      if(aboOk) mode = "abo";
+      else if(extra.credits && extra.credits > 0) mode = "credits";
 
-      var subj = "Nouvelle demande — " + service + " (" + commune + ")";
-      var html = ""
-        + "<h2>Nouvelle demande</h2>"
-        + "<p><strong>Métier :</strong> " + service + "<br>"
-        + "<strong>Zone :</strong> " + zone + "<br>"
-        + "<strong>Commune :</strong> " + commune + "<br>"
-        + "<strong>Budget :</strong> " + budget + "</p>"
-       + "<p><strong>Description :</strong><br>" + String(description||"").replace(/\n/g, "<br>") + "</p>";
+      var subj = "Nouvelle demande — " + String(service||"") + " (" + String(commune||"") + ")";
 
-      if(mode === "with_contact" && demandeRow){
-        html += "<hr><h3>Coordonnées</h3>"
-          + "<p><strong>Nom :</strong> " + (demandeRow.Nom||"") + "<br>"
-          + "<strong>Téléphone :</strong> " + (demandeRow.Tel||"") + "<br>"
-          + "<strong>Email :</strong> " + (demandeRow.Email||"") + "</p>";
+      function btn_(href, label){
+        if(!href) return "";
+        return '<a href="' + href + '" style="display:inline-block;margin:6px 8px 0 0;padding:10px 14px;border-radius:10px;text-decoration:none;background:#ff3b0a;color:#fff;font-weight:700;">' + label + '</a>';
+      }
+      function btnGhost_(href, label){
+        if(!href) return "";
+        return '<a href="' + href + '" style="display:inline-block;margin:6px 8px 0 0;padding:10px 14px;border-radius:10px;text-decoration:none;background:#fff;border:1px solid #ff3b0a;color:#ff3b0a;font-weight:700;">' + label + '</a>';
+      }
+
+      var safeDesc = escapeHtml_(String(description||"")).replace(/\n/g, "<br>");
+      var shortDesc = safeDesc;
+      if(shortDesc.length > 900) shortDesc = shortDesc.slice(0,900) + "…";
+
+      var html = ''
+        + '<div style="font-family:Arial,sans-serif;line-height:1.45;background:#f6f7fb;padding:16px;">'
+        + '<div style="max-width:650px;margin:0 auto;background:#fff;border:1px solid #eee;border-radius:14px;padding:18px;">'
+        + '<h2 style="margin:0 0 10px;color:#ff3b0a">Nouvelle demande ✅</h2>'
+        + '<p style="margin:0 0 12px">Un demandeur a publié une demande correspondant à ton profil.</p>'
+
+        + '<div style="background:#fff7f2;border:1px solid rgba(255,59,10,.25);border-radius:12px;padding:12px;margin:12px 0;">'
+        + '<div><strong>ID :</strong> ' + escapeHtml_(String(demandeId||"")) + '</div>'
+        + '<div><strong>Métier :</strong> ' + escapeHtml_(String(service||"")) + '</div>'
+        + '<div><strong>Zone :</strong> ' + escapeHtml_(String(zone||"")) + '</div>'
+        + '<div><strong>Commune :</strong> ' + escapeHtml_(String(commune||"")) + '</div>'
+        + (budget ? ('<div><strong>Budget :</strong> ' + escapeHtml_(String(budget||"")) + '</div>') : '')
+        + '</div>'
+
+        + '<div style="margin:12px 0 0">'
+        + '<div style="font-weight:800;margin:0 0 6px">Description</div>'
+        + '<div style="color:#333">' + shortDesc + '</div>'
+        + '</div>'
+
+        + '<div style="margin:16px 0 0">'
+        + btn_(viewUrl, "Voir la demande")
+        + btnGhost_(unlockUrl, "Débloquer les coordonnées")
+        + '</div>';
+
+      if(mode === "abo"){
+        html += '<p style="margin:14px 0 0;color:#1b7a2a;font-weight:700">✅ Abonnement actif : tu peux accéder aux coordonnées sur la page.</p>';
+      } else if(mode === "credits"){
+        html += '<p style="margin:14px 0 0;color:#1b7a2a;font-weight:700">✅ Il te reste ' + escapeHtml_(String(extra.credits)) + ' déblocage(s) : ouvre la demande puis déverrouille.</p>';
       } else {
-        html += "<p><em>Coordonnées masquées.</em></p>";
-        if(viewUrl){
-          html += "<p style=\"margin:14px 0 8px\"><a href=\"" + viewUrl + "\" style=\"display:inline-block;padding:12px 16px;background:#ff3b0a;color:#fff;text-decoration:none;border-radius:10px\">Voir la demande</a></p>"
-            + "<p style=\"margin:8px 0 0\"><a href=\"" + unlockUrl + "\" style=\"display:inline-block;padding:12px 16px;background:#111;color:#fff;text-decoration:none;border-radius:10px\">Débloquer les coordonnées</a></p>"
-            + "<p style=\"margin:10px 0 0;font-size:13px;color:#444\">Règle : tu arrives d’abord sur la demande, puis tu peux te connecter (si besoin) et débloquer. 0,99€ / pack / abonnement. 💳 Carte bancaire possible (sans compte PayPal).</p>";
-        } else {
-          html += "<p><strong>Voir la demande :</strong> SITE_URL non configuré.</p>";
-        }
+        html += '<p style="margin:14px 0 0;color:#666"><em>Coordonnées masquées :</em> ouvre la demande, puis choisis une option de déblocage.</p>';
       }
 
-      if(mode === "with_contact" && viewUrl){
-        html += "<p style=\"margin:14px 0 0\"><a href=\"" + viewUrl + "\">Voir la demande</a></p>";
+      // Coordonnées directes uniquement si abonnement ok (optionnel)
+      if(mode === "abo" && demandeRow){
+        html += '<hr style="border:none;border-top:1px solid #eee;margin:16px 0">'
+          + '<div style="font-weight:800;margin:0 0 6px">Coordonnées</div>'
+          + '<div><strong>Nom :</strong> ' + escapeHtml_(String(demandeRow.Nom||"")) + '</div>'
+          + '<div><strong>Téléphone :</strong> ' + escapeHtml_(String(demandeRow.Tel||"")) + '</div>'
+          + '<div><strong>Email :</strong> ' + escapeHtml_(String(demandeRow.Email||"")) + '</div>';
       }
 
-
-      if(site){
-        html += "<p>Lien mur : " + site + "/mur-demandes.html</p>";
-      }
-      html += "<p><strong>ID demande :</strong> " + demandeId + "</p>";
-
-      if(site){
-        var unsubUrl = site + "/offreur-unsubscribe.html?email=" + encodeURIComponent(to) + "&sig=" + encodeURIComponent(unsubSig_(to));
-        html += '<p style="margin-top:14px;font-size:12px;color:#666;">Notifications : <a href="' + unsubUrl + '">se désinscrire</a></p>';
-      }
-
-      sendMailSafe_(to, subj, html);
-
-      // Audit Notifications
+      // Désinscription (token)
       try{
-        shNotif.appendRow([nowIso_(), demandeId, String(o.OffreurID||""), to, mode, service, zone, commune]);
+        if(site){
+          var unsubUrl = site + "/notifications.html?email=" + encodeURIComponent(to) + "&sig=" + encodeURIComponent(unsubSig_(to));
+          html += '<p style="margin-top:16px;font-size:12px;color:#777">Notifications : <a href="' + unsubUrl + '">se désinscrire</a></p>';
+        }
       }catch(e){}
+
+      html += '<hr style="border:none;border-top:1px solid #eee;margin:16px 0">'
+        + '<p style="color:#777;margin:0;font-size:12px">DevisExpress974 • 100% 974</p>'
+        + '</div></div>';
+
+      // envoi (try/catch par offreur)
+      try{
+        sendMailSafe_(to, subj, html);
+        if(shNotif) try{ shNotif.appendRow([nowIso_(), String(demandeId), String(o.OffreurID||""), to, mode, String(service||""), String(zone||""), String(commune||"")]); }catch(_){}
+      }catch(err){
+        if(shNotif) try{ shNotif.appendRow([nowIso_(), String(demandeId), String(o.OffreurID||""), to, "ERROR", String(service||""), String(zone||""), String(commune||"")]); }catch(_){}
+      }
 
       sent++;
       if(sent >= 80) break;
     }
-  }catch(e){}
+
+    // Si 0 match, log explicite
+    if(matched === 0 && shNotif){
+      try{ shNotif.appendRow([nowIso_(), String(demandeId), "", "", "NO_MATCH", String(service||""), String(zone||""), String(commune||"")]); }catch(e){}
+    }
+
+  }catch(e){
+    if(shNotif){
+      try{ shNotif.appendRow([nowIso_(), String(demandeId), "", "", "notify_error", String(e && e.message ? e.message : e), "", ""]); }catch(_){}
+    }
+  }
 }
 
 
