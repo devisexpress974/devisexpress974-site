@@ -262,10 +262,18 @@ function normCommune_(s){
   return s.trim();
 }
 
+
 function isAllIsland_(zone){
   var z = normKey_(zone);
-  // accepte : "Sur toute l'île", "Toute l'île", "toute l ile", etc.
-  return (z.indexOf("toute") !== -1) && (z.indexOf("ile") !== -1);
+  if(!z) return false;
+  // Accepte "Toute l'île", "Sur toute l'île", variantes apostrophes/accents, et alias utiles.
+  // (Le bouton UI peut aussi être libellé différemment, donc on tolère des synonymes)
+  if(z.indexOf("toute") === -1) return false;
+  if(z.indexOf("ile") !== -1) return true;
+  if(z.indexOf("reunion") !== -1) return true;
+  if(z.indexOf("974") !== -1) return true;
+  if(z.indexOf("ville") !== -1) return true; // tolérance UI si jamais stocké ainsi
+  return false;
 }
 function splitServices_(s){
   s = (s===undefined||s===null) ? "" : String(s);
@@ -310,26 +318,52 @@ function renameOld_(ss, name){
   sh.setName(name + "_OLD_" + stamp);
 }
 
+
 function ensureSheetStrict_(name, headers){
   var ss = getSS_();
   var sh = ss.getSheetByName(name);
   if(!sh){
     sh = ss.insertSheet(name);
-    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    if(headers && headers.length){
+      sh.getRange(1,1,1,headers.length).setValues([headers]);
+    }
     sh.setFrozenRows(1);
     return sh;
   }
 
-  // PATCH1 (sécurité) : normalise les en-têtes SANS renommer / recréer la feuille.
-  // On ne touche qu'à la ligne 1 (en-têtes) et on ajoute des colonnes si besoin.
+  // IMPORTANT : ne jamais ré-écrire les en-têtes existants.
+  // On ajoute seulement les colonnes manquantes à droite.
   try{
     var need = headers || [];
-    var lastCol = sh.getLastColumn();
-    if(lastCol < need.length){
-      sh.insertColumnsAfter(lastCol, need.length - lastCol);
-    }
     if(need.length){
-      sh.getRange(1,1,1,need.length).setValues([need]);
+      var lastCol = Math.max(1, sh.getLastColumn());
+      var hdrRow = sh.getRange(1,1,1,lastCol).getValues()[0];
+
+      // si la ligne 1 est vide (sheet neuve/import), on initialise proprement
+      var anyHeader = false;
+      for(var i=0;i<hdrRow.length;i++){
+        if(String(hdrRow[i]||"").trim()){ anyHeader = true; break; }
+      }
+      if(!anyHeader){
+        if(lastCol < need.length){
+          sh.insertColumnsAfter(lastCol, need.length - lastCol);
+        }
+        sh.getRange(1,1,1,need.length).setValues([need]);
+      }else{
+        // sinon : on n'écrase rien, on append seulement
+        var existing = {};
+        for(var c=0;c<hdrRow.length;c++){
+          var h = String(hdrRow[c]||"").trim();
+          if(h) existing[h] = true;
+        }
+        for(var j=0;j<need.length;j++){
+          var want = String(need[j]||"").trim();
+          if(want && !existing[want]){
+            sh.getRange(1, sh.getLastColumn()+1).setValue(want);
+            existing[want] = true;
+          }
+        }
+      }
     }
     sh.setFrozenRows(1);
   }catch(e){}
@@ -924,6 +958,116 @@ function matchOffreurDemandeService_(offreurObj, demandeObj){
 }
 
 
+// ======================
+// GEO extraction robust (offreurs) — compat "colonnes décalées"
+// ======================
+function isReunionCommune_(n){
+  // n attendu déjà normCommune_(...)
+  var set = {
+    "les avirons":1,
+    "bras panon":1,
+    "cilaos":1,
+    "entre deux":1,
+    "l etang sale":1,
+    "letang sale":1,
+    "petite ile":1,
+    "la plaine des palmistes":1,
+    "le tampon":1,
+    "le port":1,
+    "la possession":1,
+    "saint andre":1,
+    "saint benoit":1,
+    "saint denis":1,
+    "saint joseph":1,
+    "saint leu":1,
+    "saint louis":1,
+    "saint paul":1,
+    "saint philippe":1,
+    "saint pierre":1,
+    "sainte marie":1,
+    "sainte rose":1,
+    "sainte suzanne":1,
+    "salazie":1,
+    "trois bassins":1
+  };
+  if(set[n]) return true;
+  if(n === "l'etang sale" || n === "l etang sale") return true;
+  return false;
+}
+
+function extractOffreurGeo_(o){
+  o = o || {};
+  var zone = String(o.Zone || "").trim();
+  var communes = String(o.Commune || "").trim();
+  var serviceAutre = String(o.ServiceAutre || "").trim();
+
+  // Toute l'île peut être stocké dans plusieurs champs
+  var all = isAllIsland_(normKey_(zone)) || isAllIsland_(normKey_(communes)) || isAllIsland_(normKey_(serviceAutre));
+  if(all){
+    return { zone: "toute l'ile", communes: "", allIsland: true };
+  }
+
+  var sa = normKey_(serviceAutre);
+  var zkey = normKey_(zone);
+
+  function looksLikeZoneKey_(k){
+    return (k === "nord" || k === "sud" || k === "est" || k === "ouest");
+  }
+
+  function looksLikeCommuneName_(s){
+    var n = normCommune_(String(s || ""));
+    if(!n) return false;
+    return isReunionCommune_(n);
+  }
+
+  function looksLikeGarbage_(s){
+    s = String(s || "").trim();
+    if(!s) return false;
+    // si trop long => souvent description / hash / etc
+    if(s.length > 80) return true;
+    // si contient des mots "phrase" typiques => description
+    var n = norm_(s);
+    if(/(je|nous|propose|cherche|devis|service|travaux|professionnel)/i.test(n)) return true;
+    return false;
+  }
+
+  // Liste de communes (si champ Commune contient une liste)
+  var list = splitList_(communes);
+  var communeList = [];
+  for(var i=0;i<list.length;i++){
+    var nn = normCommune_(list[i]);
+    if(nn && isReunionCommune_(nn)) communeList.push(list[i]);
+  }
+
+  var zoneLooksCommune = looksLikeCommuneName_(zone);
+  var communesLooksGarbage = looksLikeGarbage_(communes);
+  var communesHasValidList = communeList.length > 0;
+
+  // Cas classique "colonnes décalées" observé : ServiceAutre="Sud", Zone="Le Tampon", Commune="<description>"
+  if(looksLikeZoneKey_(sa) && zoneLooksCommune && (communesLooksGarbage || !communesHasValidList)){
+    return { zone: serviceAutre, communes: zone, allIsland:false, legacy:true };
+  }
+
+  // Si le champ Commune est mauvais mais Zone ressemble à une commune => utiliser Zone comme commune
+  if(!communesHasValidList && zoneLooksCommune && !looksLikeCommuneName_(communes)){
+    return { zone: looksLikeZoneKey_(zkey) ? zone : "", communes: zone, allIsland:false };
+  }
+
+  // Sinon: garder ce qui est renseigné
+  // Si "Zone" n'est pas une zone (nord/sud/est/ouest) on l'utilise plutôt comme commune si possible
+  if(!looksLikeZoneKey_(zkey) && zoneLooksCommune && !communesHasValidList){
+    communes = zone;
+    zone = "";
+  }
+
+  // Si la commune est un texte long, on la vide (sécurité)
+  if(looksLikeGarbage_(communes) && !communesHasValidList){
+    communes = "";
+  }
+
+  return { zone: zone, communes: communes, allIsland:false };
+}
+
 function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
   var oz = normKey_(offreurZone);
   var dz = normKey_(demandeZone);
@@ -950,72 +1094,6 @@ function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
   return false;
 }
 
-// --- GEO helpers: tolère formats "Sud - Le Tampon" et anciens enregistrements (colonnes décalées) ---
-function isZoneLabel_(s){
-  var z = normKey_(s);
-  if(!z) return false;
-  if(isAllIsland_(z)) return true;
-  return (z === "nord" || z === "sud" || z === "est" || z === "ouest");
-}
-
-// Si zone contient "Sud - Le Tampon" et commune est vide => on split
-function normalizeZoneCommune_(zone, commune){
-  var z = String(zone||"").trim();
-  var c = String(commune||"").trim();
-  if(!c && z){
-    var parts = z.split(/\s*-\s*/);
-    if(parts.length >= 2){
-      var z0 = String(parts[0]||"").trim();
-      var c0 = String(parts.slice(1).join(" - ")||"").trim();
-      if(isZoneLabel_(z0) || isAllIsland_(z0)){
-        z = z0; c = c0;
-      }
-    }
-  }
-  return { zone:z, commune:c };
-}
-
-// Détecte un champ "Commune" qui est en réalité une description (évite splitList_ => faux négatif)
-function isLikelyLongText_(s){
-  s = (s===undefined||s===null) ? "" : String(s);
-  s = s.trim();
-  if(!s) return false;
-  if(s.length <= 60) return false;
-  // Une description a souvent des espaces et pas de séparateurs de liste
-  if(s.indexOf(",") !== -1 || s.indexOf(";") !== -1 || s.indexOf("\n") !== -1) return false;
-  return (s.indexOf(" ") !== -1);
-}
-
-// Retourne la geo à utiliser pour le matching (zone + liste/valeur de communes)
-function resolveOffreurGeoForMatch_(o){
-  o = o || {};
-  // Normalise d'abord les formats "Sud - Le Tampon"
-  var _n1 = normalizeZoneCommune_(o.Zone, o.Commune);
-  var zone1 = String(_n1.zone||"").trim();
-  var com1  = String(_n1.commune||"").trim();
-
-  var zone2 = String(o.ServiceAutre||"").trim(); // ancien schéma : zone parfois stockée ici
-
-  // Cas ancien schéma : ServiceAutre contient une zone (Sud/Nord/Est/Ouest/Toute l'île) et Zone contient une commune
-  if(isZoneLabel_(zone2) && !isZoneLabel_(zone1) && zone1){
-    return { zone: zone2, communes: zone1 };
-  }
-
-  // Schéma normal : zone dans Zone
-  if(isZoneLabel_(zone1) || isAllIsland_(zone1)){
-    // Si "Commune" ressemble à une description (long texte), on l'ignore pour permettre le fallback "zone stricte"
-    if(isLikelyLongText_(com1)) com1 = "";
-    return { zone: zone1, communes: com1 };
-  }
-
-  // Dernier recours : si ServiceAutre est une zone et Zone est non vide, on l'utilise
-  if(isZoneLabel_(zone2) && zone1){
-    return { zone: zone2, communes: zone1 };
-  }
-
-  return { zone: zone1, communes: com1 };
-}
-
 
 function listDemandesForOffreur_(token, params){
   params = params || {};
@@ -1027,10 +1105,10 @@ function listDemandesForOffreur_(token, params){
   if(!r) return { ok:false, error:"Compte introuvable" };
 
   var oService = String(r.obj.Service||"").trim();
-  var _geo = resolveOffreurGeoForMatch_(r.obj);
-  var oZone = String(_geo.zone||"").trim();
-  var oCommunes = String(_geo.communes||"").trim();
-var extra = getOffreurExtra_(r);
+  var ggeo = extractOffreurGeo_(r.obj);
+  var oZone = String((ggeo && ggeo.zone) || "").trim();
+  var oCommunes = String((ggeo && ggeo.communes) || "").trim();
+  var extra = getOffreurExtra_(r);
   var aboOk = isAboOk_(extra);
 
   // Pagination (compat rétro : si aucun offset/limit fournis => renvoyer tout)
@@ -1762,11 +1840,6 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
   var stats = { total:0, inactive:0, notifOff:0, noEmail:0, serviceNo:0, geoNo:0, sent:0, mailErr:0 };
   var matched = 0;
 
-  // Normalise la demande si zone est fournie au format "Sud - Le Tampon"
-  var _dgeo = normalizeZoneCommune_(zone, commune);
-  zone = _dgeo.zone;
-  commune = _dgeo.commune;
-
   try{
     var c = cfg_();
     var site = String((c.SITE_URL || DEFAULT_SITE_URL || "")).replace(/\/+$/,"");
@@ -1802,8 +1875,8 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
 
       // Matching strict service + geo
       if(!matchOffreurDemandeService_(o, dObj)){ stats.serviceNo++; continue; }
-      var _g = resolveOffreurGeoForMatch_(o);
-      if(!matchGeo_(String(_g.zone||""), String(_g.communes||""), zone, commune)){ stats.geoNo++; continue; }
+      var ggeo = extractOffreurGeo_(o);
+      if(!matchGeo_(String((ggeo && ggeo.zone) || ""), String((ggeo && ggeo.communes) || ""), zone, commune)){ stats.geoNo++; continue; }
 
       matched++;
 
