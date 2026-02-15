@@ -602,7 +602,7 @@ function toPreviewUrl(u){
 
   try{
     const res = await window.DX_API.getAny(
-      ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
+      ["listDemandesPublic","listDemandes","getDemandesPublic"],
       { offset: 0, limit: STATE.limit, ...apiParams() }
     );
 
@@ -641,7 +641,7 @@ function toPreviewUrl(u){
 
   try{
     const res = await window.DX_API.getAny(
-      ((STATE.me && (STATE.me.offreurId || STATE.me.offreurID)) ? ["listDemandesForOffreur","listDemandesOffreur"] : ["listDemandesPublic","listDemandes","getDemandesPublic"]),
+      ["listDemandesPublic","listDemandes","getDemandesPublic"],
       { offset: STATE.offset, limit: STATE.limit, ...apiParams() }
     );
 

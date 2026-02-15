@@ -7,6 +7,17 @@
 (function () {
   "use strict";
 
+// Redirection : la page détail n’est plus utilisée. On renvoie vers le mur
+// avec la demande ouverte (évite les liens cassés depuis les emails/anciens favoris).
+try{
+  var _p = new URLSearchParams(window.location.search || "");
+  var _id = (_p.get("id") || "").trim();
+  if(_id){
+    window.location.replace("mur-demandes.html?open=" + encodeURIComponent(_id));
+    return;
+  }
+}catch(e){}
+
   function qs() { return new URLSearchParams(window.location.search || ""); }
   function el(id) { return document.getElementById(id); }
 
