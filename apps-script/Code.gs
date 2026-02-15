@@ -905,16 +905,20 @@ function isDemandeActive_(row){
 
 
 function matchService_(offreurService, demandeService){
-  var o = norm_(offreurService);
-  var d = norm_(demandeService);
-  if(!o || !d) return false;
+  // Matching tolérant sur les libellés: supporte listes (virgules, ;, /, |)
+  // Exemple: "Coaching" doit matcher "Coaching / Développement personnel"
+  var oList = splitList_(offreurService);
+  var dList = splitList_(demandeService);
+  if(oList.length === 0 || dList.length === 0) return false;
 
-  // support listes côté offreur (Service = "Plombier, Electricien")
-  var list = splitList_(offreurService);
-  if(list.length <= 1) return o === d;
-
-  for(var i=0;i<list.length;i++){
-    if(norm_(list[i]) === d) return true;
+  for(var i=0;i<oList.length;i++){
+    var o = norm_(oList[i]);
+    if(!o) continue;
+    for(var j=0;j<dList.length;j++){
+      var d = norm_(dList[j]);
+      if(!d) continue;
+      if(o === d) return true;
+    }
   }
   return false;
 }
@@ -958,128 +962,39 @@ function matchOffreurDemandeService_(offreurObj, demandeObj){
 }
 
 
-// ======================
-// GEO extraction robust (offreurs) — compat "colonnes décalées"
-// ======================
-function isReunionCommune_(n){
-  // n attendu déjà normCommune_(...)
-  var set = {
-    "les avirons":1,
-    "bras panon":1,
-    "cilaos":1,
-    "entre deux":1,
-    "l etang sale":1,
-    "letang sale":1,
-    "petite ile":1,
-    "la plaine des palmistes":1,
-    "le tampon":1,
-    "le port":1,
-    "la possession":1,
-    "saint andre":1,
-    "saint benoit":1,
-    "saint denis":1,
-    "saint joseph":1,
-    "saint leu":1,
-    "saint louis":1,
-    "saint paul":1,
-    "saint philippe":1,
-    "saint pierre":1,
-    "sainte marie":1,
-    "sainte rose":1,
-    "sainte suzanne":1,
-    "salazie":1,
-    "trois bassins":1
-  };
-  if(set[n]) return true;
-  if(n === "l'etang sale" || n === "l etang sale") return true;
-  return false;
-}
-
-function extractOffreurGeo_(o){
-  o = o || {};
-  var zone = String(o.Zone || "").trim();
-  var communes = String(o.Commune || "").trim();
-  var serviceAutre = String(o.ServiceAutre || "").trim();
-
-  // Toute l'île peut être stocké dans plusieurs champs
-  var all = isAllIsland_(normKey_(zone)) || isAllIsland_(normKey_(communes)) || isAllIsland_(normKey_(serviceAutre));
-  if(all){
-    return { zone: "toute l'ile", communes: "", allIsland: true };
-  }
-
-  var sa = normKey_(serviceAutre);
-  var zkey = normKey_(zone);
-
-  function looksLikeZoneKey_(k){
-    return (k === "nord" || k === "sud" || k === "est" || k === "ouest");
-  }
-
-  function looksLikeCommuneName_(s){
-    var n = normCommune_(String(s || ""));
-    if(!n) return false;
-    return isReunionCommune_(n);
-  }
-
-  function looksLikeGarbage_(s){
-    s = String(s || "").trim();
-    if(!s) return false;
-    // si trop long => souvent description / hash / etc
-    if(s.length > 80) return true;
-    // si contient des mots "phrase" typiques => description
-    var n = norm_(s);
-    if(/(je|nous|propose|cherche|devis|service|travaux|professionnel)/i.test(n)) return true;
-    return false;
-  }
-
-  // Liste de communes (si champ Commune contient une liste)
-  var list = splitList_(communes);
-  var communeList = [];
-  for(var i=0;i<list.length;i++){
-    var nn = normCommune_(list[i]);
-    if(nn && isReunionCommune_(nn)) communeList.push(list[i]);
-  }
-
-  var zoneLooksCommune = looksLikeCommuneName_(zone);
-  var communesLooksGarbage = looksLikeGarbage_(communes);
-  var communesHasValidList = communeList.length > 0;
-
-  // Cas classique "colonnes décalées" observé : ServiceAutre="Sud", Zone="Le Tampon", Commune="<description>"
-  if(looksLikeZoneKey_(sa) && zoneLooksCommune && (communesLooksGarbage || !communesHasValidList)){
-    return { zone: serviceAutre, communes: zone, allIsland:false, legacy:true };
-  }
-
-  // Si le champ Commune est mauvais mais Zone ressemble à une commune => utiliser Zone comme commune
-  if(!communesHasValidList && zoneLooksCommune && !looksLikeCommuneName_(communes)){
-    return { zone: looksLikeZoneKey_(zkey) ? zone : "", communes: zone, allIsland:false };
-  }
-
-  // Sinon: garder ce qui est renseigné
-  // Si "Zone" n'est pas une zone (nord/sud/est/ouest) on l'utilise plutôt comme commune si possible
-  if(!looksLikeZoneKey_(zkey) && zoneLooksCommune && !communesHasValidList){
-    communes = zone;
-    zone = "";
-  }
-
-  // Si la commune est un texte long, on la vide (sécurité)
-  if(looksLikeGarbage_(communes) && !communesHasValidList){
-    communes = "";
-  }
-
-  return { zone: zone, communes: communes, allIsland:false };
-}
-
 function matchGeo_(offreurZone, offreurCommunes, demandeZone, demandeCommune){
-  var oz = normKey_(offreurZone);
-  var dz = normKey_(demandeZone);
-  var dc = normCommune_(demandeCommune);
+  // Normalise les formats fusionnés "Sud - Le Tampon" (parfois stockés dans Zone avec Commune vide)
+  var dzRaw = String(demandeZone||"").trim();
+  var dcRaw = String(demandeCommune||"").trim();
+
+  if(!dcRaw){
+    var m = dzRaw.match(/^\s*(Nord|Sud|Est|Ouest)\s*-\s*(.+)\s*$/i);
+    if(m){
+      dzRaw = m[1];
+      dcRaw = m[2];
+    }
+  }
+
+  var ozRaw = String(offreurZone||"").trim();
+  var ocRaw = String(offreurCommunes||"").trim();
+
+  if(!ocRaw){
+    var m2 = ozRaw.match(/^\s*(Nord|Sud|Est|Ouest)\s*-\s*(.+)\s*$/i);
+    if(m2){
+      ozRaw = m2[1];
+      ocRaw = m2[2];
+    }
+  }
+
+  var oz = normKey_(ozRaw);
+  var dz = normKey_(dzRaw);
+  var dc = normCommune_(dcRaw);
 
   // Toute l'île (tolère "Sur toute l'île")
-  if(isAllIsland_(oz)){
-    return true;
-  }
+  if(isAllIsland_(oz)) return true;
 
   // Communes listées => matching strict commune
-  var communes = splitList_(offreurCommunes);
+  var communes = splitList_(ocRaw);
   if(communes.length > 0){
     for(var i=0;i<communes.length;i++){
       // Si quelqu'un a mis "toute l'île" dans la liste de communes => on accepte
@@ -1105,9 +1020,8 @@ function listDemandesForOffreur_(token, params){
   if(!r) return { ok:false, error:"Compte introuvable" };
 
   var oService = String(r.obj.Service||"").trim();
-  var ggeo = extractOffreurGeo_(r.obj);
-  var oZone = String((ggeo && ggeo.zone) || "").trim();
-  var oCommunes = String((ggeo && ggeo.communes) || "").trim();
+  var oZone = String(r.obj.Zone||"").trim();
+  var oCommunes = String(r.obj.Commune||"").trim();
   var extra = getOffreurExtra_(r);
   var aboOk = isAboOk_(extra);
 
@@ -1847,7 +1761,18 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
     var unlockUrl = site ? (site + "/demande-detail.html?id=" + encodeURIComponent(String(demandeId)) + "&unlock=1") : "";
 
     var shOff = ensureSheetStrict_(SHEETS.OFFREURS, HEADERS.Offreurs);
-    var offreurs = sheetToObjects_(shOff);
+    var offreurs = sheetToObjects_(shOff) || [];
+
+    // IMPORTANT : on inclut aussi les anciens offreurs (onglets Offreurs_OLD / offreur_old),
+    // car beaucoup de comptes historiques sont stockés là.
+    try{
+      var legacy = readLegacyOffreurs_();
+      if(legacy && legacy.length) offreurs = offreurs.concat(legacy);
+    }catch(e){}
+
+    // Dé-duplication (évite doublons si un même email existe sur plusieurs onglets)
+    try{ offreurs = dedupeOffreurs_(offreurs); }catch(e){}
+
     stats.total = (offreurs||[]).length;
 
     // On charge la demande (ligne brute) pour récupérer les coordonnées si abonnement actif
@@ -1875,8 +1800,7 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
 
       // Matching strict service + geo
       if(!matchOffreurDemandeService_(o, dObj)){ stats.serviceNo++; continue; }
-      var ggeo = extractOffreurGeo_(o);
-      if(!matchGeo_(String((ggeo && ggeo.zone) || ""), String((ggeo && ggeo.communes) || ""), zone, commune)){ stats.geoNo++; continue; }
+      if(!matchGeo_(String(o.Zone||""), String(o.Commune||""), zone, commune)){ stats.geoNo++; continue; }
 
       matched++;
 
@@ -2971,4 +2895,99 @@ function escapeHtml_(s){
   return String(s||"").replace(/[&<>"']/g, function(c){
     return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[c];
   });
+}
+
+
+// ======================
+// OFFREURS legacy (onglets Offreurs_OLD / offreur_old)
+// ======================
+function readLegacyOffreurs_(){
+  var ss = getSS_();
+  var sheets = ss.getSheets();
+  var out = [];
+
+  for(var i=0;i<sheets.length;i++){
+    var sh = sheets[i];
+    var name = String(sh.getName()||"");
+    var n = normKey_(name);
+
+    // accepte: "Offreurs_OLD_...", "Offreurs_old", "offreur_old", etc.
+    if(n.indexOf("offreurs old") === -1 && n.indexOf("offreur old") === -1) continue;
+
+    var rows = [];
+    try{ rows = sheetToObjects_(sh) || []; }catch(e){ rows = []; }
+
+    for(var r=0;r<rows.length;r++){
+      var row = rows[r] || {};
+
+      // email
+      var email = String(row.Email || row["E-mail"] || row["EmailOffreur"] || row["Adresse email"] || "").trim();
+      if(!email) continue;
+
+      // métiers
+      var metiers = String(
+        row["Métiers"] || row["Metiers"] || row.Metiers || row["Métiers "] || row["Metier"] || row["Métiers/Services"] || row["Service"] || ""
+      ).trim();
+      if(!metiers) continue;
+
+      // secteurs (zone/communes)
+      var secteurs = String(row["Secteurs"] || row.Secteurs || row["Zones"] || row.Zone || row["Communes"] || row.Commune || "").trim();
+
+      var zone = "";
+      var commune = "";
+
+      if(secteurs){
+        // Cas "Toute l'île"
+        if(isAllIsland_(secteurs)){
+          zone = secteurs;
+        }else{
+          // Cas "Sud - Le Tampon"
+          var m = secteurs.match(/^\s*(Nord|Sud|Est|Ouest)\s*-\s*(.+)\s*$/i);
+          if(m){
+            zone = m[1];
+            commune = m[2];
+          }else{
+            // Cas zone pure "Sud"
+            if(/^\s*(Nord|Sud|Est|Ouest)\s*$/i.test(secteurs)){
+              zone = secteurs;
+            }else{
+              // Sinon on considère que c’est une liste de communes
+              commune = secteurs;
+            }
+          }
+        }
+      }
+
+      out.push({
+        // champs attendus par notifyOffreursNewDemande_
+        Email: email,
+        Service: metiers,
+        ServiceAutre: "",
+        Zone: zone,
+        Commune: commune,
+        Actif: "OUI",
+        NotifEmail: "OUI",
+        _legacySheet: name
+      });
+    }
+  }
+  return out;
+}
+
+function dedupeOffreurs_(rows){
+  var out = [];
+  var seen = {};
+  for(var i=0;i<(rows||[]).length;i++){
+    var o = rows[i] || {};
+    var email = norm_(o.Email || "");
+    var svc = norm_(o.Service || "");
+    var z = normKey_(o.Zone || "");
+    var c = normCommune_(o.Commune || "");
+    var key = email + "||" + svc + "||" + z + "||" + c;
+    if(!email || !svc) continue;
+    if(seen[key]) continue;
+    seen[key] = true;
+    out.push(o);
+  }
+  return out;
 }
