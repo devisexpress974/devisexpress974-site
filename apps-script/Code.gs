@@ -1806,8 +1806,7 @@ function notifyOffreursNewDemande_(demandeId, service, zone, commune, descriptio
         return '<a href="' + href + '" style="display:inline-block;margin:6px 8px 0 0;padding:10px 14px;border-radius:10px;text-decoration:none;background:#fff;border:1px solid #ff3b0a;color:#ff3b0a;font-weight:700;">' + label + '</a>';
       }
 
-      var safeDesc = escapeHtml_(String(description||"")).replace(/
-/g, "<br>");
+      var safeDesc = escapeHtml_(String(description||"")).replace(/\r?\n/g, "<br>");
       var shortDesc = safeDesc;
       if(shortDesc.length > 900) shortDesc = shortDesc.slice(0,900) + "…";
 
