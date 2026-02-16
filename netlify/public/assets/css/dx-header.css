@@ -47,8 +47,10 @@
 .dx-brandText{display:flex; flex-direction:column; gap:2px;}
 
 
-/* V12: stabilité logo/texte (anti chevauchement) */
-.dx-brand{min-width:0; flex:1; }
+/* V12/V14: stabilité logo/texte (anti chevauchement)
+   IMPORTANT: le brand ne doit pas "grandir" (sinon il écrase le menu desktop).
+   On autorise le shrink (ellipsis) mais pas le grow. */
+.dx-brand{min-width:0; flex:0 1 auto; }
 .dx-brandText{min-width:0;}
 .dx-title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .dx-tagline{white-space:normal; overflow-wrap:anywhere; word-break:break-word;}
@@ -340,5 +342,12 @@
 .dxTopbar .dx-header-inner{align-items:center !important;}
 .dxTopbar .dx-actions{align-items:center !important; flex:0 0 auto; margin-left:auto;}
 .dxTopbar .dx-navWrap{min-width:0;}
-.dxTopbar .dx-navPills{max-width:100%; overflow:hidden;}
+.dxTopbar .dx-navPills{
+  max-width:100%;
+  /* Ne jamais "mâcher" le dernier item (Plus). Si manque de place, on scroll horizontal dans la pill. */
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+}
+.dxTopbar .dx-navPills::-webkit-scrollbar{display:none;}
 

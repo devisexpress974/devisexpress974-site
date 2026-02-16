@@ -444,3 +444,20 @@ main, .container, .card, .panel, .section, .wrap, .page, .pageMain { min-width: 
 p, li, a, h1, h2, h3, h4, h5, h6, .text, .desc { overflow-wrap: anywhere; word-break: break-word; }
 img, video, iframe, canvas, svg { max-width: 100%; height: auto; }
 
+/* V14: stop remaining mobile overflows (inputs/filters/buttons/tables) */
+main{ overflow-x: clip; }
+main *{ max-width: 100%; }
+
+@media (max-width: 560px){
+  /* Inputs/search bars can force horizontal scroll if they keep a hard min-width */
+  .dxInput, .metiersSearch, .mSearch, .mSearch input,
+  input, select, textarea, button{ min-width:0; max-width:100%; }
+  .dxInput{ width:100%; }
+
+  /* Buttons in content can wrap instead of pushing layout */
+  main .dxBtn{ white-space: normal; }
+
+  /* Tables: allow horizontal scroll instead of breaking layout */
+  table{ display:block; width:100%; overflow-x:auto; -webkit-overflow-scrolling: touch; }
+}
+

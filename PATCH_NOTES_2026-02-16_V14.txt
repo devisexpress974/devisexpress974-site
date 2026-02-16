@@ -1,0 +1,17 @@
+Patch V14 — UI overflow + desktop nav
+
+✅ Desktop: "Plus" non mâché
+- Le logo/brand ne grow plus (flex:0 1 auto) => ne compresse plus le menu desktop.
+- La pill nav ne coupe plus le dernier item: scroll horizontal interne si manque de place (overflow-x:auto, scrollbar hidden).
+
+✅ Mobile: débordements résiduels (certaines pages)
+- Filet global: main overflow-x clip + max-width:100% sur enfants
+- Sur <560px: input/select/textarea/button min-width:0 + dxInput width:100%
+- Sur <560px: boutons dans main autorisent wrap (white-space:normal)
+- Tables: scroll horizontal sans casser la page
+
+Fichiers modifiés:
+- public/assets/css/dx-header.css
+- netlify/public/assets/css/dx-header.css
+- public/styles.css
+- netlify/public/styles.css
