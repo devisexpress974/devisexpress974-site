@@ -363,3 +363,16 @@
   .dxHeaderActions{order:2; margin-left:auto;}
 }
 
+
+/* V13 HOTFIX — prevent desktop overlap at medium widths + shield header styles */
+@media (max-width: 1120px){
+  .dxTopbar .dx-navWrap{display:none !important;}
+  .dxTopbar .dxBurger{display:flex !important; flex-direction:column; align-items:center; justify-content:center;}
+}
+
+/* Shield: ensure auth button stays centered and doesn't overlap pills */
+.dxTopbar .dx-header-inner{align-items:center !important;}
+.dxTopbar .dx-actions{align-items:center !important; flex:0 0 auto; margin-left:auto;}
+.dxTopbar .dx-navWrap{min-width:0;}
+.dxTopbar .dx-navPills{max-width:100%; overflow:hidden;}
+

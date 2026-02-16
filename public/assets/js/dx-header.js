@@ -1,20 +1,31 @@
-// DX HEADER v39 (auth single button)
+// DX HEADER v40.1 — stable init (post-inject) + burger via [hidden]
 (function () {
-  function q(root, sel){ try { return root.querySelector(sel); } catch(e){ return null; } }
-  function qa(root, sel){ try { return root.querySelectorAll(sel); } catch(e){ return []; } }
+  "use strict";
 
-  function setActiveLinks(root) {
+  function q(root, sel){ try { return root.querySelector(sel); } catch(e){ return null; } }
+  function qa(root, sel){ try { return Array.prototype.slice.call(root.querySelectorAll(sel)); } catch(e){ return []; } }
+
+  function normPath(href){
+    if(!href) return "";
+    // remove query/hash
+    href = href.split("#")[0].split("?")[0];
+    // keep last segment
+    var parts = href.split("/");
+    return (parts[parts.length-1] || "").toLowerCase();
+  }
+
+  function setActiveLinks(header) {
     var path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
-    var links = qa(root, "a.dx-navLink, a.dxMobileLink");
-    for (var i=0;i<links.length;i++){ links[i].classList.remove("is-active"); }
-    for (var j=0;j<links.length;j++){
-      var a = links[j];
-      var href = (a.getAttribute("href") || "").toLowerCase();
-      var file = href.split("/").pop();
-      if(!file) continue;
-      if(file === path) a.classList.add("is-active");
-      if(path === "" && file === "index.html") a.classList.add("is-active");
-    }
+    var links = qa(header, "a.dx-navLink, a.dxMobileLink");
+    links.forEach(function(a){ a.classList.remove("is-active"); });
+    links.forEach(function(a){
+      var dp = (a.getAttribute("data-path") || "").toLowerCase();
+      var href = normPath(a.getAttribute("href") || "");
+      // match by data-path (preferred) or by filename
+      if ((dp && dp.endsWith("/"+path)) || (href && href === path)) {
+        a.classList.add("is-active");
+      }
+    });
   }
 
   function getToken(){
@@ -31,11 +42,9 @@
     var profileMenuMobile = q(header, "#dxProfileMenuMobile");
 
     function applyState(isAuthed){
-      // Profile link visible only if authed
       if(profileMenu) profileMenu.style.display = isAuthed ? "" : "none";
       if(profileMenuMobile) profileMenuMobile.style.display = isAuthed ? "" : "none";
 
-      // Single button toggles between login/logout
       function setup(btn){
         if(!btn) return;
         if(isAuthed){
@@ -44,7 +53,6 @@
           btn.onclick = function(ev){
             if(ev && ev.preventDefault) ev.preventDefault();
             clearToken();
-            // reload to update UI
             try { location.href = "./index.html"; } catch(e){ location.reload(); }
             return false;
           };
@@ -61,7 +69,6 @@
     var token = getToken();
     applyState(!!token);
 
-    // Optional server verification (doesn't change UI if API absent)
     if(token && window.DX_AUTH && typeof window.DX_AUTH.whoami === "function"){
       window.DX_AUTH.whoami().then(function(res){
         if(!res || !res.ok){
@@ -90,59 +97,64 @@
       if(!panel.hasAttribute("hidden")){
         panel.setAttribute("hidden","");
         burger.setAttribute("aria-expanded","false");
-        header.classList.remove("dx-open"); // compat ancienne CSS
+        header.classList.remove("dx-open"); // backward compat
       }
     }
     function open(){
       if(panel.hasAttribute("hidden")){
         panel.removeAttribute("hidden");
         burger.setAttribute("aria-expanded","true");
-        header.classList.add("dx-open"); // compat ancienne CSS
+        header.classList.add("dx-open"); // backward compat
       }
     }
 
-    burger.addEventListener("click", function(){
+    burger.addEventListener("click", function(e){
+      if(e && e.preventDefault) e.preventDefault();
       var isOpen = !panel.hasAttribute("hidden");
       if(isOpen) close(); else open();
     });
 
-    // Close when clicking outside header
     document.addEventListener("click", function(e){
       if(panel.hasAttribute("hidden")) return;
       if(header.contains(e.target)) return;
       close();
     });
 
-    // Close after clicking a link inside the panel (mobile UX)
     panel.addEventListener("click", function(e){
       var t = e.target;
       if(!t) return;
-      // if click on link or inside link
       var a = t.closest ? t.closest("a") : null;
       if(a) close();
     });
   }
 
-    });
-    document.addEventListener("click", function(e){
-      if(panel.hasAttribute("hidden")) return;
-      if(header.contains(e.target)) return;
-      panel.setAttribute("hidden","");
-      burger.setAttribute("aria-expanded","false");
-    });
+  function initHeader(header){
+    if(!header || header.dataset.dxInit === "1") return;
+    header.dataset.dxInit = "1";
+    setActiveLinks(header);
+    renderAuthState(header);
+    initBurger(header);
   }
 
-  function init(){
-    var header = document.querySelector("[data-dx-header]");
-    if(!header) return;
-    setActiveLinks(header);
-    initBurger(header);
-    renderAuthState(header);
+  function boot(){
+    var header = document.querySelector('header[data-dx-header]');
+    if(header) initHeader(header);
+
+    // Observe injected header changes (dx-include-header replaces innerHTML)
+    var mount = document.getElementById("dx-header-slot");
+    if(!mount) return;
+    try {
+      var obs = new MutationObserver(function(){
+        var h = mount.querySelector('header[data-dx-header]');
+        if(h) initHeader(h);
+      });
+      obs.observe(mount, { childList: true, subtree: true });
+    } catch(e){}
   }
 
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    init();
+    boot();
   }
 })();
