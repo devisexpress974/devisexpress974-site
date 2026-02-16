@@ -59,6 +59,26 @@
   background: rgba(0,0,0,0.04);
   color: rgba(0,0,0,0.55);
 }
+
+.itemTitle{
+  margin:0;
+  font-size: 18px;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+.itemMeta{
+  margin:6px 0 0;
+  color: rgba(0,0,0,0.65);
+  font-size: 13px;
+  overflow-wrap:anywhere;
+}
+.btnRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.btnRow .btn{ flex: 1 1 160px; min-width: 140px; }
+
 .itemCard{
   border-radius: 18px;
 }
@@ -69,4 +89,10 @@
   align-items:flex-start;
 }
 @media (max-width: 520px){
-  }
+  .itemTop{ flex-direction:column; }
+  .badge{ align-self:flex-start; }
+  .btnRow .btn{ width:100%; }
+}
+
+
+.itemTop > div{ min-width:0; }

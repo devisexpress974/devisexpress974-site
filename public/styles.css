@@ -18,7 +18,7 @@
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%; overflow-x:hidden}
 body{
   margin:0;
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Arial;
@@ -423,3 +423,16 @@ ul.list li{
 body.dxModalOpen{overflow:hidden}
 .dxBtn{display:inline-block;text-align:center;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);color:#fff;text-decoration:none}
 .dxBtnPrimary{background:#ff3b0a;border-color:#ff3b0a;color:#111;font-weight:700}
+
+
+/* Alias footer classes (compat) */
+.footerInner{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+.footerLeft{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.footerLinks{ display:flex; gap:12px; flex-wrap:wrap; }
+@media (max-width: 520px){
+  .footerInner{ flex-direction:column; align-items:flex-start; }
+}
+
+
+/* Anti-débordement mobile (mots très longs / URLs) */
+.heroTitle, .heroSub, h1, h2, h3, p, a, .muted{ overflow-wrap:anywhere; word-break:break-word; }
