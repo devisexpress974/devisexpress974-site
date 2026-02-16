@@ -1,157 +1,148 @@
-// DX HEADER v38
+// DX HEADER v39 (auth single button)
 (function () {
+  function q(root, sel){ try { return root.querySelector(sel); } catch(e){ return null; } }
+  function qa(root, sel){ try { return root.querySelectorAll(sel); } catch(e){ return []; } }
+
   function setActiveLinks(root) {
-    const path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
-
-    const allLinks = root.querySelectorAll("a.dx-navLink, a.dxMobileLink");
-    allLinks.forEach(a => a.classList.remove("is-active"));
-
-    allLinks.forEach(a => {
-      const href = (a.getAttribute("href") || "").toLowerCase();
-      const file = href.split("/").pop();
-      if (!file) return;
-      if (file === path) a.classList.add("is-active");
-      if (path === "" && file === "index.html") a.classList.add("is-active");
-    });
+    var path = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+    var links = qa(root, "a.dx-navLink, a.dxMobileLink");
+    for (var i=0;i<links.length;i++){ links[i].classList.remove("is-active"); }
+    for (var j=0;j<links.length;j++){
+      var a = links[j];
+      var href = (a.getAttribute("href") || "").toLowerCase();
+      var file = href.split("/").pop();
+      if(!file) continue;
+      if(file === path) a.classList.add("is-active");
+      if(path === "" && file === "index.html") a.classList.add("is-active");
+    }
   }
 
-  
-function renderAuthState(header){
-  const loginCta = header.querySelector("#loginCta");
-  const accountLink = header.querySelector("#accountLink");
-  const logoutBtn = header.querySelector("#logoutBtn");
-  const badge = header.querySelector("#dxAuthBadge");
-  let token = "";
-  try{ token = localStorage.getItem("dx_token") || ""; }catch(e){}
-  const isAuthed = !!token;
-
-  function setAuthedUI(on){
-    if(loginCta) loginCta.style.display = on ? "none" : "";
-    if(accountLink) accountLink.style.display = on ? "" : "none";
-    if(logoutBtn) logoutBtn.style.display = on ? "" : "none";
-    if(badge) badge.style.display = on ? "inline-flex" : "none";
+  function getToken(){
+    try { return localStorage.getItem("dx_token") || ""; } catch(e){ return ""; }
+  }
+  function clearToken(){
+    try { localStorage.removeItem("dx_token"); } catch(e){}
   }
 
-  setAuthedUI(isAuthed);
+  function renderAuthState(header){
+    var authBtn = q(header, "#authBtn");
+    var authBtnMobile = q(header, "#authBtnMobile");
+    var profileMenu = q(header, "#dxProfileMenu");
+    var profileMenuMobile = q(header, "#dxProfileMenuMobile");
 
-  if(logoutBtn){
-    logoutBtn.addEventListener("click", () => {
-      try{ localStorage.removeItem("dx_token"); }catch(e){}
-      setAuthedUI(false);
-      try{ window.location.href = "./offreur-login.html"; }catch(e){}
-    });
-  }
+    function applyState(isAuthed){
+      // Profile link visible only if authed
+      if(profileMenu) profileMenu.style.display = isAuthed ? "" : "none";
+      if(profileMenuMobile) profileMenuMobile.style.display = isAuthed ? "" : "none";
 
-  // Optionnel : vérifie le token côté serveur si api.js/auth.js présents
-  if(isAuthed && window.DX_AUTH && typeof window.DX_AUTH.whoami === "function"){
-    window.DX_AUTH.whoami().then(res => {
-      if(!res || !res.ok){
-        try{ localStorage.removeItem("dx_token"); }catch(e){}
-        setAuthedUI(false);
-      } else {
-        // affiche le prénom/nom si dispo
-        if(badge && (res.nom || res.name)){
-          badge.textContent = "Connecté : " + (res.nom || res.name);
+      // Single button toggles between login/logout
+      function setup(btn){
+        if(!btn) return;
+        if(isAuthed){
+          btn.textContent = "Se déconnecter";
+          btn.setAttribute("href", "#");
+          btn.onclick = function(ev){
+            if(ev && ev.preventDefault) ev.preventDefault();
+            clearToken();
+            // reload to update UI
+            try { location.href = "./index.html"; } catch(e){ location.reload(); }
+            return false;
+          };
+        } else {
+          btn.textContent = "Se connecter";
+          btn.setAttribute("href", "./offreur-login.html");
+          btn.onclick = null;
         }
       }
-    }).catch(()=>{});
+      setup(authBtn);
+      setup(authBtnMobile);
+    }
+
+    var token = getToken();
+    applyState(!!token);
+
+    // Optional server verification (doesn't change UI if API absent)
+    if(token && window.DX_AUTH && typeof window.DX_AUTH.whoami === "function"){
+      window.DX_AUTH.whoami().then(function(res){
+        if(!res || !res.ok){
+          clearToken();
+          applyState(false);
+        }
+      }).catch(function(){});
+    }
   }
-}
 
-function init(rootDoc) {
-    const header = rootDoc.querySelector(".dxTopbar[data-dx-header]");
-    if (!header) return;
+  function initBurger(header){
+    var burger = q(header, ".dxBurger");
+    var panel = q(header, ".dxMobilePanel");
+    if(!burger || !panel) return;
 
-    // évite les doubles init (dx-include-header + auto init)
-    if (header.dataset.dxInit === "1") return;
-    header.dataset.dxInit = "1";
+    function syncTopbarH(){
+      try {
+        var h = Math.round(header.getBoundingClientRect().height);
+        header.style.setProperty("--dxTopbarH", h + "px");
+      } catch(e){}
+    }
+    syncTopbarH();
+    window.addEventListener("resize", syncTopbarH);
 
-    // expose la hauteur du header pour positionner le menu mobile
-    try {
-      document.documentElement.style.setProperty("--dxTopbarH", header.getBoundingClientRect().height + "px");
-    } catch(e) {}
+    function close(){
+      if(!panel.hasAttribute("hidden")){
+        panel.setAttribute("hidden","");
+        burger.setAttribute("aria-expanded","false");
+        header.classList.remove("dx-open"); // compat ancienne CSS
+      }
+    }
+    function open(){
+      if(panel.hasAttribute("hidden")){
+        panel.removeAttribute("hidden");
+        burger.setAttribute("aria-expanded","true");
+        header.classList.add("dx-open"); // compat ancienne CSS
+      }
+    }
 
-    const burger = header.querySelector(".dxBurger");
-    const panel = header.querySelector(".dxMobilePanel");
+    burger.addEventListener("click", function(){
+      var isOpen = !panel.hasAttribute("hidden");
+      if(isOpen) close(); else open();
+    });
 
-    // safety
-    if (panel) panel.hidden = true;
+    // Close when clicking outside header
+    document.addEventListener("click", function(e){
+      if(panel.hasAttribute("hidden")) return;
+      if(header.contains(e.target)) return;
+      close();
+    });
 
-    setActiveLinks(rootDoc);
+    // Close after clicking a link inside the panel (mobile UX)
+    panel.addEventListener("click", function(e){
+      var t = e.target;
+      if(!t) return;
+      // if click on link or inside link
+      var a = t.closest ? t.closest("a") : null;
+      if(a) close();
+    });
+  }
 
+    });
+    document.addEventListener("click", function(e){
+      if(panel.hasAttribute("hidden")) return;
+      if(header.contains(e.target)) return;
+      panel.setAttribute("hidden","");
+      burger.setAttribute("aria-expanded","false");
+    });
+  }
+
+  function init(){
+    var header = document.querySelector("[data-dx-header]");
+    if(!header) return;
+    setActiveLinks(header);
+    initBurger(header);
     renderAuthState(header);
-
-
-    function openMenu() {
-      header.classList.add("dx-open");
-      if (panel) panel.hidden = false;
-      if (burger) burger.setAttribute("aria-expanded", "true");
-    }
-
-    function closeMenu() {
-      header.classList.remove("dx-open");
-      if (panel) panel.hidden = true;
-      if (burger) burger.setAttribute("aria-expanded", "false");
-    }
-
-    function toggleMenu() {
-      const isOpen = header.classList.contains("dx-open");
-      if (isOpen) closeMenu();
-      else openMenu();
-    }
-
-    if (burger) {
-      burger.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleMenu();
-      });
-    }
-
-    // Close when clicking outside
-    document.addEventListener("click", (e) => {
-      if (!header.classList.contains("dx-open")) return;
-      if (!header.contains(e.target)) closeMenu();
-    });
-
-    // Close on ESC
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeMenu();
-    });
-
-    // If resizing to desktop, close panel
-    window.addEventListener("resize", () => {
-      try { document.documentElement.style.setProperty("--dxTopbarH", header.getBoundingClientRect().height + "px"); } catch(e) {}
-      if (window.innerWidth > 980) closeMenu();
-    });
-
-
-    // Close dropdowns when clicking outside
-    document.addEventListener("click", (ev) => {
-      const t = ev.target;
-      const d1 = header.querySelector(".dxPlus");
-      const d2 = header.querySelector(".dxMobilePlus");
-      if (d1 && d1.open && !d1.contains(t)) d1.open = false;
-      if (d2 && d2.open && !d2.contains(t)) d2.open = false;
-    });
-
-    // Make <details> dropdown nicer: close on link click
-    header.querySelectorAll(".dxPlusMenu a, .dxMobilePlusMenu a").forEach(a => {
-      a.addEventListener("click", () => {
-        closeMenu();
-        const d1 = header.querySelector(".dxPlus");
-        const d2 = header.querySelector(".dxMobilePlus");
-        if (d1) d1.open = false;
-        if (d2) d2.open = false;
-      });
-    });
   }
 
-  window.DXHeader = { init };
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => init(document));
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
   } else {
-    init(document);
+    init();
   }
 })();

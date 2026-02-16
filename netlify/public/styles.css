@@ -31,6 +31,20 @@ a{color:inherit;text-decoration:none}
 a:hover{text-decoration:underline}
 img{max-width:100%;display:block;height:auto}
 
+
+/* =========================================================
+   V12 anti-overflow mobile (textes longs / URLs)
+   ========================================================= */
+:where(main, .pageWrap, .container, .card, .noteBox){
+  min-width: 0;
+}
+:where(main, .pageWrap, .container, .card, .noteBox)
+  :where(p, li, a, span, div, h1, h2, h3, h4, h5, h6){
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
 /* container */
 .container{
   width:min(var(--container), calc(100% - 32px));

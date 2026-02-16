@@ -77,23 +77,57 @@
     var panel = q(header, ".dxMobilePanel");
     if(!burger || !panel) return;
 
-    burger.addEventListener("click", function(){
-      var open = !panel.hasAttribute("hidden");
-      if(open){
+    function syncTopbarH(){
+      try {
+        var h = Math.round(header.getBoundingClientRect().height);
+        header.style.setProperty("--dxTopbarH", h + "px");
+      } catch(e){}
+    }
+    syncTopbarH();
+    window.addEventListener("resize", syncTopbarH);
+
+    function close(){
+      if(!panel.hasAttribute("hidden")){
         panel.setAttribute("hidden","");
-        header.classList.remove("dx-open");
         burger.setAttribute("aria-expanded","false");
-      } else {
-        panel.removeAttribute("hidden");
-        header.classList.add("dx-open");
-        burger.setAttribute("aria-expanded","true");
+        header.classList.remove("dx-open"); // compat ancienne CSS
       }
+    }
+    function open(){
+      if(panel.hasAttribute("hidden")){
+        panel.removeAttribute("hidden");
+        burger.setAttribute("aria-expanded","true");
+        header.classList.add("dx-open"); // compat ancienne CSS
+      }
+    }
+
+    burger.addEventListener("click", function(){
+      var isOpen = !panel.hasAttribute("hidden");
+      if(isOpen) close(); else open();
+    });
+
+    // Close when clicking outside header
+    document.addEventListener("click", function(e){
+      if(panel.hasAttribute("hidden")) return;
+      if(header.contains(e.target)) return;
+      close();
+    });
+
+    // Close after clicking a link inside the panel (mobile UX)
+    panel.addEventListener("click", function(e){
+      var t = e.target;
+      if(!t) return;
+      // if click on link or inside link
+      var a = t.closest ? t.closest("a") : null;
+      if(a) close();
+    });
+  }
+
     });
     document.addEventListener("click", function(e){
       if(panel.hasAttribute("hidden")) return;
       if(header.contains(e.target)) return;
       panel.setAttribute("hidden","");
-      header.classList.remove("dx-open");
       burger.setAttribute("aria-expanded","false");
     });
   }
