@@ -172,15 +172,8 @@
   border-radius: 999px;
   text-decoration:none;
   font-weight: 900;
-  max-width: 100%;
-  white-space: normal; /* évite les débordements hors header */
-  text-align: center;
+  white-space: nowrap;
 }
-
-.dxTopbar .dxBtn{
-  white-space: nowrap; /* dans la topbar uniquement */
-}
-
 
 .dxBtnPrimary{
   color:#000;
@@ -247,7 +240,7 @@
   border-radius: 18px;
   box-shadow: 0 18px 40px rgba(0,0,0,0.18);
   padding: 12px;
-  display: none;
+  /* V11 HOTFIX: visibility controlled by [hidden] attribute (no dx-open required) */
 }
 
 .dxTopbar.dx-open .dxMobilePanel{

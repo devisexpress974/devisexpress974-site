@@ -81,9 +81,11 @@
       var open = !panel.hasAttribute("hidden");
       if(open){
         panel.setAttribute("hidden","");
+        header.classList.remove("dx-open");
         burger.setAttribute("aria-expanded","false");
       } else {
         panel.removeAttribute("hidden");
+        header.classList.add("dx-open");
         burger.setAttribute("aria-expanded","true");
       }
     });
@@ -91,6 +93,7 @@
       if(panel.hasAttribute("hidden")) return;
       if(header.contains(e.target)) return;
       panel.setAttribute("hidden","");
+      header.classList.remove("dx-open");
       burger.setAttribute("aria-expanded","false");
     });
   }

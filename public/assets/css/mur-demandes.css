@@ -281,8 +281,8 @@
   border-color: rgba(255,193,7,0.35);
 }
 
-main .dxBtnPrimary,
-main .dxBtnGhost{
+.dxBtnPrimary,
+.dxBtnGhost{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -291,18 +291,15 @@ main .dxBtnGhost{
   border-radius: 14px;
   text-decoration:none;
   font-weight: 1000;
-  max-width:100%;
-  white-space: normal;
-  text-align:center;
 }
 
-main .dxBtnPrimary{
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
-  color: #111;
+.dxBtnPrimary{
+  background: var(--dx-accent);
+  color: #fff;
   border: 1px solid rgba(0,0,0,0.08);
 }
 
-main .dxBtnGhost{
+.dxBtnGhost{
   background: rgba(0,0,0,0.04);
   color: var(--dx-ink);
   border: 1px solid rgba(0,0,0,0.10);
