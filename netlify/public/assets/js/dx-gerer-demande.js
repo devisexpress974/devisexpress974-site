@@ -23,10 +23,10 @@
       return;
     }
     try{
-      const res = await window.DX_API.getAny(["getDemandePublic","getDemande"], { id });
-      if(res && res.ok && res.demande){
-        const d = res.demande;
-        box.innerHTML = "<strong>Métier :</strong> " + (d.Service||d.service||"") + "<br>"
+      const res = await window.DX_API.getAny(["getDemandePublic","getDemande","getDemandeByIdPublic"], { id });
+      const d = (res && res.ok) ? (res.data || res.demande || res.item || res.demandeData || null) : null;
+      if(d){
+box.innerHTML = "<strong>Métier :</strong> " + (d.Service||d.service||"") + "<br>"
           + "<strong>Commune :</strong> " + (d.Commune||d.commune||"") + "<br>"
           + "<strong>Statut :</strong> " + (d.Statut||d.statut||"") + "<br>"
           + "<strong>Publié :</strong> " + (d.CreatedAt||d.createdAt||"");

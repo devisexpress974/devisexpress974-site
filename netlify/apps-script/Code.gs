@@ -645,12 +645,12 @@ if(isJobDescriptionInconsistent_(service, description)){
     var site = cMail.SITE_URL ? String(cMail.SITE_URL).replace(/\/+$/,"") : "";
     var viewHtml = "";
     if(site){
-      var viewUrl = site + "/demande-detail.html?id=" + encodeURIComponent(id);
+      var viewUrl = site + "/mur-demandes?open=" + encodeURIComponent(id);
       viewHtml = '<p><strong>Voir ma demande :</strong> <a href="' + viewUrl + '">clique ici</a></p>';
     }
     var withdrawHtml = "";
     if(site){
-      var withdrawUrl = site + "/gerer-demande.html?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id));
+      var withdrawUrl = site + "/gerer-demande?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id));
       withdrawHtml = '<p><strong>Retirer ma demande :</strong> <a href="' + withdrawUrl + '">clique ici</a></p>';
     }
     
@@ -664,12 +664,12 @@ if(isJobDescriptionInconsistent_(service, description)){
     + "<div style=\"font-family:Arial,sans-serif;line-height:1.45\">"
     + "<h2 style=\"margin:0 0 10px;color:#ff3b0a\">Demande publiée ✅</h2>"
     + "<p>Bonjour <strong>" + escapeHtml_(nom) + "</strong>,</p>"
-    + "<p>Ta demande est en ligne. Elle restera visible <strong>30 jours</strong> (ou jusqu'à clôture).</p>"
+    + "<p>Merci, ta demande est maintenant <strong>en ligne sur le mur public</strong> (visible <strong>1 mois</strong>).</p>"+ "<div style=\"background:#f6f7fb;border:1px solid #e9ecf5;border-radius:12px;padding:12px;margin:12px 0;\">"+ "<div style=\"font-weight:800;margin:0 0 6px\">Comment ça marche</div>"+ "<ul style=\"margin:6px 0 0;padding-left:18px;color:#333\">"+ "<li>Les prestataires concernés voient ta demande <strong>sans tes coordonnées</strong> sur le mur.</li>"+ "<li>Seuls les offreurs <strong>abonnés</strong> (ou ayant débloqué l’accès) peuvent voir tes coordonnées et te contacter.</li>"+ "<li>Tu reçois ensuite des propositions : il ne te reste plus qu’à choisir l’offre qui te convient.</li>"+ "</ul></div>"+ "<p style=\"margin:0 0 12px;color:#333\">Tu peux retirer ta demande à tout moment via le lien <strong>Retirer ma demande</strong> ci‑dessous.</p>"
     + viewHtml
     + withdrawHtml
     + becomeOffreurHtml
     + "<hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\">"
-    + "<p style=\"color:#666;margin:0\">DevisExpress974 • 100% 974</p>"
+    + "<p style=\"color:#666;margin:0\">DevisExpress974 • 1 demande • plusieurs réponses • 100% 974</p>"
     + "</div>";
   sendMailSafe_(email, "DevisExpress974 — Demande publiée", bodyHtml);
 }

@@ -797,13 +797,12 @@ if(isJobDescriptionInconsistent_(service, description)){
   
 // Mail demandeur (si email fourni)
 if(email){
-  var cMail = cfg_();
+    var cMail = cfg_();
   var site = String((cMail.SITE_URL || DEFAULT_SITE_URL || "")).replace(/\/+$/,"");
-  var viewUrl = site ? (site + "/demande-detail.html?id=" + encodeURIComponent(id)) : "";
-  var murUrl = site ? (site + "/mur-demandes.html#d=" + encodeURIComponent(id)) : "";
-  var withdrawUrl = site ? (site + "/gerer-demande.html?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id))) : "";
-  var becomeUrl = site ? (site + "/offreur-register.html") : "";
-  var infosUrl = site ? (site + "/infos-tarifs.html") : "";
+  // Liens (URLs propres si redirects Netlify)
+  var viewUrl = site ? (site + "/mur-demandes?open=" + encodeURIComponent(id)) : "";
+  var withdrawUrl = site ? (site + "/gerer-demande?id=" + encodeURIComponent(id) + "&k=" + encodeURIComponent(withdrawKey_(id))) : "";
+  var becomeUrl = site ? (site + "/offreur-register") : "";
 
   var safeService = escapeHtml_(service);
   var safeZone = escapeHtml_(zone);
@@ -829,7 +828,7 @@ if(email){
     + '<div style="max-width:620px;margin:0 auto;background:#fff;border:1px solid #eee;border-radius:14px;padding:18px;">'
     + '<h2 style="margin:0 0 10px;color:#ff3b0a">Demande publiée ✅</h2>'
     + '<p style="margin:0 0 10px">Bonjour <strong>' + safeNom + '</strong>,</p>'
-    + '<p style="margin:0 0 12px">Ta demande est en ligne sur le mur public. Les prestataires la voient <strong>sans tes coordonnées</strong>.</p>'
+    + '<p style="margin:0 0 12px">Merci, ta demande est maintenant <strong>en ligne sur le mur public</strong> (visible <strong>1 mois</strong>).</p><div style="background:#f6f7fb;border:1px solid #e9ecf5;border-radius:12px;padding:12px;margin:12px 0;"><div style="font-weight:800;margin:0 0 6px">Comment ça marche</div><ul style="margin:6px 0 0;padding-left:18px;color:#333"><li>Les prestataires concernés voient ta demande <strong>sans tes coordonnées</strong> sur le mur.</li><li>Seuls les offreurs <strong>abonnés</strong> (ou ayant débloqué l’accès) peuvent voir tes coordonnées et te contacter.</li><li>Tu reçois ensuite des propositions : il ne te reste plus qu’à choisir l’offre qui te convient.</li></ul></div><p style="margin:0 0 12px;color:#333">Tu peux retirer ta demande à tout moment via le bouton <strong>Retirer ma demande</strong> ci‑dessous.</p><p style="margin:0 0 12px;color:#333">Et si toi aussi tu veux développer ton activité (pro) ou arrondir tes fins de mois (particulier), tu peux créer un compte en cliquant sur <strong>Devenir offreur</strong>.</p>'
 
     + '<div style="background:#fff7f2;border:1px solid rgba(255,59,10,.25);border-radius:12px;padding:12px;margin:12px 0;">'
     + '<div style="font-weight:800;margin:0 0 6px">Récapitulatif</div>'
@@ -863,9 +862,7 @@ if(email){
     + btnGhost_(withdrawUrl, "Retirer ma demande")
     + (becomeUrl ? btnGhost_(becomeUrl, "Devenir offreur") : '')
     + '</div>'
-    + (murUrl ? ('<p style="margin:14px 0 0;color:#666">Mur public : <a href="' + murUrl + '">voir la demande sur le mur</a></p>') : '')
-    + (infosUrl ? ('<p style="margin:8px 0 0;color:#666">Infos & tarifs : <a href="' + infosUrl + '">voir les offres</a></p>') : '')
-    + '<hr style="border:none;border-top:1px solid #eee;margin:16px 0">'
+        + '<hr style="border:none;border-top:1px solid #eee;margin:16px 0">'
     + '<p style="color:#777;margin:0;font-size:12px">DevisExpress974 • 1 demande • plusieurs réponses • 100% 974</p>'
     + '</div></div>';
 
