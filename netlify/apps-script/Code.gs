@@ -39,6 +39,20 @@ function withdrawKey_(demandeId){
 
 function verifyWithdrawKey_(demandeId, k){
   if(!demandeId || !k) return false;
+  try{
+    var shD = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
+    var rowD = findDemandeRowIndexById_(shD, demandeId);
+    if(rowD >= 2){
+      var h = sheetHeaders_(shD);
+      var colTok = colIndexAny_(h, ["DemandeurToken","DemandeurToke","Token"]);
+      if(colTok){
+        var stored = String(shD.getRange(rowD, colTok).getValue()||"").trim();
+        if(stored){
+          return stored === String(k).trim();
+        }
+      }
+    }
+  }catch(e){}
   var expect = withdrawKey_(demandeId);
   return String(k).trim() === String(expect).trim();
 }
@@ -95,7 +109,7 @@ var SHEETS = {
 
 var HEADERS = {
   Contacts: ["Date","Role","Sujet","Nom","Email","Tel","Message","Page","UserAgent","Status"],
-  Demandes: ["Date","DemandeID","Service","ServiceAutre","Zone","Commune","Description","Budget","Nom","Tel","Email","Photo1","Photo2","Photo3","Status","OptInContact"],
+  Demandes: ["Date","DemandeID","Service","ServiceAutre","Zone","Commune","Description","Budget","Nom","Tel","Email","Photo1","Photo2","Photo3","Status","OptInContact","DemandeurToken","SelectedOffreurID","SelectedAt","ClosedAt","RatingStatus"],
   Offreurs: ["Date","OffreurID","Nom","Email","Tel","Service","ServiceAutre","Zone","Commune","Description","TypeOffreur","Siren","Entreprise","Pseudo","DisplayMode","ShowNote","PasswordHash","Salt","NoteMoyenne","NombreAvis","Actif"],
   Access:   ["Date","EmailOffreur","OffreurID","DemandeID","Type","ExpireAt"],
   Avis:     ["Date","AvisID","OffreurID","Note","Commentaire","AuteurNom"],
@@ -466,7 +480,23 @@ case "addDemande":
         return json_(withdrawDemande_(body.payload || body));
 
 
-      case "mur":
+      
+
+
+      case "getDemandeOwner":
+      case "getDemandeManage":
+        return json_(getDemandeOwner_(body.payload || body));
+
+      case "selectOffreur":
+      case "chooseOffreur":
+      case "setSelectedOffreur":
+        return json_(selectOffreur_(body.payload || body));
+
+      case "closeDemande":
+      case "cloturerDemande":
+        return json_(closeDemande_(body.payload || body));
+
+case "mur":
       case "listDemandesPublic":
       case "getDemandesPublic":
       case "listDemandes":
@@ -638,6 +668,24 @@ if(isJobDescriptionInconsistent_(service, description)){
   var sh = ensureSheetStrict_(SHEETS.DEMANDES, HEADERS.Demandes);
   var optInVal = isYes_(optInContact) ? "OUI" : "NON";
   sh.appendRow([nowIso_(), id, service, serviceAutre, zone, commune, description, budget, nom, tel, email, photo1, photo2, photo3, "PUBLIÉ", optInVal]);
+
+
+  // Remplit les colonnes avancées si elles existent (ne casse rien si absentes)
+  try{
+    var rowN = sh.getLastRow();
+    var hD = sheetHeaders_(sh);
+    function setD_(names, val){
+      var c = colIndexAny_(hD, names);
+      if(c) sh.getRange(rowN, c).setValue(val);
+    }
+    setD_(["AcceptCGV","AcceptCgv","AcceptCGv"], isYes_(acceptCgv) ? "OUI" : "NON");
+    setD_(["ContactMode"], (tel && email) ? "TEL+EMAIL" : (tel ? "TEL" : "EMAIL"));
+    setD_(["TelOK"], tel ? "OUI" : "NON");
+    setD_(["EmailOK"], email ? "OUI" : "NON");
+    setD_(["DemandeurToken","DemandeurToke","Token"], withdrawKey_(id));
+    setD_(["RatingStatus"], "NOT_RATED");
+  }catch(e){}
+
 
   // Mail demandeur (si email fourni)
   if(email){
@@ -1441,8 +1489,6 @@ function addAvisOffreur_(p){
   var note = Number(p.note||0);
   var commentaire = String(p.commentaire||"").trim();
   var auteurNom = String(p.auteurNom||"").trim();
-
-  if(!offreurId) return { ok:false, error:"OffreurID manquant" };
   if(!note || note < 1 || note > 5) return { ok:false, error:"Note invalide (1 à 5)" };
 
   var avisId = uid_("avi");

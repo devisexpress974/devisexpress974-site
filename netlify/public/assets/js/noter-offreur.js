@@ -1,201 +1,167 @@
-// assets/js/noter-offreur.js (v100) — Page "Donner un avis" (DX)
-// Objectifs :
-// - utiliser le wrapper DX_API (même config que le reste du site)
-// - charger 1 seul offreur (getOffreurProfilePublic) sans récupérer toute la liste
-// - respecter "Afficher ma note" (ShowNote)
 (function(){
-  'use strict';
-
-  const $ = (id) => document.getElementById(id);
-
-  const errBox = $('errBox');
-  const infoBox = $('infoBox');
-
-  const offreurCard = $('offreurCard');
-  const offreurNom = $('offreurNom');
-  const offreurMeta = $('offreurMeta');
-  const offreurRating = $('offreurRating');
-
-  const form = $('avisForm');
-  const noteInput = $('note');
-  const noteTxt = $('noteTxt');
-  const stars = Array.from(document.querySelectorAll('#stars .star'));
-
   function qs(name){
-    try{ return (new URL(window.location.href)).searchParams.get(name) || ''; }
-    catch(e){ return ''; }
+    try{ return (new URL(location.href)).searchParams.get(name) || ""; }catch(e){ return ""; }
   }
 
-  function pickOffreurId(){
-    return (qs('oid') || qs('offreurId') || qs('offreurID') || qs('id') || '').trim();
-  }
-  function pickDemandeId(){
-    return (qs('did') || qs('demandeId') || qs('demandeID') || '').trim();
+  const offreurId = (qs("oid") || qs("id") || "").trim();
+  const demandeId = (qs("did") || qs("demandeId") || "").trim();
+  const k = (qs("k") || qs("key") || "").trim();
+
+  const box = document.getElementById("offreurBox");
+  const errBox = document.getElementById("errBox");
+  const form = document.getElementById("formAvis");
+
+  const stars = Array.from(document.querySelectorAll(".star"));
+  const noteInput = document.getElementById("note");
+  const noteTxt = document.getElementById("noteTxt");
+
+  const auteurNom = document.getElementById("auteurNom");
+  const auteurEmail = document.getElementById("auteurEmail");
+  const commentaire = document.getElementById("commentaire");
+  const btnSend = document.getElementById("btnSend");
+
+  let currentNote = 0;
+
+  function esc(s){
+    return String(s||"")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/\"/g,"&quot;")
+      .replace(/'/g,"&#39;");
   }
 
-  function showBox(el, text){
-    if(!el) return;
-    el.style.display = 'block';
-    el.textContent = String(text || '');
-  }
-  function hideBox(el){
-    if(!el) return;
-    el.style.display = 'none';
-    el.textContent = '';
+  function show(type, text){
+    if(!errBox) return;
+    errBox.style.display = "block";
+    errBox.className = "alert " + (type === "ok" ? "success" : "danger");
+    errBox.textContent = text;
   }
 
-  // -------- Stars --------
-  let selected = 0;
-  function setStars(v){
-    selected = Number(v||0);
-    if(noteInput) noteInput.value = String(selected);
-    stars.forEach(btn => {
-      const b = Number(btn.dataset.v || 0);
-      btn.classList.toggle('on', b <= selected);
+  function authOk(){
+    return !!(demandeId && k);
+  }
+
+  function setNote(n){
+    currentNote = n;
+    if(noteInput) noteInput.value = String(n);
+    if(noteTxt) noteTxt.textContent = n ? (n + "/5") : "";
+    stars.forEach(st => {
+      const v = Number(st.getAttribute("data-val")||0);
+      st.classList.toggle("on", v <= n);
+      st.setAttribute("aria-pressed", v <= n ? "true" : "false");
     });
-    if(noteTxt) noteTxt.textContent = selected ? ('Note : ' + selected + '/5') : '(choisis une note)';
   }
-  stars.forEach(btn => {
-    btn.addEventListener('click', () => setStars(Number(btn.dataset.v || 0)));
-  });
 
-  // Petits styles (au cas où styles.css n’a pas les classes)
-  const style = document.createElement('style');
-  style.textContent = `
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    @media(max-width:720px){.grid2{grid-template-columns:1fr;}}
-    .stars{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-    .star{border:1px solid #ddd;background:#fff;border-radius:10px;padding:6px 10px;font-size:20px;line-height:1;cursor:pointer;}
-    .star.on{border-color:#ffb300;}
-    .notice{border:1px solid #e6e6e6;background:#f8f8f8;border-radius:12px;padding:10px 12px;}
-    .alert{border:1px solid #ffb3b3;background:#fff5f5;border-radius:12px;padding:10px 12px;}
-  `;
-  document.head.appendChild(style);
+  function lockForm(lock){
+    if(btnSend) btnSend.disabled = lock;
+    if(auteurNom) auteurNom.disabled = lock;
+    if(auteurEmail) auteurEmail.disabled = lock;
+    if(commentaire) commentaire.disabled = lock;
+    stars.forEach(st => st.classList.toggle("disabled", lock));
+  }
+
+  function wireStars(){
+    stars.forEach(st => {
+      st.addEventListener("click", ()=>{
+        if(st.classList.contains("disabled")) return;
+        const v = Number(st.getAttribute("data-val")||0);
+        if(!v) return;
+        setNote(v);
+      });
+    });
+  }
 
   async function loadOffreur(){
-    hideBox(errBox);
-    hideBox(infoBox);
-
-    const offreurId = pickOffreurId();
     if(!offreurId){
-      showBox(errBox, 'OffreurID manquant (lien invalide).');
-      if(offreurCard) offreurCard.style.display = 'none';
-      return null;
+      box.textContent = "ID prestataire manquant.";
+      lockForm(true);
+      return;
     }
 
-    if(!window.DX_API || typeof window.DX_API.getAny !== 'function'){
-      showBox(errBox, 'API non chargée (DX_API). Recharge la page.');
-      return null;
-    }
-
-    // 1) Charge profil public (sans coordonnées)
-    let resp = null;
     try{
-      resp = await window.DX_API.getAny([
-        'getOffreurProfilePublic',
-        'getOffreurProfile',
-        'getOffreursPublic'
+      const res = await window.DX_API.getAny([
+        "getOffreurPublic",
+        "getOffreurProfile",
+        "getOffreur"
       ], { id: offreurId });
-    }catch(e){
-      resp = null;
-    }
 
-    // 2) Fallback : liste et filtre (compat si action indisponible)
-    let data = null;
-    if(resp && resp.ok){
-      data = resp.data || resp.offreur || resp.user || null;
-    }
-    if(!data){
-      try{
-        const r2 = await window.DX_API.getAny(['listOffreursPublic','listOffreurs'], {});
-        if(r2 && r2.ok && Array.isArray(r2.data)){
-          data = r2.data.find(x => String(x.id||x.offreurId||x.OffreurID||'') === String(offreurId)) || null;
-        }
-      }catch(e){ data = null; }
-    }
-
-    if(!data){
-      showBox(errBox, 'Prestataire introuvable.');
-      if(offreurCard) offreurCard.style.display = 'none';
-      return null;
-    }
-
-    // Normalisation
-    const publicName = data.publicName || data.nom || data.Nom || 'Prestataire';
-    const service = data.service || data.Service || '';
-    const zone = data.zone || data.Zone || '';
-    const commune = data.commune || data.Commune || '';
-    const showNoteRaw = (data.showNote !== undefined) ? data.showNote : (data.ShowNote !== undefined ? data.ShowNote : 'OUI');
-    const showNote = String(showNoteRaw || 'OUI').trim().toUpperCase() !== 'NON';
-    const avgRaw = (data.noteMoyenne !== undefined) ? data.noteMoyenne : (data.NoteMoyenne !== undefined ? data.NoteMoyenne : '');
-    const avg = (avgRaw === '' || avgRaw === null || avgRaw === undefined) ? null : Number(avgRaw);
-    const cntRaw = (data.nombreAvis !== undefined) ? data.nombreAvis : (data.NombreAvis !== undefined ? data.NombreAvis : 0);
-    const cnt = Number(cntRaw || 0) || 0;
-
-    if(offreurNom) offreurNom.textContent = publicName;
-    if(offreurMeta) offreurMeta.textContent = [service, zone, commune].filter(Boolean).join(' • ');
-
-    if(offreurRating){
-      if(!showNote){
-        offreurRating.textContent = 'Note masquée par le prestataire.';
-      } else if(avg){
-        offreurRating.textContent = 'Note moyenne : ' + avg + '/5 (' + cnt + ' avis)';
-      } else {
-        offreurRating.textContent = 'Pas encore d’avis.';
+      const o = (res && res.ok) ? (res.data || res.offreur || res.item || null) : null;
+      if(!o){
+        box.textContent = (res && res.error) ? res.error : "Prestataire introuvable.";
+        return;
       }
+
+      const name = esc(o.Pseudo||o.Nom||"Prestataire");
+      const meta = [o.Service, o.Zone, o.Commune].filter(Boolean).map(esc).join(" • ");
+      const noteM = (o.NoteMoyenne!=null && o.NoteMoyenne!=="") ? esc(o.NoteMoyenne) : "—";
+      const nb = (o.NombreAvis!=null && o.NombreAvis!=="") ? esc(o.NombreAvis) : "0";
+
+      box.innerHTML =
+        "<div style=\"font-weight:1000;font-size:20px;\">" + name + "</div>" +
+        (meta ? "<div style=\"color:#666;margin-top:2px;\">" + meta + "</div>" : "") +
+        "<div style=\"margin-top:8px;color:#333;\">⭐ " + noteM + " / 5 (" + nb + ")</div>";
+
+    }catch(e){
+      box.textContent = "Erreur réseau.";
     }
-
-    if(offreurCard) offreurCard.style.display = 'block';
-
-    return offreurId;
   }
 
-  async function submitAvis(ev){
-    ev.preventDefault();
-    hideBox(errBox);
-    hideBox(infoBox);
+  async function submit(e){
+    e.preventDefault();
 
-    const offreurId = pickOffreurId();
-    const demandeId = pickDemandeId();
-    const auteurNom = String(($('auteurNom') && $('auteurNom').value) || '').trim();
-    const auteurEmail = String(($('auteurEmail') && $('auteurEmail').value) || '').trim();
-    const note = Number((noteInput && noteInput.value) || 0);
-    const commentaire = String(($('commentaire') && $('commentaire').value) || '').trim();
+    if(!authOk()){
+      return show("err","Pour noter, ouvre le lien depuis ton email (gérer ma demande). Sans ce lien, la note est refusée.");
+    }
 
-    if(!offreurId){ showBox(errBox, 'OffreurID manquant.'); return; }
-    if(!auteurNom){ showBox(errBox, 'Ton nom est obligatoire.'); return; }
-    if(!(note >= 1 && note <= 5)){ showBox(errBox, 'Choisis une note entre 1 et 5.'); return; }
+    const nom = String((auteurNom && auteurNom.value) || "").trim();
+    const email = String((auteurEmail && auteurEmail.value) || "").trim();
+    const com = String((commentaire && commentaire.value) || "").trim();
 
-    const btn = $('btnSend');
-    if(btn){ btn.disabled = true; btn.textContent = 'Envoi…'; }
+    if(!currentNote) return show("err","Choisis une note (1 à 5)." );
+    if(!nom) return show("err","Ton nom est obligatoire." );
+    if(com.length < 5) return show("err","Écris un avis (au moins 5 caractères)." );
+
+    lockForm(true);
 
     try{
-      const resp = await window.DX_API.postAny(['addAvisOffreur','addAvis'], {
-        offreurId,
+      const res = await window.DX_API.postAny([
+        "addAvisFromDemande",
+        "addAvisDemandeur",
+        "addAvisOffreur"
+      ], {
         demandeId,
-        note,
-        commentaire,
-        auteurNom,
-        auteurEmail
+        k,
+        offreurId,
+        note: currentNote,
+        commentaire: com,
+        auteurNom: nom,
+        auteurEmail: email
       });
 
-      if(resp && resp.ok){
-        showBox(infoBox, 'Merci ! Ton avis a été enregistré.');
-        if(form) form.reset();
-        setStars(0);
-        await loadOffreur();
-      } else {
-        showBox(errBox, (resp && (resp.error || resp.message)) ? (resp.error || resp.message) : 'Erreur inconnue.');
+      if(res && res.ok){
+        show("ok","✅ Merci ! Ton avis a été enregistré et verrouillé.");
+      }else{
+        show("err", (res && res.error) ? res.error : "Impossible d'envoyer l'avis.");
+        lockForm(false);
       }
-    }catch(e){
-      showBox(errBox, 'Erreur réseau : ' + String((e && e.message) || e));
-    }finally{
-      if(btn){ btn.disabled = false; btn.textContent = 'Envoyer l’avis'; }
+
+    }catch(err){
+      show("err","Erreur réseau.");
+      lockForm(false);
     }
   }
 
-  // init
-  setStars(0);
-  loadOffreur();
-  if(form) form.addEventListener('submit', submitAvis);
+  document.addEventListener("DOMContentLoaded", async ()=>{
+    wireStars();
+    setNote(0);
+    await loadOffreur();
+
+    if(!authOk()){
+      show("err","Pour noter, ouvre le lien reçu par email (gérer ma demande). Sans ce lien, la note est refusée.");
+      lockForm(true);
+    }
+
+    if(form) form.addEventListener("submit", submit);
+  });
 })();

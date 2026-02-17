@@ -461,3 +461,9 @@ main *{ max-width: 100%; }
   table{ display:block; width:100%; overflow-x:auto; -webkit-overflow-scrolling: touch; }
 }
 
+
+/* Rating stars */
+.stars{display:flex;gap:6px;align-items:center;}
+.star{font-size:22px;line-height:1;border:0;background:transparent;cursor:pointer;padding:4px 6px;}
+.star.on{color:var(--accent2);filter:drop-shadow(0 1px 0 rgba(0,0,0,.1));}
+.star.disabled{opacity:.5;cursor:not-allowed;}

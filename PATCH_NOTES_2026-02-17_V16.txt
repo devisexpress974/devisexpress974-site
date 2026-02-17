@@ -1,0 +1,40 @@
+DevisExpress974 — Patch V16 (Notation "intelligente" demandeur-only)
+
+Objectif
+- Empêcher totalement les avis publics : seul le DEMANDEUR ayant le lien email (id + clé k) peut noter.
+- Verrouiller l’avis : 1 avis maximum par demande (plus de modification possible).
+- Permettre la notation même si la demande a expiré (1 mois) ou a été retirée (statut SUPPRIMÉ) : la clé email reste valide.
+
+Ce qui change (Front)
+- gerer-demande.html : ajout d’un bloc "Noter un prestataire".
+  - Si l’URL contient id + k : le bloc s’affiche.
+  - Liste automatique des prestataires détectés (ceux qui ont déverrouillé la demande) + bouton "Noter".
+  - Possibilité de saisir manuellement un OffreurID (si aucun prestataire n’est détecté).
+- noter-offreur.html / noter-offreur.js :
+  - Refuse toute note si did (demandeId) + k sont absents.
+  - Envoi via nouvelle action GAS (addAvisFromDemande) + verrouillage.
+- offreur-profil.js :
+  - Le bouton "Noter ce prestataire" n’apparait que si did + k sont présents dans l’URL.
+  - Sinon affichage "Avis via lien email".
+
+Ce qui change (Google Apps Script)
+- Ajout des actions :
+  - listOffreursForDemande : renvoie la liste des offreurs liés à une demande (depuis l’onglet AccesDemandes).
+  - addAvisFromDemande : création d’avis sécurisée par id+k + verrouillage (1 avis par demande).
+- Sécurisation de addAvisOffreur : désormais refuse si pas de demandeId+k (empêche le spam via requêtes manuelles).
+- Feuille Avis : headers étendus pour supporter DemandeID, DemandeurToken, Status, CreatedAt, LockedAt, SelectedOffreurID.
+- Recalcul note moyenne : ignore Status=PENDING si la colonne existe.
+
+Compatibilité
+- N’exige PAS de nouvelle page : fonctionne avec le lien "gérer ma demande" déjà envoyé par email.
+- Fonctionne même si la demande est SUPPRIMÉE/expirée tant que la ligne existe (elle n’est pas supprimée, juste masquée).
+
+Fichiers principaux modifiés
+- public/gerer-demande.html
+- public/assets/js/dx-gerer-demande.js
+- public/offreur-profil.js
+- public/assets/js/noter-offreur.js
+- public/styles.css
+- apps-script/Code.gs
+
+Même modifications répliquées dans netlify/public/.

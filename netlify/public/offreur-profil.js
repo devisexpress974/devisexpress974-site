@@ -1,140 +1,97 @@
-// offreur-profil.js (profil PUBLIC) — Patch 49
-// URL: offreur-profil.html?id=OFFREUR_ID
-// Objectifs :
-// - charger via DX_API (action=...)
-// - afficher la note uniquement si autorisée (ShowNote/OUI)
-// - proposer un bouton "Noter ce prestataire"
-
-(() => {
-  "use strict";
-
-  const $ = (id) => document.getElementById(id);
-
-  function esc(s){
-    return String(s || "").replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-    }[m]));
+(function(){
+  function qs(name){
+    try{ return (new URL(location.href)).searchParams.get(name) || ""; }catch(e){ return ""; }
   }
 
-  function stars(v){
-    const n = Math.max(0, Math.min(5, Math.round(Number(v) || 0)));
-    return "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5-n);
+  function esc(s){
+    return String(s||"")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/\"/g,"&quot;")
+      .replace(/'/g,"&#39;");
   }
 
   function setBox(html, isError){
-    const box = $("box");
+    const box = document.getElementById('profileBox');
     if(!box) return;
-    box.className = isError ? "notice" : "notice muted";
     box.innerHTML = html;
+    box.classList.toggle('error', !!isError);
   }
 
-  function normBoolOUI(v, def){
-    const s = String(v ?? "").toUpperCase().trim();
-    if(s === "OUI" || s === "YES" || s === "TRUE" || s === "1") return "OUI";
-    if(s === "NON" || s === "NO" || s === "FALSE" || s === "0") return "NON";
-    return def ? "OUI" : "NON";
+  function showRating(note, nb){
+    const n = Number(note||0);
+    const c = Number(nb||0);
+    if(!n || !c) return '';
+    const stars = '★★★★★'.slice(0, Math.round(n)) + '☆☆☆☆☆'.slice(0, 5 - Math.round(n));
+    return `<span class="badge">${stars} • ${n.toFixed(1)}/5 (${c})</span>`;
   }
 
-  async function apiGetAny(actions, params){
-    try{
-      if(window.DX_API && typeof window.DX_API.getAny === "function"){
-        return await window.DX_API.getAny(actions, params);
-      }
-    }catch(e){}
+  function buildProfile(p, id, demandeId, k){
+    const name = esc(p.Pseudo || p.Nom || 'Prestataire');
+    const service = esc(p.Service || '');
+    const zone = esc(p.Zone || '');
 
-    // Fallback brut (devrait rarement servir)
-    const endpoint = (window.DX_API && window.DX_API.ENDPOINT) ? window.DX_API.ENDPOINT : "/.netlify/functions/gas";
-    let last = null;
+    const rating = showRating(p.NoteMoyenne, p.NombreAvis);
 
-    for(const a of actions){
-      try{
-        const url = new URL(endpoint, window.location.origin);
-        url.searchParams.set("action", a);
-        Object.entries(params || {}).forEach(([k,v]) => {
-          if(v === undefined || v === null || v === "") return;
-          url.searchParams.set(k, String(v));
-        });
-        const r = await fetch(url.toString(), { method:"GET" });
-        const t = await r.text();
-        let js = null;
-        try{ js = JSON.parse(t); }catch(_){ js = { ok:false, error:"Réponse non JSON", raw: String(t||"").slice(0,200)}; }
-        last = js;
-        if(js && js.ok) return js;
-      }catch(e2){
-        last = { ok:false, error:String(e2||"Erreur") };
-      }
-    }
-    return last || { ok:false, error:"Aucune action n’a répondu OK" };
-  }
+    const backHref = document.referrer ? document.referrer : './offreurs.html';
 
-  function pick(obj, keys){
-    for(const k of keys){
-      if(obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== "") return obj[k];
-    }
-    return "";
-  }
-
-  function buildProfile(p, id){
-    const publicName = pick(p, ["publicName","PublicName","nomPublic","NomPublic","nom","Nom"]) || "Prestataire";
-    const service = pick(p, ["service","Service"]) || "—";
-    const serviceAutre = pick(p, ["serviceAutre","ServiceAutre"]) || "";
-    const zone = pick(p, ["zone","Zone"]) || "";
-    const commune = pick(p, ["commune","Commune"]) || "";
-    const description = pick(p, ["description","Description"]) || "";
-
-    const showNote = normBoolOUI(pick(p, ["showNote","ShowNote","afficherNote","AfficherNote"]), true);
-    const note = pick(p, ["noteMoyenne","NoteMoyenne","note","Note"]);
-    const nb = pick(p, ["nombreAvis","NombreAvis","nbAvis","NbAvis"]);
-    let badge = "";
-    if(showNote !== "OUI"){
-      badge = '<span class="badge">Note masquée</span>';
-    } else if(note && Number(nb||0) > 0){
-      badge = '<span class="badge">' + esc(stars(note)) + ' • ' + esc(String(note)) + '/5 (' + esc(String(nb)) + ')</span>';
-    } else {
-      badge = '<span class="badge">Pas d’avis</span>';
-    }
-
-    const serviceLabel = (String(service).toLowerCase() === "autre" && serviceAutre) ? ("Autre — " + serviceAutre) : service;
+    const rateBtn = (demandeId && k)
+      ? `<a class="btn" href="./noter-offreur.html?oid=${encodeURIComponent(id)}&did=${encodeURIComponent(demandeId)}&k=${encodeURIComponent(k)}">Noter ce prestataire</a>`
+      : `<span class="badge" title="Pour noter, ouvre le lien reçu par email (gérer ma demande).">Avis via lien email</span>`;
 
     return `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div style="font-weight:950;font-size:26px;line-height:1.1;">${esc(publicName)}</div>
-          <div style="margin-top:6px;color:#666;font-weight:800;">${esc(serviceLabel)}${commune ? " • " + esc(commune) : ""}${zone ? " • " + esc(zone) : ""}</div>
+      <div class="card">
+        <h1>Profil offreur</h1>
+        <p class="muted">Profil public (sans coordonnées). Pour laisser un avis, utilise ton lien email (demandeur).</p>
+
+        <div class="row" style="justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:22px;font-weight:900;">${name}</div>
+            <div class="muted" style="margin-top:2px;">${service}${service && zone ? ' • ' : ''}${zone}</div>
+          </div>
+          <div>${rating}</div>
         </div>
-        <div>${badge}</div>
-      </div>
 
-      ${description ? `<div style="margin-top:12px;font-weight:800;white-space:pre-wrap;">${esc(description)}</div>` : `<div style="margin-top:12px;color:#666;font-weight:800;">Aucune description.</div>`}
+        <div class="muted" style="margin-top:10px;word-break:break-all;">${esc(p.OffreurID || id || '')}</div>
 
-      <div class="actions">
-        <a class="btn" href="./offreurs.html">Retour</a>
-        <a class="btn" href="./noter-offreur.html?id=${encodeURIComponent(id)}">Noter ce prestataire</a>
-        <a class="btn btnPrimary" href="./demande.html?service=${encodeURIComponent(service)}${(String(service).toLowerCase()==="autre"&&serviceAutre)?("&serviceAutre="+encodeURIComponent(serviceAutre)):""}">Demander un devis</a>
+        <div class="actions">
+          <a class="btn" href="${backHref}">Retour</a>
+          ${rateBtn}
+          <a class="btn primary" href="./publier-demande.html">Demander un devis</a>
+        </div>
       </div>
     `;
   }
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const params = new URLSearchParams(window.location.search);
-    const id = (params.get("id") || "").trim();
+  async function main(){
+    const params = new URL(location.href).searchParams;
+    const id = (params.get('id') || '').trim();
+    const demandeId = (params.get('did') || params.get('demandeId') || '').trim();
+    const k = (params.get('k') || params.get('key') || '').trim();
 
     if(!id){
-      setBox('Profil introuvable : identifiant manquant.<br><br><a class="btn" href="./offreurs.html">Retour</a>', true);
+      setBox('<p>ID offreur manquant.</p>', true);
       return;
     }
 
-    setBox("Chargement…", false);
+    try{
+      const res = await window.DX_API.getAny([
+        'getOffreurPublic',
+        'getOffreurProfile',
+        'getOffreur'
+      ], { id });
 
-    const resp = await apiGetAny(["getOffreurProfilePublic","getOffreurProfile"], { id });
-
-    if(!resp || resp.ok !== true){
-      const err = resp && resp.error ? esc(resp.error) : "Erreur inconnue";
-      setBox('Impossible de charger ce profil.<br><span class="muted">' + err + '</span><br><br><a class="btn" href="./offreurs.html">Retour</a>', true);
-      return;
+      if(res && res.ok){
+        const p = res.data || res.offreur || res.item || res.profile || {};
+        setBox(buildProfile(p, id, demandeId, k), false);
+      }else{
+        setBox(`<p>${esc((res && res.error) ? res.error : 'Offreur introuvable.')}</p>`, true);
+      }
+    }catch(e){
+      setBox('<p>Erreur réseau.</p>', true);
     }
+  }
 
-    const p = resp.data || resp.offreur || resp.user || resp;
-    setBox(buildProfile(p, id), false);
-  });
+  document.addEventListener('DOMContentLoaded', main);
 })();

@@ -28,6 +28,22 @@
             <button class="dxBtn dxBtnPrimary" id="withdrawBtn" type="button">Supprimer ma demande</button>
           </div>
         </div>
+        
+        <div class="card pad" id="ratingCard" style="display:none;">
+          <h2 style="margin:0 0 8px;">Choisir & noter un prestataire</h2>
+          <p style="color:#666;margin:0 0 10px;">Sélectionne ton prestataire, puis laisse un avis (1 avis par demande). Seul le demandeur (lien email) peut le faire.</p>
+          <div id="selectedBox" style="margin:0 0 12px;"></div>
+          <div id="offreursList" style="color:#333;">Chargement…</div>
+
+          <div id="manualRate" style="margin-top:12px;display:none;">
+            <label for="manualOffreurId" style="display:block;font-weight:800;margin-bottom:6px;">ID du prestataire (optionnel)</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <input class="dxInput" id="manualOffreurId" type="text" placeholder="off_xxxxx" />
+              <button class="dxBtn dxBtnPrimary" id="manualRateBtn" type="button">Choisir</button>
+            </div>
+            <p style="color:#666;margin:8px 0 0;">Si tu ne vois personne ici, c'est normal : la liste se remplit quand des prestataires débloquent la demande. Tu peux quand même noter en entrant un ID.</p>
+          </div>
+        </div>
       </div>
 
       <p style="color:#666;margin-top:12px;">Astuce : après prestation, tu peux noter un offreur depuis le lien reçu par email ou depuis sa fiche.</p>
